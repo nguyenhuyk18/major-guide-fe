@@ -21,7 +21,6 @@ Dự án này là một **ứng dụng web hỗ trợ học sinh/sinh viên** tr
 
 - 📋 Thu thập thông tin người dùng (năng lực, sở thích, định hướng nghề nghiệp)
 - 🏫 Gợi ý trường học phù hợp
-- 📚 Đề xuất đề tài khóa luận tốt nghiệp
 - 📊 Hiển thị kết quả tư vấn rõ ràng
 - 💡 Giao diện thân thiện với học sinh, sinh viên
 
