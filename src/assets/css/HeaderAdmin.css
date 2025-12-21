@@ -1,6 +1,6 @@
 .admin-header {
     background-color: #111827;
-    height: 80px;
+    height: var(--header-height-admin);
     width: var(--header-width-admin);
     position: fixed;
     top: 0;

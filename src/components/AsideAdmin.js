@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom';
 import '../assets/css/AsideAdmin.css'
 
 export default function AsideAdmin() {
@@ -16,13 +17,13 @@ export default function AsideAdmin() {
                 <hr className="admin-divider" />
                 <ul className="nav nav-pills flex-column mb-auto">
                     <li className="nav-item mb-1">
-                        <a href="/" className="nav-link admin-nav-link">
+                        <NavLink to="/" className="nav-link admin-nav-link">
                             <i className="bi bi-grid-fill me-2" />
                             Tổng quan
-                        </a>
+                        </NavLink>
                     </li>
                     <li className="nav-item mb-1">
-                        <a href="/" className="nav-link admin-nav-link active">
+                        <a href="/" className="nav-link admin-nav-link">
                             <i className="bi bi-calendar-event me-2" />
                             Quản lý lịch đăng ký
                         </a>

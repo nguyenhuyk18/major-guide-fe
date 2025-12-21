@@ -3,22 +3,22 @@
 /* Define fonts (font chữ) */
 @font-face {
   font-family: be-vietnam-regular;
-  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Regular.ttf);
+  src: url(../vendor/Lexend/static/Lexend-Regular.ttf);
 }
 
 @font-face {
   font-family: be-vietnam-bold;
-  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Bold.ttf);
+  src: url(../vendor/Lexend/static/Lexend-Bold.ttf);
 }
 
-@font-face {
+/* @font-face {
   font-family: be-vietnam-italic;
-  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Italic.ttf);
-}
+  src: url(../vendor/Lexend/);
+} */
 
 @font-face {
   font-family: be-vietnam-light;
-  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Light.ttf);
+  src: url(../vendor/Lexend/static/Lexend-Light.ttf);
 }
 
 :root {
@@ -26,7 +26,7 @@
     --admin-border: #374151;
     --admin-text-sec: #9ca3af;
     --admin-active: #1e40af;
-    --header-height: 80px;
+    --header-height-admin: 71px;
     --sidebar-width-admin: 17%;
     --header-width-admin:83%
 
@@ -57,20 +57,9 @@
     min-height: 100vh;
 }
 
-/* HEADER - Fixed để luôn ở trên cùng */
-/* .admin-main-content > header {
-    position: absolute;
-    top: 0;
-    left: var(--sidebar-width);
-    right: 0;
-    height: var(--header-height);
-    z-index: 1000;
-    transition: left 0.3s ease;
-} */
-
 /* MAIN CONTENT - Đẩy xuống dưới Header */
 .admin-main-content > main {
-    margin-top: var(--header-height);
+    margin-top: var(--header-height-admin);
     flex-grow: 1;
     padding: 1.5rem;
 }
