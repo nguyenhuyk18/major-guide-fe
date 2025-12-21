@@ -1,0 +1,79 @@
+.admin-header {
+    background-color: #111827;
+    height: 80px;
+    width: var(--header-width-admin);
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 999;
+    transition: width 0.3s;
+}
+
+.admin-header .setting-account {
+    width: 20%;
+}
+
+/* Dropdown admin */
+/* Dropdown admin */
+.admin-dropdown {
+    background-color: #1f2937;
+    border: 1px solid rgba(255,255,255,0.1);
+    min-width: 200px;
+    padding: 0.5rem 0;
+    border-radius: 8px;
+}
+
+.admin-dropdown .dropdown-item {
+    color: #353535; /* Màu chữ sáng hơn */
+    font-size: 0.875rem;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.admin-dropdown .dropdown-item:hover {
+    background-color: #374151;
+    color: #ffffff; /* Chữ trắng khi hover */
+}
+
+.admin-dropdown .dropdown-item:active {
+    background-color: #4b5563;
+    color: #ffffff;
+}
+
+/* Icon trong dropdown */
+.admin-dropdown .dropdown-item i {
+    color: #9ca3af;
+    width: 18px;
+    transition: color 0.2s ease;
+}
+
+.admin-dropdown .dropdown-item:hover i {
+    color: #ffffff;
+}
+
+/* Divider */
+.admin-dropdown .dropdown-divider {
+    border-color: rgba(255,255,255,0.1);
+    margin: 0.5rem 0;
+}
+
+/* Item Đăng xuất (text-danger) */
+.admin-dropdown .dropdown-item.text-danger {
+    color: #ef4444 !important; /* Màu đỏ rõ ràng */
+}
+
+.admin-dropdown .dropdown-item.text-danger:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #f87171 !important; /* Đỏ sáng hơn khi hover */
+}
+
+.admin-dropdown .dropdown-item.text-danger:hover i {
+    color: #f87171;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .admin-header {
+        width: 100%;
+    }
+}

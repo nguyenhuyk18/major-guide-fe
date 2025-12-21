@@ -1,0 +1,196 @@
+
+
+/* ===== ADMIN SIDEBAR ===== */
+
+/* Container chính của Sidebar */
+.admin-sidebar {
+    width: var(--sidebar-width-admin);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--admin-bg-surface);
+    border-right: 1px solid var(--admin-border);
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Scrollbar cho Sidebar */
+.admin-sidebar::-webkit-scrollbar {
+    width: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: var(--admin-border);
+    border-radius: 2px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--admin-text-sec);
+}
+
+/* Logo/Brand Section */
+.admin-sidebar .brand-section {
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+/* Divider */
+.admin-divider {
+    border-color: var(--admin-border);
+    margin: 0.75rem 0;
+    opacity: 1;
+}
+
+/* Navigation Links */
+.admin-nav-link {
+    color: var(--admin-text-sec);
+    font-size: 0.8125rem; /* Giảm từ 0.875rem xuống 0.8125rem (13px) */
+    font-weight: 500;
+    padding: 0.5rem 0.6rem; /* Giảm padding */
+    margin: 0.15rem 0.4rem; /* Giảm margin */
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Giảm gap */
+    text-decoration: none;
+    position: relative;
+}
+
+/* Icon trong nav link */
+.admin-nav-link i,
+.admin-nav-link svg {
+    width: 16px; /* Giảm từ 18px xuống 16px */
+    font-size: 0.9rem; /* Giảm size icon */
+    transition: transform 0.2s ease;
+    flex-shrink: 0; /* Không cho icon bị co lại */
+}
+
+/* Hover Effect */
+.admin-nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+}
+
+.admin-nav-link:hover i,
+.admin-nav-link:hover svg {
+    transform: scale(1.05);
+}
+
+/* Active State */
+.admin-nav-link.active {
+    background-color: var(--admin-active) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px -1px rgba(30, 64, 175, 0.25);
+    font-weight: 600;
+}
+
+.admin-nav-link.active i,
+.admin-nav-link.active svg {
+    transform: scale(1.03);
+}
+
+/* Active Indicator (thanh dọc bên trái) */
+.admin-nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 50%;
+    background-color: #3b82f6;
+    border-radius: 0 2px 2px 0;
+}
+
+/* Navigation Group */
+.admin-nav-group {
+    padding: 0.3rem 0;
+}
+
+/* Navigation Group Title */
+.admin-nav-group-title {
+    color: var(--admin-text-sec);
+    font-size: 0.65rem; /* Giảm size */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 0.3rem 0.75rem;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+}
+
+/* Badge/Count trong menu */
+.admin-nav-badge {
+    margin-left: auto;
+    background-color: var(--admin-active);
+    color: white;
+    font-size: 0.6rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 6px;
+    font-weight: 600;
+    flex-shrink: 0; /* Không cho badge bị co lại */
+}
+
+/* Text trong nav link - thêm ellipsis nếu quá dài */
+.admin-nav-link span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive cho Sidebar */
+@media (max-width: 992px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Class mở menu trên mobile */
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    /* Overlay khi sidebar mở trên mobile */
+    .admin-sidebar.show::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: var(--sidebar-width);
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+}
+
+/* Animation khi load trang */
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.admin-nav-link {
+    animation: slideInFromLeft 0.25s ease-out backwards;
+}
+
+.admin-nav-link:nth-child(1) { animation-delay: 0.03s; }
+.admin-nav-link:nth-child(2) { animation-delay: 0.06s; }
+.admin-nav-link:nth-child(3) { animation-delay: 0.09s; }
+.admin-nav-link:nth-child(4) { animation-delay: 0.12s; }
+.admin-nav-link:nth-child(5) { animation-delay: 0.15s; }
+.admin-nav-link:nth-child(6) { animation-delay: 0.18s; }

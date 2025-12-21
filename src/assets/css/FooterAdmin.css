@@ -1,0 +1,26 @@
+/* --- Footer Styling --- */
+.admin-footer {
+    background-color: #1f2937;  /* Màu nền trùng với Sidebar/Header */
+    border-top: 1px solid #374151; /* Viền trên nhẹ */
+    padding: 1.25rem 1.5rem;    /* Khoảng cách đệm trên dưới trái phải */
+    margin-top: auto;           /* Đẩy footer xuống đáy (kết hợp với layout flex) */
+    width: 100%;
+    font-size: 0.875rem;        /* Cỡ chữ vừa phải */
+}
+
+/* Style cho các đường link trong footer */
+.footer-link {
+    color: #9ca3af;             /* Màu xám nhạt (text-secondary) */
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.footer-link:hover {
+    color: #3b82f6;             /* Hover đổi màu xanh (Accent color) */
+}
+
+/* Class tiện ích chỉnh cỡ chữ nhỏ hơn chút nếu cần */
+.fs-7 {
+    font-size: 0.85rem;
+}

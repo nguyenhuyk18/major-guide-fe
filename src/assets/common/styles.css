@@ -1,0 +1,93 @@
+
+
+/* Define fonts (font chữ) */
+@font-face {
+  font-family: be-vietnam-regular;
+  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Regular.ttf);
+}
+
+@font-face {
+  font-family: be-vietnam-bold;
+  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Bold.ttf);
+}
+
+@font-face {
+  font-family: be-vietnam-italic;
+  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Italic.ttf);
+}
+
+@font-face {
+  font-family: be-vietnam-light;
+  src: url(../vendor/Be_Vietnam_Pro/BeVietnamPro-Light.ttf);
+}
+
+:root {
+    --admin-bg-surface: #1f2937;
+    --admin-border: #374151;
+    --admin-text-sec: #9ca3af;
+    --admin-active: #1e40af;
+    --header-height: 80px;
+    --sidebar-width-admin: 17%;
+    --header-width-admin:83%
+
+}
+
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+        font-family:  'be-vietnam-regular';
+}
+
+
+/* LAYOUT TỔNG THỂ */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* WRAPPER BÊN PHẢI (Header + Content + Footer) */
+.admin-main-content {
+    margin-left: var(--sidebar-width-admin);
+    width: calc(100% - var(--sidebar-width));
+    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* HEADER - Fixed để luôn ở trên cùng */
+/* .admin-main-content > header {
+    position: absolute;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--header-height);
+    z-index: 1000;
+    transition: left 0.3s ease;
+} */
+
+/* MAIN CONTENT - Đẩy xuống dưới Header */
+.admin-main-content > main {
+    margin-top: var(--header-height);
+    flex-grow: 1;
+    padding: 1.5rem;
+}
+
+/* FOOTER - Tự động nằm dưới cùng */
+.admin-main-content > footer {
+    margin-top: auto;
+}
+
+/* RESPONSIVE - Mobile */
+@media (max-width: 992px) {
+    .admin-main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .admin-main-content > header {
+        left: 0;
+    }
+}
