@@ -61,7 +61,7 @@
 .admin-main-content > main {
     margin-top: var(--header-height-admin);
     flex-grow: 1;
-    padding: 1.5rem;
+    /* padding: 1.5rem; */
 }
 
 /* FOOTER - Tự động nằm dưới cùng */

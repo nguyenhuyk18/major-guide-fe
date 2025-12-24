@@ -2,11 +2,15 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '../assets/css/HeaderAdmin.css'
 import { faBell } from '@fortawesome/free-regular-svg-icons';
+import { Helmet } from 'react-helmet';
 
 
 export default function HeaderAdmin() {
     return (
         <>
+            <Helmet>
+                <title>TRANG QUẢN TRỊ VIÊN</title>
+            </Helmet>
             <header className="admin-header px-4 py-3">
                 <div className="d-flex align-items-center ms-auto gap-4 setting-account">
 

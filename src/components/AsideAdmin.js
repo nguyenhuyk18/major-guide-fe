@@ -1,7 +1,10 @@
-import { NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import '../assets/css/AsideAdmin.css'
 
 export default function AsideAdmin() {
+    const location = useLocation();
+
+
     return (
         <>
             <aside className="admin-sidebar d-flex flex-column flex-shrink-0 p-3 text-white">
@@ -17,16 +20,16 @@ export default function AsideAdmin() {
                 <hr className="admin-divider" />
                 <ul className="nav nav-pills flex-column mb-auto">
                     <li className="nav-item mb-1">
-                        <NavLink to="/" className="nav-link admin-nav-link">
+                        <Link to="/admin" className={`${location.pathname.match(/^\/admin$/) ? 'active' : ''}  nav-link admin-nav-link`}>
                             <i className="bi bi-grid-fill me-2" />
                             Tổng quan
-                        </NavLink>
+                        </Link>
                     </li>
                     <li className="nav-item mb-1">
-                        <a href="/" className="nav-link admin-nav-link">
+                        <Link to="/admin/register" className={`${location.pathname.match(/^\/admin\/register$/) || location.pathname.match(/^\/admin\/shift-detail$/) ? 'active' : ''} nav-link admin-nav-link`}>
                             <i className="bi bi-calendar-event me-2" />
                             Quản lý lịch đăng ký
-                        </a>
+                        </Link>
                     </li>
                     <li className="nav-item mb-1">
                         <a href="/" className="nav-link admin-nav-link">
