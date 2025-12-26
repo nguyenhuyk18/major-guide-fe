@@ -3,16 +3,18 @@ import { Link } from 'react-router-dom';
 
 export default function DisplayNumberExpert(props) {
 
-    const { numberOfExpert } = props
+    const { numberOfExpert, shiftInDayId } = props
 
     return (
         <>
-            <div className="cell-content">
-                <div className="appointment-count">{numberOfExpert}</div>
-                <div className="appointment-label">chuyên gia</div>
-                <Link to={'/admin/shift-detail'} className="btn btn-detail btn-sm mt-2">
-                    Xem chi tiết
-                </Link>
+            <div className="schedule-cell has-appointments">
+                <div className="cell-content">
+                    <div className="appointment-count">{numberOfExpert}</div>
+                    <div className="appointment-label">chuyên gia</div>
+                    <Link to={`/admin/shift-detail/${shiftInDayId}`} className="btn btn-detail btn-sm mt-2">
+                        Xem chi tiết
+                    </Link>
+                </div>
             </div>
         </>
     );

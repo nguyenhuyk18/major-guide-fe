@@ -12,7 +12,7 @@ export default function Routing() {
                 <Route path='/admin' element={<LayoutAdmin />} >
                     <Route index element={<DashboardPage />} />
                     <Route path="register" element={<RegisterPage />} />
-                    <Route path="shift-detail" element={<ShiftDetailPage />} />
+                    <Route path="shift-detail/:id_shift_day" element={<ShiftDetailPage />} />
                 </Route>
             </Routes>
         </>

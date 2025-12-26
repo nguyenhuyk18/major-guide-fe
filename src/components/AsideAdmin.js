@@ -26,16 +26,16 @@ export default function AsideAdmin() {
                         </Link>
                     </li>
                     <li className="nav-item mb-1">
-                        <Link to="/admin/register" className={`${location.pathname.match(/^\/admin\/register$/) || location.pathname.match(/^\/admin\/shift-detail$/) ? 'active' : ''} nav-link admin-nav-link`}>
+                        <Link to="/admin/register" className={`${location.pathname.match(/^\/admin\/register$/) || location.pathname.match(/^\/admin\/shift-detail/) ? 'active' : ''} nav-link admin-nav-link`}>
                             <i className="bi bi-calendar-event me-2" />
                             Quản lý lịch đăng ký
                         </Link>
                     </li>
                     <li className="nav-item mb-1">
-                        <a href="/" className="nav-link admin-nav-link">
+                        <Link to="/admin/register" className="nav-link admin-nav-link">
                             <i className="bi bi-people-fill me-2" />
                             Quản lý chuyên gia
-                        </a>
+                        </Link>
                     </li>
                     <li className="nav-item mb-1">
                         <a href="/" className="nav-link admin-nav-link">
@@ -45,10 +45,10 @@ export default function AsideAdmin() {
                     </li>
                 </ul>
                 <div className="mt-auto pt-3 border-top border-secondary border-opacity-25">
-                    <a href="/" className="nav-link admin-nav-link d-flex align-items-center">
+                    <Link href="/" className="nav-link admin-nav-link d-flex align-items-center">
                         <i className="bi bi-box-arrow-right me-2" />
                         Đăng xuất
-                    </a>
+                    </Link>
                 </div>
             </aside>
 
