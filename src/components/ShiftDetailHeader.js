@@ -4,7 +4,7 @@ import { convertVietnamese } from '../helpers/help';
 export default function ShiftDetailHeader(props) {
     const { shiftInfo } = props
 
-    console.log(shiftInfo)
+    // console.log(shiftInfo)
     return (
         <>
             <div className="session-header">

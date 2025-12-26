@@ -498,3 +498,29 @@
 .calendar-table tbody tr:nth-child(4) .schedule-cell {
     animation-delay: 0.2s;
 }
+
+.btn-week-nav {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    border: 1px solid #4b5563;
+    color: #ffffff !important;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-week-nav:hover {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    border-color: #60a5fa;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+}
+
+.btn-week-nav i {
+    font-size: 0.875rem;
+}

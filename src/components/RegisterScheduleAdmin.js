@@ -15,7 +15,7 @@ export default function RegisterScheduleAdmin(props) {
 
 
     const { infoAllShiftInDay, shiftList } = props
-    console.log(infoAllShiftInDay)
+    // console.log(infoAllShiftInDay)
     return (
         <>
             <div className="calendar-container">

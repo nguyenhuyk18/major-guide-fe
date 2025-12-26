@@ -38,6 +38,12 @@ export default function AsideAdmin() {
                         </Link>
                     </li>
                     <li className="nav-item mb-1">
+                        <Link to="/admin/schedule-review" className={`${location.pathname.match(/^\/admin\/schedule-review$/) ? 'active' : ''} nav-link admin-nav-link`}>
+                            <i className="bi bi-people-fill me-2" />
+                            Đơn đăng ký lịch
+                        </Link>
+                    </li>
+                    <li className="nav-item mb-1">
                         <a href="/" className="nav-link admin-nav-link">
                             <i className="bi bi-gear-fill me-2" />
                             Cài đặt
