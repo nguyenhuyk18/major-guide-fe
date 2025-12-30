@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './assets/common/styles.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+// import '../src/assets/css/ReviewRegisterPage.css'
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -1,5 +1,5 @@
 // import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import '../../assets/css/ShiftDetailAdmin.css'
 import ShiftDetailHeader from '../../components/ShiftDetailHeader';
 import FilterBarShiftDetail from '../../components/FilterBarShiftDetail';
@@ -12,6 +12,7 @@ import Loading from '../../components/Loading';
 export default function ShiftDetailPage() {
 
     const params = useParams();
+    const navigate = useNavigate();
 
     const [userList, setUserList] = useState(null)
     const [shiftInfo, setShiftInfo] = useState(null)
@@ -22,7 +23,7 @@ export default function ShiftDetailPage() {
 
     const getUserInShift = async () => {
         try {
-            const rs = await getShiftById(params.id_shift_day);
+            const rs = await getShiftById(params.id_shift_day, params.day);
 
             // console.log(rs)
 
@@ -42,7 +43,9 @@ export default function ShiftDetailPage() {
                 <nav className="breadcrumb-nav mb-4">
                     <Link to="/admin" className="breadcrumb-item">Dashboard</Link>
                     <i className="bi bi-chevron-right"></i>
-                    <Link to="/admin/register" className="breadcrumb-item">Quản lý lịch</Link>
+                    <Link onClick={() => {
+                        navigate(-1)
+                    }} className="breadcrumb-item">Quản lý lịch</Link>
                     <i className="bi bi-chevron-right"></i>
                     <span className="breadcrumb-item active">Chi tiết ca tư vấn</span>
                 </nav>

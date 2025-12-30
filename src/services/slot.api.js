@@ -1,7 +1,15 @@
+// import axios from 'axios';
 import { instanceCallApi } from './api.setting';
 
-const getShiftInDay = async () => {
-    const rs = await instanceCallApi.get('/api/v2/shift-in-day');
+const getShiftInDay = async (endTime = null, startTime = null) => {
+    let str = `/api/v2/shift-in-day`;
+
+    if (endTime && startTime) {
+        str = `/api/v2/shift-in-day?start_time=${startTime}&end_time=${endTime}`;
+    }
+
+    const rs = await instanceCallApi.get(str);
+
     return rs;
 }
 
@@ -10,9 +18,17 @@ const getAllShift = async () => {
     return rs;
 }
 
-const getShiftById = async (id) => {
-    const rs = await instanceCallApi.get(`/api/v2/shift-in-day/${id}`);
+const getShiftById = async (id, specifytime) => {
+    const tmp = specifytime.split('_');
+    // const newSpecifyTime = new Date(`${tmp[0]}-${tmp[1]}-${tmp[2]}`)
+    const rs = await instanceCallApi.get(`/api/v2/shift-in-day/${id}?specify_time=${tmp[0]}-${tmp[1]}-${tmp[2]}`);
     return rs;
 }
 
-export { getShiftInDay, getAllShift, getShiftById }
+
+const getAllRegister = async (page = '', status = '') => {
+    const rs = await instanceCallApi.get(`/api/v2/register?page=${page}&status=${status}`);
+    return rs;
+}
+
+export { getShiftInDay, getAllShift, getShiftById, getAllRegister }

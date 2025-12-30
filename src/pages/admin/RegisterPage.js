@@ -8,36 +8,45 @@ import { getAllShift, getShiftInDay } from '../../services/slot.api';
 import { toast } from 'react-toastify';
 import Loading from '../../components/Loading';
 import { getCurrentWeek, getWeekNumber } from '../../helpers/help';
+import { useSearchParams } from 'react-router-dom';
+// import { useSearchParams } from 'react-router-dom';
 
 export default function RegisterPage() {
 
-    // const navigate = useNavigate()
     const [infoAllShiftInDay, setInfoAllShiftInDay] = useState(null);
     const [shiftList, setShiftList] = useState(null);
     const [dayInWeek, setDayInWeek] = useState(null);
-    // const [endDayInWeek, setEndDayInWeek] = useState();
-    // const [numberOfWeek, setNumberOfWeek] = useState();
+    const [arrayDayInWeek, setArrInWeek] = useState([])
+
+    //  useSearchParams là một cái hook nó giúp chúng ta có thể lấy các biến trên thanh url và đồng thời có thể vcaapj nhật lại thah url
+    const [searchParam, setSearchParam] = useSearchParams();
+
+    const endTime = searchParam.get('end_time') || null;
+    const startTime = searchParam.get('start_time') || null;
 
     useEffect(() => {
-        getDayInWeek();
-        getInfoAllShiftInDay();
+        getDayInWeek(startTime);
         getShiftList();
-    }, [])
+    }, [endTime, startTime])
 
-    const getDayInWeek = (day = new Date()) => {
-        const arr = getCurrentWeek(day);
-        const numOfWeek = getWeekNumber(day)
+    const getDayInWeek = (startTime) => {
+        const arr = getCurrentWeek(startTime || new Date());
+        const numOfWeek = getWeekNumber(startTime || new Date())
+        setArrInWeek(arr)
+        const newEndDay = arr[arr.length - 1].setDate(arr[arr.length - 1].getDate() - 1)
 
         setDayInWeek({
             startDay: arr[0],
-            endDay: arr[arr.length - 1],
+            endDay: new Date(newEndDay),
             numOfWeek: numOfWeek
         })
+
+        getInfoAllShiftInDay(new Date(newEndDay), arr[0]);
     }
 
-    const getInfoAllShiftInDay = async () => {
+    const getInfoAllShiftInDay = async (endDay, startDay) => {
         try {
-            const rs = await getShiftInDay();
+            const rs = await getShiftInDay(endDay, startDay);
             setInfoAllShiftInDay(rs.data.data);
 
         } catch (error) {
@@ -66,12 +75,26 @@ export default function RegisterPage() {
 
         current.setDate(previousWeek);
 
-        getDayInWeek(current);
+        const tmp = getCurrentWeek(current)
+
+        // getDayInWeek(current);
+
+        const oldUrl = new URLSearchParams(searchParam.toString());
+        oldUrl.set('start_time', `${tmp[0].getFullYear()}-${tmp[0].getMonth() + 1}-${tmp[0].getDate()}`)
+        oldUrl.set('end_time', `${tmp[tmp.length - 1].getFullYear()}-${tmp[tmp.length - 1].getMonth() + 1}-${tmp[tmp.length - 1].getDate()}`)
+        setSearchParam(oldUrl);
     }
 
     const handleCurrentWeek = () => {
         const current = new Date();
-        getDayInWeek(current);
+        const tmp = getCurrentWeek(current)
+
+
+        const oldUrl = new URLSearchParams(searchParam.toString());
+        oldUrl.set('start_time', `${tmp[0].getFullYear()}-${tmp[0].getMonth() + 1}-${tmp[0].getDate()}`)
+        oldUrl.set('end_time', `${tmp[tmp.length - 1].getFullYear()}-${tmp[tmp.length - 1].getMonth() + 1}-${tmp[tmp.length - 1].getDate()}`)
+        setSearchParam(oldUrl);
+
     }
 
     const handleNextWeek = () => {
@@ -81,7 +104,12 @@ export default function RegisterPage() {
 
         current.setDate(previousWeek);
 
-        getDayInWeek(current);
+        const tmp = getCurrentWeek(current)
+
+        const oldUrl = new URLSearchParams(searchParam.toString());
+        oldUrl.set('start_time', `${tmp[0].getFullYear()}-${tmp[0].getMonth() + 1}-${tmp[0].getDate()}`)
+        oldUrl.set('end_time', `${tmp[tmp.length - 1].getFullYear()}-${tmp[tmp.length - 1].getMonth() + 1}-${tmp[tmp.length - 1].getDate()}`)
+        setSearchParam(oldUrl);
     }
 
     return (
@@ -113,7 +141,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Calendar Grid */}
-            {infoAllShiftInDay && shiftList ? <RegisterScheduleAdmin infoAllShiftInDay={infoAllShiftInDay} shiftList={shiftList} /> : <Loading />}
+            {infoAllShiftInDay && shiftList ? <RegisterScheduleAdmin arrayDayInWeek={arrayDayInWeek} infoAllShiftInDay={infoAllShiftInDay} shiftList={shiftList} /> : <Loading />}
         </div>
 
     );
