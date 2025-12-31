@@ -20,7 +20,6 @@ export default function TableDisplay(props) {
                                 {
                                     Object.keys(listData[0]).map(row => <th>{row}</th>)
                                 }
-                                <th>Hành Động</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -31,11 +30,7 @@ export default function TableDisplay(props) {
                                             {row1}
                                         </td>
                                     })}
-                                    <td>
-                                        <button className="btn-action" title="Xem chi tiết">
-                                            <i className="bi bi-eye"></i>
-                                        </button>
-                                    </td>
+
                                 </tr>)}
 
                         </tbody>

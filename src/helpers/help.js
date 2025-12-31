@@ -14,6 +14,8 @@ export const convertVietnamese = (key) => {
 
 export const getCurrentWeek = (date = new Date()) => {
     const current = new Date(date);
+
+    current.setHours(12, 0, 0, 0);
     const day = current.getDay(); // 0 (CN) -> 6 (T7)
 
     const diff = day === 0 ? -6 : 1 - day;

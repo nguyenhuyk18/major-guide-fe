@@ -31,4 +31,10 @@ const getAllRegister = async (page = '', status = '') => {
     return rs;
 }
 
-export { getShiftInDay, getAllShift, getShiftById, getAllRegister }
+
+const getAllRegisterById = async (id) => {
+    const rs = await instanceCallApi.get(`/api/v2/register/${id}`);
+    return rs;
+}
+
+export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById }

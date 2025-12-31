@@ -24,9 +24,11 @@ export default function RegisterPage() {
     const endTime = searchParam.get('end_time') || null;
     const startTime = searchParam.get('start_time') || null;
 
+    // eslint-disable-next-line
     useEffect(() => {
         getDayInWeek(startTime);
         getShiftList();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [endTime, startTime])
 
     const getDayInWeek = (startTime) => {

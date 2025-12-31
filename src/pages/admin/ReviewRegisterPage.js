@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react';
 import '../../assets/css/ReviewRegisterPage.css'
 import FilterReviewRegister from '../../components/FilterReviewRegister';
-import RegisterReviewCard from '../../components/RegisterReviewCard';
+// import RegisterReviewCard from '../../components/RegisterReviewCard';
 import TableDisplay from '../../components/TableDisplay';
 import { getAllRegister } from '../../services/slot.api';
 import { toast } from 'react-toastify';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 
 export default function ReviewRegisterPage() {
@@ -21,11 +21,11 @@ export default function ReviewRegisterPage() {
     const page = searchParam.get('page') || '';
     const status = searchParam.get('status') || '';
 
-
-    // getAllRegister
+    console.log(registerList)
     // eslint-disable-next-line
     useEffect(() => {
         getRegisterList()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, status])
 
 
@@ -57,7 +57,9 @@ export default function ReviewRegisterPage() {
         try {
             const rs = await getAllRegister(page, status);
 
-            const registers = rs.data.data.result.map(row => {
+            // console.log(rs)
+
+            const registers = rs?.data?.data?.result.map(row => {
                 return {
                     // SỬA Ở ĐÂY: Bỏ dấu `` (string literal) và viết thẳng JSX
                     'Hình Ảnh': (
@@ -85,7 +87,7 @@ export default function ReviewRegisterPage() {
                     'Trạng Thái Đơn': (
                         row.status === "approve" ? <span className="status-badge status-approved">
                             <i className="bi bi-dot"></i>
-                            Chờ duyệt
+                            Đã Duyệt
                         </span> : row.status === "unreviewed" ? <span className="status-badge status-pending ">
                             <i className="bi bi-dot"></i>
                             Chưa Duyệt
@@ -94,18 +96,36 @@ export default function ReviewRegisterPage() {
                             Hủy
                         </span> : ''
                     ),
+                    'Hành Động': (
+                        <Link to={`/admin/review-detail/${row._id}`} className="btn-action" title="Xem chi tiết">
+                            <i className="bi bi-eye"></i>
+                        </Link>
+                    )
                 }
             })
 
             setRegisterList(registers);
-            setTotalPage(rs.data.data.totalPage)
+            setTotalPage(rs?.data?.data?.totalPage)
             setIsLoading(true);
 
 
 
         } catch (error) {
-            toast.error('server đang bận thử lại sau !!!');
+            // console.log()
+            setIsLoading(false);
+            setRegisterList([]);
+            // setIsLoading(true);
+            toast.error(error?.response?.data?.message || 'server đang bận thử lại sau');
         }
+    }
+
+
+    const handleFindByStatus = (status) => {
+        const oldUrl = new URLSearchParams(searchParam.toString());
+        oldUrl.set('status', status);
+        oldUrl.set('page', 1);
+        // oldUrl.set('status', status);
+        setSearchParam(oldUrl);
     }
 
     return (
@@ -126,10 +146,10 @@ export default function ReviewRegisterPage() {
                 </div>
 
                 {/* Statistics Cards */}
-                <RegisterReviewCard />
+                {/* <RegisterReviewCard /> */}
 
                 {/* Filter Tabs */}
-                <FilterReviewRegister />
+                <FilterReviewRegister handleFindByStatus={handleFindByStatus} status={status} />
 
                 {/* Table Section */}
                 {!isLoading ? <Loading /> : <TableDisplay handleChangePrevious={handleChangePrevious} handleChangeNextPage={handleChangeNextPage} listData={registerList} totalPage={totalPage} currentPage={page || 1} />}
