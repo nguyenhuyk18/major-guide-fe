@@ -37,4 +37,15 @@ const getAllRegisterById = async (id) => {
     return rs;
 }
 
-export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById }
+
+const cancleRegisterById = async (id) => {
+    const rs = await instanceCallApi.put(`/api/v2/register/cancle-register/${id}`);
+    return rs;
+}
+
+const approveRegisterById = async (id) => {
+    const rs = await instanceCallApi.put(`/api/v2/register/accept-register/${id}`);
+    return rs;
+}
+
+export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById, cancleRegisterById, approveRegisterById }

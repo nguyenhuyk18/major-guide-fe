@@ -31,24 +31,25 @@ export default function AsideAdmin() {
                             Quản lý lịch đăng ký
                         </Link>
                     </li>
+
+                    <li className="nav-item mb-1">
+                        <Link to="/admin/schedule-review" className={`${location.pathname.match(/^\/admin\/schedule-review$/) || location.pathname.match(/^\/admin\/review-detail/) ? 'active' : ''} nav-link admin-nav-link`}>
+                            <i class="bi bi-card-checklist me-2"></i>
+                            Đơn đăng ký lịch
+                        </Link>
+                    </li>
                     <li className="nav-item mb-1">
                         <Link to="/admin/register" className="nav-link admin-nav-link">
                             <i className="bi bi-people-fill me-2" />
                             Quản lý chuyên gia
                         </Link>
                     </li>
-                    <li className="nav-item mb-1">
-                        <Link to="/admin/schedule-review" className={`${location.pathname.match(/^\/admin\/schedule-review$/) || location.pathname.match(/^\/admin\/review-detail/) ? 'active' : ''} nav-link admin-nav-link`}>
-                            <i className="bi bi-people-fill me-2" />
-                            Đơn đăng ký lịch
-                        </Link>
-                    </li>
-                    <li className="nav-item mb-1">
-                        <a href="/" className="nav-link admin-nav-link">
+                    {/* <li className="nav-item mb-1">
+                        <Link to="/admin" className="nav-link admin-nav-link">
                             <i className="bi bi-gear-fill me-2" />
                             Cài đặt
-                        </a>
-                    </li>
+                        </Link>
+                    </li> */}
                 </ul>
                 <div className="mt-auto pt-3 border-top border-secondary border-opacity-25">
                     <Link href="/" className="nav-link admin-nav-link d-flex align-items-center">

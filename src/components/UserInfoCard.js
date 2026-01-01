@@ -1,7 +1,7 @@
-import React from 'react';
+// import React from 'react';
 
 export default function UserInfoCard(props) {
-    const { userInfo, statusRegister } = props
+    const { userInfo, statusRegister, handleApproveRegister, handleCancleRegister, idRegister } = props
     return (
         <>
             <div className="expert-info-card mb-4">
@@ -41,11 +41,11 @@ export default function UserInfoCard(props) {
                 {
                     statusRegister === "unreviewed" ?
                         <div className="action-buttons">
-                            <button className="btn btn-danger">
+                            <button className="btn btn-danger" onClick={() => handleCancleRegister(idRegister)}>
                                 <i className="bi bi-x-lg me-2"></i>
                                 Từ chối
                             </button>
-                            <button className="btn btn-approve">
+                            <button className="btn btn-approve" onClick={() => handleApproveRegister(idRegister)}>
                                 <i className="bi bi-check-lg me-2"></i>
                                 Duyệt lịch
                             </button>

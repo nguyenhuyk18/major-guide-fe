@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import '../../assets/css/RegisterDetailPage.css'
 import ScheduleDetailExpert from "../../components/ScheduleDetailExpert";
-import { getAllRegisterById, getAllShift, getShiftInDay } from "../../services/slot.api";
-import { Link, useParams } from "react-router-dom";
+import { approveRegisterById, cancleRegisterById, getAllRegisterById, getAllShift, getShiftInDay } from "../../services/slot.api";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getUserAccess } from "../../services/user-access.api";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
@@ -18,14 +18,15 @@ export default function RegisterDetailPage() {
     const [allShiftInDay, setAllShiftInDay] = useState(new Map())
     const [isLoading, setIsLoading] = useState(false);
     const [statusRegister, setStatusRegister] = useState(null);
-
+    const navigate = useNavigate();
     const params = useParams();
 
     // console.log(userInfo);
     // console.log()
 
-
+    // const navigate = useNavigate();
     useEffect(() => {
+
         getRegisterById()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -54,6 +55,32 @@ export default function RegisterDetailPage() {
         }
     }
 
+    const handleCancleRegister = async (id) => {
+        try {
+            await cancleRegisterById(id);
+            toast.success('Hủy đơn đăng ký lịch thành công !!!');
+            navigate('/admin/schedule-review')
+        } catch (error) {
+            console.log(error);
+            toast.error('Hủy đơn đăng ký không thành công !!!')
+            navigate('/admin/schedule-review')
+        }
+    }
+
+
+    const handleApproveRegister = async (id) => {
+        try {
+            await approveRegisterById(id);
+            toast.success('Duyệt đơn đăng ký lịch thành công !!!');
+            navigate('/admin/schedule-review')
+        } catch (error) {
+            console.log(error);
+            toast.error('Duyệt đơn đăng ký thất bại !!!')
+            navigate('/admin/schedule-review')
+        }
+    }
+
+
     return (
         <>
             <div className="registration-detail">
@@ -64,13 +91,15 @@ export default function RegisterDetailPage() {
                 <nav className="breadcrumb-nav mb-4">
                     <Link to={'/admin'} className="breadcrumb-link">Trang chủ</Link>
                     <span className="breadcrumb-separator">/</span>
-                    <Link to={'/admin/schedule-review'} className="breadcrumb-link">Danh sách đơn đăng ký</Link>
+                    <Link onClick={() => {
+                        navigate(-1)
+                    }} className="breadcrumb-link">Danh sách đơn đăng ký</Link>
                     <span className="breadcrumb-separator">/</span>
                     <span className="breadcrumb-current">Chi tiết đăng ký</span>
                 </nav>
 
                 {isLoading ? <>
-                    <UserInfoCard userInfo={userInfo} statusRegister={statusRegister} />
+                    <UserInfoCard userInfo={userInfo} idRegister={params.id_register} statusRegister={statusRegister} handleApproveRegister={handleApproveRegister} handleCancleRegister={handleCancleRegister} />
                     <div className="schedule-section">
                         <div className="section-header">
                             <div className="d-flex align-items-center gap-2">
