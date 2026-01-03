@@ -6,10 +6,11 @@ import FilterReviewRegister from '../../components/FilterReviewRegister';
 import TableDisplay from '../../components/TableDisplay';
 import { getAllRegister } from '../../services/slot.api';
 import { toast } from 'react-toastify';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 
 export default function ReviewRegisterPage() {
+    const navigate = useNavigate();
 
     const [registerList, setRegisterList] = useState([]);
     const [totalPage, setTotalPage] = useState(null);
@@ -21,7 +22,7 @@ export default function ReviewRegisterPage() {
     const page = searchParam.get('page') || '';
     const status = searchParam.get('status') || '';
 
-    console.log(registerList)
+    // console.log(registerList)
     // eslint-disable-next-line
     useEffect(() => {
         getRegisterList()
@@ -111,10 +112,15 @@ export default function ReviewRegisterPage() {
 
 
         } catch (error) {
-            // console.log()
+            console.log(error)
             setIsLoading(false);
             setRegisterList([]);
             // setIsLoading(true);
+            if (error?.response?.status === 403) {
+                toast.error('Bạn không có thẩm quyền để vào đây !!!');
+                navigate('/admin');
+                return;
+            }
             toast.error(error?.response?.data?.message || 'server đang bận thử lại sau');
         }
     }

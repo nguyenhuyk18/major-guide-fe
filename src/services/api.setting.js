@@ -12,6 +12,17 @@ const instanceCallApi = axios.create({
 instanceCallApi.interceptors.request.use(function (config) {
     // Do something before request is sent
     // console.log(process.env.REACT_APP_API_URL)
+
+    // thêm token mỗi lần gửi request !!!
+    let tmp = localStorage.getItem('authAdminInfo') || '';
+
+    if (tmp) {
+        tmp = JSON.parse(localStorage.getItem('authAdminInfo'));
+    }
+
+    config.headers.authorization = `Bearer ${tmp.access_token}`;
+
+
     return config;
 }, function (error) {
     // Do something with request error

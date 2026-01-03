@@ -1,13 +1,13 @@
 // import React from 'react';
 
 export default function UserInfoCard(props) {
-    const { userInfo, statusRegister, handleApproveRegister, handleCancleRegister, idRegister } = props
+    const { userInfo, statusRegister, handleApproveRegister, handleCancleRegister, idRegister, registerInfo } = props
     return (
         <>
             <div className="expert-info-card mb-4">
                 <div className="expert-profile">
                     <div className="expert-avatar-wrapper">
-                        <img src={`${userInfo.fileAvartarUrl}`} alt="Dr. Nguyễn Văn A" className="expert-avatar-large" />
+                        <img src={`${userInfo.fileAvartarUrl}`} alt={`${userInfo.name}`} className="expert-avatar-large" />
                         <span className="online-status"></span>
                     </div>
                     <div className="expert-details">
@@ -33,8 +33,16 @@ export default function UserInfoCard(props) {
                                 <i className="bi bi-dot"></i>
                                 Hủy
                             </span> : ''}
+
                             {/* <span className="register-time">• Đăng ký lúc: 15/10/2023 14:30</span> */}
+                            {
+                                registerInfo.available_date ? <span className="register-time" style={{ marginRight: '-5px' }} >• Lịch áp dụng vào: {new Date(registerInfo.available_date).toLocaleDateString('vi')}</span> : ''
+                            }
+                            {
+                                registerInfo.unavailable_date ? <span className="register-time" >- {new Date(registerInfo.unavailable_date).toLocaleDateString('vi')}</span> : ''
+                            }
                         </div>
+
                     </div>
                 </div>
 

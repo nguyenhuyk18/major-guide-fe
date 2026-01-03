@@ -18,15 +18,15 @@ export default function TableDisplay(props) {
                         <thead>
                             <tr>
                                 {
-                                    Object.keys(listData[0]).map(row => <th>{row}</th>)
+                                    Object.keys(listData[0]).map((row, indx) => <th key={indx}>{row}</th>)
                                 }
                             </tr>
                         </thead>
                         <tbody>
-                            {listData.map(row =>
-                                <tr>
-                                    {Object.values(row).map(row1 => {
-                                        return <td>
+                            {listData.map((row, inx1) =>
+                                <tr key={inx1}>
+                                    {Object.values(row).map((row1, indx2) => {
+                                        return <td key={indx2}>
                                             {row1}
                                         </td>
                                     })}

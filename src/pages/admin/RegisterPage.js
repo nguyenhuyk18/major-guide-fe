@@ -8,10 +8,11 @@ import { getAllShift, getShiftInDay } from '../../services/slot.api';
 import { toast } from 'react-toastify';
 import Loading from '../../components/Loading';
 import { getCurrentWeek, getWeekNumber } from '../../helpers/help';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 // import { useSearchParams } from 'react-router-dom';
 
 export default function RegisterPage() {
+    const navigate = useNavigate();
 
     const [infoAllShiftInDay, setInfoAllShiftInDay] = useState(null);
     const [shiftList, setShiftList] = useState(null);
@@ -53,6 +54,11 @@ export default function RegisterPage() {
 
         } catch (error) {
             console.log(error)
+            if (error?.response?.status === 403) {
+                toast.error('Bạn không có thẩm quyền để vào đây !!!');
+                navigate('/admin');
+                return;
+            }
             toast.error('Server đang bận, hãy thử lại sau !!!')
         }
     }

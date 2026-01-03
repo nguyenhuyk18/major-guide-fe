@@ -13,6 +13,7 @@ import UserInfoCard from "../../components/UserInfoCard";
 
 export default function RegisterDetailPage() {
     const [userInfo, setUserInfo] = useState(null);
+    const [registerInfo, setRegisterInfo] = useState(null);
     const [registerDetail, setRegisterDetail] = useState([]);
     const [shiftList, setShiftList] = useState([]);
     const [allShiftInDay, setAllShiftInDay] = useState(new Map())
@@ -44,6 +45,7 @@ export default function RegisterDetailPage() {
 
 
             setStatusRegister(rs?.data?.data?.status)
+            setRegisterInfo(rs?.data?.data)
             setShiftList(shiftResult?.data?.data?.data)
             setRegisterDetail(rs?.data?.data?.day);
             setUserInfo(userResult?.data?.data);
@@ -99,7 +101,7 @@ export default function RegisterDetailPage() {
                 </nav>
 
                 {isLoading ? <>
-                    <UserInfoCard userInfo={userInfo} idRegister={params.id_register} statusRegister={statusRegister} handleApproveRegister={handleApproveRegister} handleCancleRegister={handleCancleRegister} />
+                    <UserInfoCard registerInfo={registerInfo} userInfo={userInfo} idRegister={params.id_register} statusRegister={statusRegister} handleApproveRegister={handleApproveRegister} handleCancleRegister={handleCancleRegister} />
                     <div className="schedule-section">
                         <div className="section-header">
                             <div className="d-flex align-items-center gap-2">

@@ -3,7 +3,7 @@ import React from 'react';
 export default function PaginationAdmin(props) {
     const { totalPage, currentPage, handleChangeNextPage, handleChangePrevious } = props;
 
-    console.log(currentPage, '  ', totalPage)
+    // console.log(currentPage, '  ', totalPage)
 
     return (
         <>

@@ -3,9 +3,26 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '../assets/css/HeaderAdmin.css'
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import { Helmet } from 'react-helmet';
+import { useDispatch, useSelector } from 'react-redux';
+import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function HeaderAdmin() {
+
+    const userInfo = useSelector(state => state.authAdminReducer.loggedUser);
+
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const handleLogout = () => {
+        const action = {
+            type: LOGOUT_ADMIN
+        }
+        dispatch(action);
+        navigate('/admin');
+    }
+
     return (
         <>
             <Helmet>
@@ -29,15 +46,15 @@ export default function HeaderAdmin() {
                         >
                             <div className="text-end d-none d-md-block">
                                 <div className="fw-semibold text-white" style={{ fontSize: '0.9rem' }}>
-                                    Nguyễn Văn A
+                                    {userInfo.name}
                                 </div>
                                 <div className="text-secondary" style={{ fontSize: '0.75rem' }}>
-                                    Quản trị viên
+                                    {userInfo.roleName === 'expert' ? 'Chuyên Gia Tư Vấn' : 'Quản Trị Viên'}
                                 </div>
                             </div>
 
                             <img
-                                src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=10b981&color=fff"
+                                src={`${userInfo.fileAvartarUrl}`}
                                 className="rounded-circle border border-secondary"
                                 width={40}
                                 height={40}
@@ -61,10 +78,10 @@ export default function HeaderAdmin() {
                             </li>
                             <li><hr className="dropdown-divider" /></li>
                             <li>
-                                <a className="dropdown-item text-danger" href="/">
+                                <button onClick={handleLogout} className="dropdown-item text-danger" >
                                     <i className="bi bi-box-arrow-right me-2" />
                                     Đăng xuất
-                                </a>
+                                </button>
                             </li>
                         </ul>
                     </div>
