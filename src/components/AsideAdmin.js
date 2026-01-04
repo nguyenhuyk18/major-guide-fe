@@ -39,7 +39,7 @@ export default function AsideAdmin() {
                         </Link>
                     </li>
                     <li className="nav-item mb-1">
-                        <Link to="/admin/register" className="nav-link admin-nav-link">
+                        <Link to="/admin/experts" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/experts$/) ? 'active' : ''}`}>
                             <i className="bi bi-people-fill me-2" />
                             Quản lý chuyên gia
                         </Link>

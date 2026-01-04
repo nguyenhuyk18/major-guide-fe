@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { navigateTo } from '../helpers/help';
 
 
 const instanceCallApi = axios.create({
@@ -33,11 +34,18 @@ instanceCallApi.interceptors.request.use(function (config) {
 instanceCallApi.interceptors.response.use(function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
+
+    // console.log()
     return response;
 }, function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    // console.log(error)
+    console.log(error.status)
+
+    if (error.status === 401) {
+        localStorage.removeItem('authAdminInfo');
+        navigateTo('/');
+    }
     return Promise.reject(error);
 });
 

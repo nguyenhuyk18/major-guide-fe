@@ -1,3 +1,6 @@
+// navigationService.js
+let navigate;
+
 export const convertVietnamese = (key) => {
     const val = {
         'monday': "Thứ 2",
@@ -45,3 +48,15 @@ export const getWeekNumber = (date = new Date()) => {
 
     return weekNo;
 }
+
+
+
+export const setNavigate = (nav) => {
+    navigate = nav;
+};
+
+export const navigateTo = (path) => {
+    if (navigate) {
+        navigate(path);
+    }
+};

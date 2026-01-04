@@ -5,3 +5,7 @@ export const DAY_IN_WEEK = ['monday',
     'friday',
     'saturday'
 ]
+
+export const ACCOUNT_ACTIVE = 'active';
+export const ACCOUNT_BUSY = 'busy';
+export const ACCOUNT_DOWN = 'down';

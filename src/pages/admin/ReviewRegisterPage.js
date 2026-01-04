@@ -12,6 +12,8 @@ import Loading from '../../components/Loading';
 export default function ReviewRegisterPage() {
     const navigate = useNavigate();
 
+
+
     const [registerList, setRegisterList] = useState([]);
     const [totalPage, setTotalPage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
