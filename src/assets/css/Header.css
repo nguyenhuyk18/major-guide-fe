@@ -1,0 +1,129 @@
+/* ClientHeader.css */
+
+.client-header {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.client-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+/* Logo */
+.client-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.client-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.25rem;
+}
+
+.client-logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* Navigation */
+.client-nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.client-nav-link {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.client-nav-link:hover {
+    color: #0d6efd;
+}
+
+.client-nav-link.active {
+    color: #0d6efd;
+}
+
+.client-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0d6efd;
+    border-radius: 2px;
+}
+
+/* Header Actions */
+.client-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.client-btn-login {
+    background: #0d6efd;
+    border: none;
+    color: #fff;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.client-btn-login:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .client-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .client-header {
+        padding: 0.75rem 0;
+    }
+
+    .client-logo-text {
+        font-size: 1.25rem;
+    }
+
+    .client-btn-login {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9375rem;
+    }
+}

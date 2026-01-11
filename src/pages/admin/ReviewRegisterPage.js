@@ -80,7 +80,7 @@ export default function ReviewRegisterPage() {
                     ),
                     'Ngày Đăng Ký': (
 
-                        <div className='time-cell'>
+                        <div className='time-cell' style={{ minHeight: 'unset' }} >
                             <i className="bi bi-calendar3 me-2"></i>
                             <div>
                                 <div className="time-date">{(new Date(row.createdAt)).toLocaleDateString('vi')}</div>

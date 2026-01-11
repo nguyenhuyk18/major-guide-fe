@@ -9,7 +9,6 @@ export default function TableDisplay(props) {
     const { listData, totalPage, handleChangeNextPage, currentPage, handleChangePrevious } = props;
 
 
-
     return (
         <>
             <div className="table-container">

@@ -18,6 +18,11 @@ const getAllShift = async () => {
     return rs;
 }
 
+const getShiftInDayOnly = async () => {
+    const rs = await instanceCallApi.get('/api/v2/shift-in-day/only-shift');
+    return rs;
+}
+
 const getShiftById = async (id, specifytime) => {
     const tmp = specifytime.split('_');
     // const newSpecifyTime = new Date(`${tmp[0]}-${tmp[1]}-${tmp[2]}`)
@@ -48,4 +53,16 @@ const approveRegisterById = async (id) => {
     return rs;
 }
 
-export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById, cancleRegisterById, approveRegisterById }
+const addSlot = async (values) => {
+    const rs = await instanceCallApi.post(`/api/v2/register`,
+        JSON.stringify(values),
+        {
+            headers: {
+                "Content-Type": 'application/json'
+            }
+        }
+    );
+    return rs;
+}
+
+export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById, cancleRegisterById, approveRegisterById, getShiftInDayOnly, addSlot }

@@ -15,6 +15,9 @@ export default function HeaderAdmin() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
+
+    console.log(userInfo)
+
     const handleLogout = () => {
         const action = {
             type: LOGOUT_ADMIN
@@ -43,13 +46,14 @@ export default function HeaderAdmin() {
                             className="d-flex align-items-center gap-3 cursor-pointer"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
+                            style={{ pointerEvents: '' }}
                         >
                             <div className="text-end d-none d-md-block">
                                 <div className="fw-semibold text-white" style={{ fontSize: '0.9rem' }}>
                                     {userInfo.name}
                                 </div>
                                 <div className="text-secondary" style={{ fontSize: '0.75rem' }}>
-                                    {userInfo.roleName === 'expert' ? 'Chuyên Gia Tư Vấn' : 'Quản Trị Viên'}
+                                    {userInfo.role_name === 'expert' ? 'Chuyên Gia Tư Vấn' : 'Quản Trị Viên'}
                                 </div>
                             </div>
 

@@ -14,17 +14,23 @@ export default function ExpertManagePage() {
 
     const [searchParam, setSearchParam] = useSearchParams();
 
-    const page = searchParam.get('page') || '';
-    // const status = searchParam.get('status') || '';
+    const page = searchParam.get('page') || 1;
+    const status = searchParam.get('status') || '';
+    const name = searchParam.get('name') || '';
 
     useEffect(() => {
-        getAllUser();
-    }, [])
+        getAllUser(page, status, name);
+    }, [page, status, name])
 
-    const getAllUser = async () => {
+    const getAllUser = async (page = '', status = '', name = '') => {
         try {
-            const rs = await getListUser();
-            // console.log(rs.data.data.result);
+            console.log(status);
+            const rs = await getListUser(page, status, name);
+            // console.log(rs);
+            if (!rs?.data?.data?.result?.length) {
+                toast.error('Không có nhân viên nào thỏa điều kiện trên !!!')
+            }
+
             const newResult = rs?.data?.data?.result.map(row => {
                 return {
 
@@ -50,11 +56,17 @@ export default function ExpertManagePage() {
                         </div>
                     ),
                     'Trạng Thái': (
-
-                        <span className="status-badge status-available">
-                            {/* <i className="bi bi-circle-fill status-dot"></i> */}
-                            Sẵn sàng
-                        </span>
+                        row.statusAccount === 'active' ?
+                            <span span className="status-badge status-available" >
+                                {/* <i className="bi bi-circle-fill status-dot"></i> */}
+                                Sẵn sàng
+                            </span > : row.statusAccount === 'busy' ? <span span className="status-badge status-busy" >
+                                {/* <i className="bi bi-circle-fill status-dot"></i> */}
+                                Bận
+                            </span > : row.statusAccount === 'down' ? <span span className="status-badge status-inactive" >
+                                {/* <i className="bi bi-circle-fill status-dot"></i> */}
+                                Hủy
+                            </span > : ''
                     ),
                     'Các Tác Vụ': (
                         <div className="action-buttons">
@@ -84,14 +96,20 @@ export default function ExpertManagePage() {
     const handleChangeNextPage = () => {
         const oldUrl = new URLSearchParams(searchParam.toString());
         // oldUrl.set('status', status);
-        oldUrl.set('page', 1);
-        // oldUrl.set('status', status);
+
+        const newPage = Number(page) + 1;
+        oldUrl.set('page', newPage);
         setSearchParam(oldUrl);
     }
 
 
     const handleChangePrevious = () => {
-        alert('gferfbgergergerergergergherher');
+        const oldUrl = new URLSearchParams(searchParam.toString());
+        // oldUrl.set('status', status);
+
+        const newPage = Number(page) - 1;
+        oldUrl.set('page', newPage);
+        setSearchParam(oldUrl);
     }
 
     return (
@@ -105,10 +123,10 @@ export default function ExpertManagePage() {
                             Quản lý hồ sơ, chuyên môn và theo dõi trạng thái hoạt động của đội ngũ chuyên gia tư vấn.
                         </p>
                     </div>
-                    <button className="btn-add-expert">
+                    <Link to={'/admin/experts/add'} style={{ textDecoration: 'none' }} className="btn-add-expert">
                         <i className="bi bi-plus-lg me-2"></i>
                         Thêm chuyên gia mới
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Search and Filter Bar */}
@@ -117,28 +135,40 @@ export default function ExpertManagePage() {
                         <i className="bi bi-search search-icon"></i>
                         <input
                             type="text"
+                            onChange={(e) => {
+                                const oldUrl = new URLSearchParams(searchParam.toString());
+                                oldUrl.set('name', e.target.value);
+                                setSearchParam(oldUrl);
+                            }}
                             className="search-input"
-                            placeholder="Tìm kiếm theo tên, email hoặc mã chuyên gia..."
+                            placeholder="Tìm kiếm theo tên"
                         />
                     </div>
                     <div className="filter-group">
-                        <select className="filter-select">
+                        <select className="filter-select" onChange={(e) => {
+                            const oldUrl = new URLSearchParams(searchParam.toString());
+                            // oldUrl.set('status', status);
+
+                            // const newPage = Number(page) + 1;
+                            oldUrl.set('status', e.target.value);
+                            setSearchParam(oldUrl);
+                        }}>
+                            <option value={''}>Tất cả trạng thái</option>
+                            <option value={'active'}>Sẵn sàng</option>
+                            <option value={'busy'}>Đang bận</option>
+                            <option value={'down'}>Ngừng hoạt động</option>
+                        </select>
+                        {/* <select className="filter-select">
                             <option>Tất cả trạng thái</option>
                             <option>Sẵn sàng</option>
                             <option>Đang bận</option>
                             <option>Ngừng hoạt động</option>
-                        </select>
-                        <select className="filter-select">
-                            <option>Tất cả trạng thái</option>
-                            <option>Sẵn sàng</option>
-                            <option>Đang bận</option>
-                            <option>Ngừng hoạt động</option>
-                        </select>
+                        </select> */}
                     </div>
                 </div>
 
                 {/* Expert Table */}
-                {isLoading ? <TableDisplay listData={userList} totalPage={totalPage} currentPage={page} handleChangeNextPage={handleChangeNextPage} handleChangePrevious={handleChangePrevious} /> : <Loading />}
+                {isLoading && userList.length ? <TableDisplay listData={userList} totalPage={totalPage} currentPage={page} handleChangeNextPage={handleChangeNextPage} handleChangePrevious={handleChangePrevious} /> : <Loading />}
 
             </div>
         </>

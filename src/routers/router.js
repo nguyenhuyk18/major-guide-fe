@@ -11,6 +11,11 @@ import ProtectedLoginAdmin from "./ProtectedLoginAdmin";
 import ExpertManagePage from "../pages/admin/expert/ExpertManagePage";
 import { useEffect } from "react";
 import { setNavigate } from "../helpers/help";
+import CreateExpert from "../pages/admin/expert/CreateExpert";
+import SubcribeRegister from "../pages/admin/regiser/SubcribeRegister";
+import HomePage from "../pages/client/HomePage";
+// import Header from "../components/Header";
+import Layout from "../components/Layout";
 
 export default function Routing() {
 
@@ -31,8 +36,15 @@ export default function Routing() {
                     <Route path="schedule-review" element={<ReviewRegisterPage />} />
                     <Route path="review-detail/:id_register" element={<RegisterDetailPage />} ></Route>
                     <Route path="experts" element={<ExpertManagePage />} ></Route>
+                    <Route path="experts/add" element={<CreateExpert />} ></Route>
+                    <Route path="subcribe-register" element={< SubcribeRegister />} ></Route>
                 </Route>
                 <Route path="/admin/login" element={<ProtectedLoginAdmin> <LoginAdminPage /> </ProtectedLoginAdmin>} ></Route>
+
+
+                <Route path="/" element={<Layout />}  >
+                    <Route index element={<HomePage />} />
+                </Route>
             </Routes>
         </>
     );
