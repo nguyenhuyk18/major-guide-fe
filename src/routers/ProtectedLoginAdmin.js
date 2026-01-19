@@ -4,10 +4,10 @@ import { Navigate } from 'react-router-dom';
 
 export default function ProtectedLoginAdmin({ children }) {
     const isLogin = useSelector(state => state.authAdminReducer.isLogin)
-
-    if (isLogin) {
+    const loggedUser = useSelector(state => state.authAdminReducer.loggedUser)
+    if (isLogin && (loggedUser.role_name === 'admin' || loggedUser.role_name === 'expert')) {
         return <Navigate to='/admin' ></Navigate>
     }
 
-    return children
+    return children;
 }

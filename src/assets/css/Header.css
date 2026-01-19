@@ -100,6 +100,25 @@
     transition: all 0.2s;
 }
 
+.client-btn-register {
+    background: #ff001e;
+    border: none;
+    color: #fff;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.client-btn-register:hover {
+    background: #ff001e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 0, 30 , 0.3);
+}
+
+
 .client-btn-login:hover {
     background: #0b5ed7;
     transform: translateY(-1px);
@@ -126,4 +145,112 @@
         padding: 0.5rem 1.25rem;
         font-size: 0.9375rem;
     }
+}
+
+/* UserDropdown.css */
+
+/* Dropdown Button */
+#userDropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+/* #userDropdown:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+} */
+
+#userDropdown i {
+    font-size: 1rem;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.875rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    padding: 0.5rem;
+    min-width: 240px;
+    margin-top: 0.5rem;
+}
+
+/* Dropdown Items */
+.dropdown-menu li {
+    list-style: none;
+}
+
+.dropdown-menu .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: #374151;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.dropdown-menu .nav-link:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.dropdown-menu .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background: #fee2e2;
+}
+
+.dropdown-menu .dropdown-item.text-danger {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.dropdown-menu .dropdown-item.text-danger:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Dropdown Divider */
+.dropdown-menu .dropdown-divider {
+    margin: 0.5rem 0;
+    border-color: #e5e7eb;
+}
+
+/* Optional: Add icons to menu items */
+.dropdown-menu .nav-link::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-right: 0.75rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+/* Icon for each menu item */
+
+
+
+
+
+
+.dropdown-menu .dropdown-item.text-danger::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    /* content: "\f2f5"; sign out icon */
+    margin-right: 0.75rem;
+    color: #dc2626;
+    font-size: 0.875rem;
 }

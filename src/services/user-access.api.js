@@ -1,5 +1,15 @@
 import { instanceCallApi } from './api.setting';
 
+const getUserByIds = async (data) => {
+    const rs = await instanceCallApi.post('/api/v2/user/many-user', JSON.stringify(data), {
+        headers: {
+            "Content-Type": 'application/json'
+        }
+    });
+
+    return rs;
+}
+
 const getUserAccess = async (id) => {
     const rs = await instanceCallApi.get(`/api/v2/user/${id}`);
     return rs;
@@ -29,4 +39,4 @@ const getWardByIdProvince = async (id_province) => {
 }
 
 
-export { getUserAccess, getListUser, getProvinceList, getWardByIdProvince, getAllProvince }
+export { getUserAccess, getListUser, getProvinceList, getWardByIdProvince, getAllProvince, getUserByIds }

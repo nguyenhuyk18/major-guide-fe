@@ -38,7 +38,8 @@ export default function LoginAdminPage() {
                             fileAvartarUrl: rs.data.data.fileAvartarUrl,
                             name: rs.data.data.name,
                             role_name: rs.data.data.roleName,
-                            email: rs.data.data.email
+                            email: rs.data.data.email,
+                            id: rs.data.data.id
                         }
                     }
                 }

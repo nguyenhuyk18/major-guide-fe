@@ -1,36 +1,18 @@
 import React from 'react';
 import '../../assets/css/HomePage.css'
+import HeroSection from '../../components/client/HeroSection';
+import ChatCommunity from '../../components/client/ChatCommunity';
+import { Link } from 'react-router-dom';
 
 
 export default function HomePage() {
     return (
         <>
             <div className="client-home-page">
-                {/* Hero Section */}
-                <section className="client-hero-section">
-                    <div className="client-hero-overlay"></div>
-                    <div className="container">
-                        <div className="client-hero-content">
-                            <p className="client-hero-badge">Nền tảng dạy và học trực tuyến</p>
-                            <h1 className="client-hero-title">
-                                Kết nối chuyên gia<br />
-                                Định hướng tương lai
-                            </h1>
-                            <p className="client-hero-description">
-                                Nền tảng tư vấn trực tuyến hàng đầu giúp bạn chọn đúng ngành, đúng<br />
-                                trường. Chat trực tiếp với anh viên và chuyên gia ngay hôm nay.
-                            </p>
-                            <div className="client-hero-actions">
-                                <button className="client-btn-primary">
-                                    Tham gia nền tảng ngay
-                                </button>
-                                <button className="client-btn-secondary">
-                                    Tìm hiểu thêm
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+
+                <HeroSection></HeroSection>
+
+
 
                 {/* Featured Experts Section */}
                 <section className="client-section client-experts-section">
@@ -38,7 +20,7 @@ export default function HomePage() {
                         <div className="client-section-header">
                             <h2 className="client-section-title">Chuyên gia nổi bật</h2>
                             <p className="client-section-subtitle">Đội ngũ có tâm giúp bạn tuyển sinh đại học phù hợp nhất</p>
-                            <a href="#" className="client-link-view-all">Xem tất cả →</a>
+                            <Link className="client-link-view-all">Xem tất cả →</Link>
                         </div>
 
                         <div className="row g-4">
@@ -141,7 +123,7 @@ export default function HomePage() {
                             <div className="col-12 col-lg-7">
                                 <div className="client-subsection-header">
                                     <h2 className="client-subsection-title">Các trường đại học hàng đầu</h2>
-                                    <a href="#" className="client-link-small">Xem thêm →</a>
+                                    <Link className="client-link-small">Xem thêm →</Link>
                                 </div>
                                 <div className="row g-3">
                                     <div className="col-12 col-md-6">
@@ -171,7 +153,7 @@ export default function HomePage() {
                             <div className="col-12 col-lg-5">
                                 <div className="client-subsection-header">
                                     <h2 className="client-subsection-title">Ngành học HOT</h2>
-                                    <a href="#" className="client-link-small">Tất cả →</a>
+                                    <Link className="client-link-small">Tất cả →</Link>
                                 </div>
                                 <div className="client-major-list">
                                     <div className="client-major-item">
@@ -215,7 +197,7 @@ export default function HomePage() {
                     <div className="container">
                         <div className="client-section-header">
                             <h2 className="client-section-title">Bài viết gần đây</h2>
-                            <a href="#" className="client-link-view-all">Xem tất cả →</a>
+                            <Link href="#" className="client-link-view-all">Xem tất cả →</Link>
                         </div>
                         <div className="row g-4">
                             <div className="col-12 col-md-4">
@@ -262,175 +244,7 @@ export default function HomePage() {
                 </section>
 
                 {/* Discussion Forum Section */}
-                <section className="client-section client-forum-section">
-                    <div className="container">
-                        <div className="client-forum-header">
-                            <div className="client-forum-icon">
-                                <i className="bi bi-chat-left-text"></i>
-                            </div>
-                            <div>
-                                <h2 className="client-forum-title">Thảo luận cộng đồng</h2>
-                                <p className="client-forum-subtitle">Kết nối học viện hỏi đáp những chung cộng đồng học sinh toàn quốc</p>
-                            </div>
-                        </div>
-
-                        <div className="client-forum-thread">
-                            <div className="client-thread-header">
-                                <div className="client-thread-avatar">
-                                    <img src="https://i.pravatar.cc/40?img=1" alt="User" />
-                                </div>
-                                <div className="client-thread-info">
-                                    <h4>Hỏi đáp Tuyển sinh 2024</h4>
-                                    <p><i className="bi bi-people"></i> 1,245 thành viên online</p>
-                                </div>
-                                <div className="client-thread-actions">
-                                    <button className="client-btn-icon"><i className="bi bi-search"></i></button>
-                                    <button className="client-btn-icon"><i className="bi bi-three-dots-vertical"></i></button>
-                                </div>
-                            </div>
-
-                            <div className="client-forum-messages">
-                                {/* Message 1 - Original question */}
-                                <div className="client-msg-item">
-                                    <div className="client-msg-avatar">
-                                        <div className="client-avatar-initial client-bg-gray">H</div>
-                                    </div>
-                                    <div className="client-msg-body">
-                                        <div className="client-msg-header">
-                                            <span className="client-msg-name">Hoàng Nam</span>
-                                            <span className="client-msg-time">Hôm nay lúc 10:30 h</span>
-                                        </div>
-                                        <div className="client-msg-content">
-                                            Mọi người cho mình hỏi ngành Marketing của NEU thì mỗi năm tuyển sinh cây bao nhiêu điểm vào để Minh có dự x
-                                        </div>
-                                        <button className="client-msg-reply-btn">Trả lời</button>
-                                    </div>
-                                </div>
-
-                                <div className="client-msg-item">
-                                    <div className="client-msg-avatar">
-                                        <div className="client-avatar-initial client-bg-gray">H</div>
-                                    </div>
-                                    <div className="client-msg-body">
-                                        <div className="client-msg-header">
-                                            <span className="client-msg-name">Hoàng Nam</span>
-                                            <span className="client-msg-time">Hôm nay lúc 10:30 h</span>
-                                        </div>
-                                        <div className="client-msg-content">
-                                            Mọi người cho mình hỏi ngành Marketing của NEU thì mỗi năm tuyển sinh cây bao nhiêu điểm vào để Minh có dự x
-                                        </div>
-                                        <button className="client-msg-reply-btn">Trả lời</button>
-                                    </div>
-                                </div>
-
-
-                                <div className="client-msg-item">
-                                    <div className="client-msg-avatar">
-                                        <div className="client-avatar-initial client-bg-gray">H</div>
-                                    </div>
-                                    <div className="client-msg-body">
-                                        <div className="client-msg-header">
-                                            <span className="client-msg-name">Hoàng Nam</span>
-                                            <span className="client-msg-time">Hôm nay lúc 10:30 h</span>
-                                        </div>
-                                        <div className="client-msg-content">
-                                            Mọi người cho mình hỏi ngành Marketing của NEU thì mỗi năm tuyển sinh cây bao nhiêu điểm vào để Minh có dự x
-                                        </div>
-                                        <button className="client-msg-reply-btn">Trả lời</button>
-                                    </div>
-                                </div>
-
-                                {/* Message 2 - Reply */}
-                                <div className="client-msg-item client-msg-reply">
-                                    <div className="client-msg-avatar">
-                                        <div className="client-avatar-initial client-bg-blue">N</div>
-                                    </div>
-                                    <div className="client-msg-body">
-                                        <div className="client-msg-header">
-                                            <span className="client-msg-name">Hoàng Nam</span>
-                                            <span className="client-msg-badge">Phả lời</span>
-                                        </div>
-
-                                        {/* Show original message */}
-                                        <div className="client-msg-replied">
-                                            <div className="client-replied-author">Hoàng Nam</div>
-                                            <div className="client-replied-text">Mọi người cho mình hỏi ngành Marketing của NEU...</div>
-                                        </div>
-
-                                        <div className="client-msg-content">
-                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên! PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div className="client-msg-item client-msg-reply">
-                                    <div className="client-msg-avatar">
-                                        {/* <div className="client-avatar-initial client-bg-blue"> */}
-                                        <img src="https://res.cloudinary.com/dszzlhs5i/image/upload/v1767619633/major-guide-app/hankschrader.jpg" className='client-avatar-photo' alt="" />
-                                        {/* </div> */}
-                                    </div>
-                                    <div className="client-msg-body">
-
-                                        <div className="client-msg-content">
-                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên! PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!                                            PM người gia mình hỏi ngành Marketing của NEU. Năm ngành nói năm ngoái là 912.5 cầu năm của ngành lầm độ học nhịch hôn sùi thú, Có thể lên!
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                {/* Message 3 - Expert answer */}
-                                <div className="client-msg-item">
-                                    <div className="client-msg-avatar">
-                                        <img src="https://i.pravatar.cc/40?img=2" alt="Expert" className="client-avatar-photo" />
-                                    </div>
-                                    <div className="client-msg-body">
-                                        <div className="client-msg-header">
-                                            <span className="client-msg-name">TS. Nguyễn Thu Hà</span>
-                                            <span className="client-msg-badge client-badge-expert">Chuyên gia</span>
-                                            <span className="client-msg-time">10:32 H</span>
-                                        </div>
-                                        <div className="client-msg-content">
-                                            Chào các em, với phức đều năm may, về tú kiểu câm nghiệp kinh tế trợ phải về gộ đó cỡ cả để dinh học nhiệc thẳng thể 3.25-0.5 điểm mọc Các em hãy có phương án đó phụng thể ở trường Thọ 2.
-                                        </div>
-                                        <button className="client-msg-reply-btn">Trả lời</button>
-                                    </div>
-                                </div>
-
-                                {/* Message 4 - Another reply */}
-                                <div className="client-msg-item client-msg-reply">
-                                    <div className="client-msg-avatar">
-                                        <div className="client-avatar-initial client-bg-purple">L</div>
-                                    </div>
-                                    <div className="client-msg-body">
-                                        <div className="client-msg-header">
-                                            <span className="client-msg-name">Lan Anh</span>
-                                            <span className="client-msg-badge">Phả lời</span>
-                                        </div>
-
-                                        {/* Show original message */}
-                                        <div className="client-msg-replied">
-                                            <div className="client-replied-author">Hoàng Nam</div>
-                                            <div className="client-replied-text">Mọi người cho mình hỏi ngành Marketing của NEU...</div>
-                                        </div>
-
-                                        <div className="client-msg-content">
-                                            Mình nghe nói năm nay điểm chuẩn có thể tăng đấy bạn, nên chuẩn bị thật tốt nhé!
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="client-forum-input">
-                                <div className="client-input-wrapper">
-                                    <input type="text" className="client-input-message" placeholder="Nhập tin nhắn của bạn..." />
-                                    <button className="client-btn-emoji"><i className="bi bi-emoji-smile"></i></button>
-                                </div>
-                                <button className="client-btn-send"><i className="bi bi-send-fill"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <ChatCommunity />
             </div>
         </>
     );

@@ -1,5 +1,8 @@
 import axios from 'axios'
 import { navigateTo } from '../helpers/help';
+import { store } from '../index';
+import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
+
 
 
 const instanceCallApi = axios.create({
@@ -40,10 +43,11 @@ instanceCallApi.interceptors.response.use(function (response) {
 }, function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    console.log(error.status)
+    // console.log(error.status)
 
     if (error.status === 401) {
-        localStorage.removeItem('authAdminInfo');
+        store.dispatch({ type: LOGOUT_ADMIN })
+        // localStorage.removeItem('authAdminInfo');
         navigateTo('/');
     }
     return Promise.reject(error);

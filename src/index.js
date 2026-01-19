@@ -11,7 +11,7 @@ import { legacy_createStore as createStore } from 'redux'
 import rootReducer from './reducer/rootReducer';
 
 
-const store = createStore(rootReducer);
+export const store = createStore(rootReducer);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

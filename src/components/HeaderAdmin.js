@@ -16,7 +16,7 @@ export default function HeaderAdmin() {
     const dispatch = useDispatch()
 
 
-    console.log(userInfo)
+    // console.log(userInfo)
 
     const handleLogout = () => {
         const action = {
