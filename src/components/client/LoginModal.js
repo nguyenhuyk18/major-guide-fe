@@ -3,9 +3,10 @@ import '../../assets/css/LoginModal.css';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { LOGIN_ADMIN } from '../../constants/AuthAdminConstant';
+import { LOGOUT_ADMIN } from '../../constants/AuthAdminConstant';
 import { loginClient } from '../../services/authorizer.api';
 import { toast } from 'react-toastify';
+import { LOGIN } from '../../constants/AuthConstant';
 // import { useState } from 'react';
 
 export default function LoginModal() {
@@ -32,7 +33,7 @@ export default function LoginModal() {
                 const rs = await loginClient(values);
 
                 const action = {
-                    type: LOGIN_ADMIN,
+                    type: LOGIN,
                     payload: {
                         isLogin: true,
                         access_token: rs.data.data.access_token,
@@ -46,7 +47,11 @@ export default function LoginModal() {
                     }
                 }
 
+                const action1 = {
+                    type: LOGOUT_ADMIN
+                }
 
+                dispatch(action1);
                 dispatch(action);
                 toast.success('Đăng nhập thành công !!!');
                 navigate('/');

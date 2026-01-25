@@ -1,5 +1,6 @@
 import { instanceCallApi } from './api.setting';
 
+// lấy useraccess theo mảng id
 const getUserByIds = async (data) => {
     const rs = await instanceCallApi.post('/api/v2/user/many-user', JSON.stringify(data), {
         headers: {
@@ -10,6 +11,7 @@ const getUserByIds = async (data) => {
     return rs;
 }
 
+// lấy useraccess theo id
 const getUserAccess = async (id) => {
     const rs = await instanceCallApi.get(`/api/v2/user/${id}`);
     return rs;
@@ -38,5 +40,16 @@ const getWardByIdProvince = async (id_province) => {
     return rs;
 }
 
+const updateFileAvartar = async (id, file) => {
+    const rs = await instanceCallApi.put(`/api/v2/user/upload-image/${id}`, file);
+    return rs;
+}
 
-export { getUserAccess, getListUser, getProvinceList, getWardByIdProvince, getAllProvince, getUserByIds }
+
+const updateUserAccess = async (id, data) => {
+    const rs = await instanceCallApi.put(`/api/v2/user/${id}`, data);
+    return rs;
+}
+
+
+export { getUserAccess, getListUser, getProvinceList, getWardByIdProvince, getAllProvince, getUserByIds, updateFileAvartar, updateUserAccess }

@@ -7,6 +7,7 @@ import { useFormik } from 'formik';
 import { toast } from 'react-toastify';
 import { loginAdmin } from '../../services/authorizer.api';
 import { LOGIN_ADMIN } from '../../constants/AuthAdminConstant';
+import { LOGOUT } from '../../constants/AuthConstant';
 export default function LoginAdminPage() {
 
     const navigate = useNavigate();
@@ -43,6 +44,12 @@ export default function LoginAdminPage() {
                         }
                     }
                 }
+
+                const action1 = {
+                    type: LOGOUT
+                }
+
+                dispatch(action1);
                 dispatch(action);
                 toast.success('Đăng nhập thành công !!');
                 navigate('/admin')

@@ -10,9 +10,9 @@ export default function DayInWeek({ arrayDayInWeek }) {
     return (
         <thead>
             <tr>
-                <th className="time-column">CA / THỨ</th>
+                <th className="time-column" style={{ backgroundColor: '#161b22 !important' }} >CA / THỨ</th>
                 {dayInWeek.map((row, idnx) =>
-                    <th key={idnx}>
+                    <th key={idnx} className='day-header-1'>
                         <div className="day-header" >
                             {/* <div className="day-name">{convertVietnamese(row)}</div> */}
 

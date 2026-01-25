@@ -153,17 +153,23 @@
 }
 
 .calendar-table thead th.time-column {
-    background-color: transparent;
+    background-color: #161b22 !important;
     color: #8b92a7;
     text-align: left;
     padding-left: 1rem;
 }
 
 .day-header {
+  
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+}
+
+.day-header-1 , .time-column-1 {
+border-radius: 10px;
+  background-color: #161b22 !important;
 }
 
 .day-name {

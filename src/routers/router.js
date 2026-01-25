@@ -14,8 +14,10 @@ import { setNavigate } from "../helpers/help";
 import CreateExpert from "../pages/admin/expert/CreateExpert";
 import SubcribeRegister from "../pages/admin/regiser/SubcribeRegister";
 import HomePage from "../pages/client/HomePage";
+import ContactPage from "../pages/client/ContactPage";
 // import Header from "../components/Header";
 import Layout from "../components/Layout";
+import InformationPage from "../pages/admin/InformationPage";
 
 export default function Routing() {
 
@@ -38,12 +40,14 @@ export default function Routing() {
                     <Route path="experts" element={<ExpertManagePage />} ></Route>
                     <Route path="experts/add" element={<CreateExpert />} ></Route>
                     <Route path="subcribe-register" element={< SubcribeRegister />} ></Route>
+                    <Route path="information" element={< InformationPage />} ></Route>
                 </Route>
                 <Route path="/admin/login" element={<ProtectedLoginAdmin> <LoginAdminPage /> </ProtectedLoginAdmin>} ></Route>
 
 
                 <Route path="/" element={<Layout />}  >
                     <Route index element={<HomePage />} />
+                    <Route path="contact" element={<ContactPage />} />
                 </Route>
             </Routes>
         </>

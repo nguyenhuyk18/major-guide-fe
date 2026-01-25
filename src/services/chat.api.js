@@ -15,4 +15,9 @@ const getMessage = async (page) => {
     return rs;
 }
 
-export { sendMessage, getMessage }
+const getMessageById = async (id_message) => {
+    const rs = await instanceCallApi.get(`/api/v2/chat-community/${id_message}`);
+    return rs;
+}
+
+export { sendMessage, getMessage, getMessageById }

@@ -45,7 +45,7 @@ export default function AsideAdmin() {
                         </Link>
                     </li>
                     <li className="nav-item mb-1">
-                        <Link to="/admin/subcribe-register" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/subcribe-register$/) || location.pathname.match(/^\/admin\/experts\/add$/) ? 'active' : ''}`}>
+                        <Link to="/admin/subcribe-register" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/subcribe-register$/) ? 'active' : ''}`}>
                             <i className="bi bi-calendar-check me-2" />
                             Đăng ký lịch tư vấn
                         </Link>

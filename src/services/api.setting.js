@@ -2,6 +2,7 @@ import axios from 'axios'
 import { navigateTo } from '../helpers/help';
 import { store } from '../index';
 import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
+import { LOGOUT } from '../constants/AuthConstant';
 
 
 
@@ -14,17 +15,28 @@ const instanceCallApi = axios.create({
 
 // Add a request interceptor
 instanceCallApi.interceptors.request.use(function (config) {
+    const isAdminRoute = window.location.pathname.startsWith('/admin');
     // Do something before request is sent
     // console.log(process.env.REACT_APP_API_URL)
+    let tmp = null;
 
     // thêm token mỗi lần gửi request !!!
-    let tmp = localStorage.getItem('authAdminInfo') || '';
+    let authAdminInfo = localStorage.getItem('authAdminInfo') ? JSON.parse(localStorage.getItem('authAdminInfo')) : '';
+    let authClientInfo = localStorage.getItem('authInfo') ? JSON.parse(localStorage.getItem('authInfo')) : '';
 
-    if (tmp) {
+    if (isAdminRoute && authAdminInfo && authAdminInfo.isLogin) {
         tmp = JSON.parse(localStorage.getItem('authAdminInfo'));
     }
+    else if (!isAdminRoute && authClientInfo && authClientInfo.isLogin) {
+        tmp = JSON.parse(localStorage.getItem('authInfo'));
+    }
 
-    config.headers.authorization = `Bearer ${tmp.access_token}`;
+
+
+
+    if (tmp) {
+        config.headers.authorization = `Bearer ${tmp.access_token}`;
+    }
 
 
     return config;
@@ -46,7 +58,8 @@ instanceCallApi.interceptors.response.use(function (response) {
     // console.log(error.status)
 
     if (error.status === 401) {
-        store.dispatch({ type: LOGOUT_ADMIN })
+        store.dispatch({ type: LOGOUT_ADMIN });
+        store.dispatch({ type: LOGOUT });
         // localStorage.removeItem('authAdminInfo');
         navigateTo('/');
     }

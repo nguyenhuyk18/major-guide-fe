@@ -5,7 +5,7 @@ import { faBell } from '@fortawesome/free-regular-svg-icons';
 import { Helmet } from 'react-helmet';
 import { useDispatch, useSelector } from 'react-redux';
 import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 export default function HeaderAdmin() {
@@ -59,6 +59,7 @@ export default function HeaderAdmin() {
 
                             <img
                                 src={`${userInfo.fileAvartarUrl}`}
+                                style={{ objectFit: 'cover' }}
                                 className="rounded-circle border border-secondary"
                                 width={40}
                                 height={40}
@@ -69,16 +70,16 @@ export default function HeaderAdmin() {
                         {/* Dropdown menu */}
                         <ul className="dropdown-menu dropdown-menu-end shadow admin-dropdown">
                             <li>
-                                <a className="dropdown-item" href="/">
+                                <Link className="dropdown-item" to="/admin/information">
                                     <i className="bi bi-person me-2" />
                                     Thông tin cá nhân
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a className="dropdown-item" href="/">
+                                <Link className="dropdown-item" to="">
                                     <i className="bi bi-gear me-2" />
                                     Cài đặt
-                                </a>
+                                </Link>
                             </li>
                             <li><hr className="dropdown-divider" /></li>
                             <li>

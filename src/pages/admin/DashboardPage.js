@@ -3,7 +3,7 @@ import React from 'react';
 export default function DashboardPage() {
     return (
         <>
-            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dignissimos, aliquam molestiae eum dolor cupiditate nemo vero at mollitia, architecto explicabo reiciendis nam provident voluptates sunt aperiam modi possimus nostrum deleniti!
+            {/* <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dignissimos, aliquam molestiae eum dolor cupiditate nemo vero at mollitia, architecto explicabo reiciendis nam provident voluptates sunt aperiam modi possimus nostrum deleniti!
                 Est deleniti consequuntur id ullam, quod odio sit non accusantium culpa cum qui, eveniet facere, velit fuga totam eligendi. Numquam laudantium accusamus enim sit molestias dolorem facere blanditiis doloremque vel.
                 Impedit tempore et doloribus esse ratione quo fuga magnam rem eius asperiores pariatur dignissimos excepturi cupiditate beatae, similique praesentium sequi molestiae commodi nemo odio dolor, minima porro. Et, aliquid vel!
                 Numquam velit dolor iste praesentium necessitatibus pariatur dolores quos omnis, nulla voluptatum. Vel natus autem ea eius, at praesentium ad incidunt. Eius a esse accusamus temporibus porro at enim obcaecati.
@@ -67,7 +67,7 @@ export default function DashboardPage() {
                                     Quisquam eum iste rerum labore natus, eos pariatur, quas consequatur maiores officia deserunt quia. Odio quidem amet quam optio recusandae voluptatibus nisi error esse at harum? Laudantium iste esse magnam!
                                     Ea atque necessitatibus, quibusdam laborum sint cupiditate nisi eos veritatis expedita sequi saepe excepturi molestias. Laudantium eius quos fugiat illo quia dolorem quae rem veritatis at, consequuntur vitae, corporis dolores.
                                     Laboriosam, consequuntur perspiciatis! Corrupti beatae at nobis commodi sed blanditiis tenetur, dicta neque sit asperiores iste voluptates magnam officia incidunt repellat harum excepturi tempore sunt numquam impedit. Ipsa, ex inventore.
-                                    Fuga quis commodi voluptas numquam velit illo dicta error labore fugit maxime non consequuntur nisi quidem adipisci, excepturi eum libero exercitationem officiis aut eligendi. Quae vel quidem deleniti omnis laborum!</p>
+                                    Fuga quis commodi voluptas numquam velit illo dicta error labore fugit maxime non consequuntur nisi quidem adipisci, excepturi eum libero exercitationem officiis aut eligendi. Quae vel quidem deleniti omnis laborum!</p> */}
         </>
     );
 }

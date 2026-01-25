@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import FrameChatCurrent from './FrameChatCurrent';
 import FrameChatOrder from './FrameChatOrther';
-import { getMessage, sendMessage } from '../../services/chat.api';
+import { getMessage, getMessageById, sendMessage } from '../../services/chat.api';
 import { getUserAccess, getUserByIds } from '../../services/user-access.api';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
@@ -15,7 +15,10 @@ export default function ChatCommunity() {
     const frameContainerChat = useRef(null);
     const hasMoreMessage = useRef(true);
     const page = useRef(1);
-    const idUser = useSelector(state => state?.authAdminReducer?.loggedUser?.id);
+    const [listReply, setIsReply] = useState([]);
+    const [replySomeOne, setIsReplySomeone] = useState(null);
+    const [highlightedMessageId, setHighlightedMessageId] = useState(null);
+    const idUser = useSelector(state => state?.authClientReducer?.loggedUser?.id);
     // console.log(idUser)
 
     const [messageList, setMessageList] = useState([]);
@@ -54,9 +57,9 @@ export default function ChatCommunity() {
                     toast.error('Lỗi đã xảy ra !!!');
                 }
             }
-            console.log('hahhaah')
+            // console.log('hahhaah')
             setMessageList(prevMessage => [...prevMessage, {
-                id: id,
+                _id: id,
                 sendBy: userId,
                 content: message,
                 replyTo: replyTo
@@ -77,7 +80,7 @@ export default function ChatCommunity() {
         return () => {
             socket.disconnect()
         }
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -128,7 +131,7 @@ export default function ChatCommunity() {
         // Khởi động giá trị cho thẻ nhập liệu
         initialValues: {
             content: '',
-            replyTo: ''
+            replyTo: replySomeOne?._id || ''
         },
         // Kiểm tra dữ liệu hợp lệ không
         validationSchema: Yup.object({
@@ -138,9 +141,19 @@ export default function ChatCommunity() {
 
         onSubmit: async (values, { resetForm }) => {
             try {
-                await sendMessage(values);
+                // Include replyTo in the message if replying to someone
+                const messageData = {
+                    ...values,
+                    replyTo: replySomeOne?._id || ''
+                };
+
+                await sendMessage(messageData);
                 resetForm();
-                setTimeout(() => scrollToBottom, 100);
+                setIsReplySomeone(null);
+                // Reset replyTo field for next message
+                formik.setFieldValue('replyTo', '');
+
+                setTimeout(() => scrollToBottom, 200);
             } catch (error) {
                 toast.error('Không thể gửi tin nhắn hãy đăng nhập và gửi lại sau !!!');
             }
@@ -156,6 +169,27 @@ export default function ChatCommunity() {
                 const rs = await getMessage(page.current);
                 const listMessage = rs.data.data.chatList.slice().reverse();
                 hasMoreMessage.current = rs.data.data.hasMore;
+
+                let ids = [];
+
+                // lấy user bị thiếu
+                rs.data.data.chatList.forEach(row => {
+                    if (!userCalled.current.get(row.sendBy)) {
+                        ids.push(row.sendBy);
+                    }
+                })
+
+                // tìm users theo ids
+                const users = await getUserByIds({
+                    ids
+                })
+
+                const keys = Object.keys(users.data.data);
+
+                keys.forEach(row => {
+                    userCalled.current.set(row, users.data.data[row]);
+                })
+
                 setMessageList(prevMessage => [...listMessage, ...prevMessage]);
                 // delay vẽ giao diện để tính toán lại heightscroll
                 // requestAnimationFrame(() => {
@@ -167,6 +201,111 @@ export default function ChatCommunity() {
         } catch (error) {
             toast.error('Lỗi đã xảy ra, hãy thử lại sau !!!');
         }
+    }
+
+    const handleOnAnwser = async (idMessage) => {
+        const messageAnswer = messageList.find(row => row._id === idMessage);
+
+        try {
+            // console.log(idMessage)
+            const rs = await getUserAccess(messageAnswer.sendBy);
+            // console.log(rs);
+            setIsReplySomeone({
+                ...messageAnswer,
+                name: rs.data.data.name
+            })
+        } catch (error) {
+            console.log(error);
+            toast.error('Lỗi đã xảy ra !!!');
+        }
+    }
+
+
+    const handleOnCloseAnwser = () => {
+        setIsReplySomeone(null);
+    }
+
+    const handleOnReplyClick = async (messageId) => {
+        const existEl = document.getElementById(messageId);
+        if (existEl) {
+            setHighlightedMessageId(messageId);
+
+            requestAnimationFrame(() => {
+                existEl.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            });
+
+            setTimeout(() => {
+                setHighlightedMessageId(null);
+            }, 2000);
+
+            return;
+        }
+
+        while (hasMoreMessage.current) {
+            page.current += 1;
+            const rs = await getMessage(page.current);
+
+            const listMessage = rs.data.data.chatList.slice().reverse();
+            hasMoreMessage.current = rs.data.data.hasMore;
+
+            let ids = [];
+            let idMessage = [];
+
+            rs.data.data.chatList.forEach(row => {
+                idMessage.push(row._id);
+                if (!userCalled.current.get(row.sendBy)) {
+                    ids.push(row.sendBy);
+                }
+            });
+
+            if (ids.length) {
+                const users = await getUserByIds({ ids });
+                Object.keys(users.data.data).forEach(key => {
+                    userCalled.current.set(key, users.data.data[key]);
+                });
+            }
+
+            setMessageList(prev => [...listMessage, ...prev]);
+
+            if (idMessage.includes(messageId)) break;
+        }
+
+        setHighlightedMessageId(messageId);
+
+        setTimeout(() => {
+            const el = document.getElementById(messageId);
+            if (el) {
+                el.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }
+        }, 50);
+    }
+
+    const getOriginalMessage = async (replyToId) => {
+        // console.log(messageList.find(msg => msg._id === replyToId));
+        const rs = messageList.find(msg => msg._id === replyToId);
+
+        if (!rs) {
+            const rs1 = await getMessageById(replyToId);
+            const user = await getUserAccess(rs1.data.data.sendBy);
+            // console.log(rs1);
+            return {
+                ...rs1.data.data,
+                name: user.data.data.name
+            };
+        }
+
+        const user = await getUserAccess(rs.sendBy);
+
+        return {
+            ...rs,
+            name: user.data.data.name
+        };
     }
 
     return (
@@ -206,28 +345,68 @@ export default function ChatCommunity() {
                                 const user = userCalled.current.get(row.sendBy);
                                 // console.log(emailUser, ' ', user);
                                 if (idUser && idUser === row.sendBy) {
-                                    return <FrameChatCurrent replyMessage={null} currentMessage={
-                                        {
-                                            idmessage: row.id,
+                                    return <FrameChatCurrent
+                                        replyMessage={null}
+                                        currentMessage={{
+                                            idmessage: row._id,
                                             content: row.content,
                                             fileurl: user.fileAvartarUrl,
                                             name: user.name,
-                                        }
-                                    } />
+                                            replyTo: row.replyTo
+                                        }}
+                                        handleOnReplyClick={handleOnReplyClick}
+                                        getOriginalMessage={getOriginalMessage}
+                                        isHighlighted={highlightedMessageId === row._id}
+                                    />
                                 }
-                                return <FrameChatOrder replyMessage={null} currentMessage={
-                                    {
-                                        idmessage: row.id,
+                                return <FrameChatOrder
+                                    replyMessage={null}
+                                    currentMessage={{
+                                        idmessage: row._id,
                                         content: row.content,
                                         fileurl: user.fileAvartarUrl,
                                         name: user.name,
-                                    }} />
+                                        replyTo: row.replyTo
+                                    }}
+                                    handleOnAnwser={handleOnAnwser}
+                                    handleOnReplyClick={handleOnReplyClick}
+                                    getOriginalMessage={getOriginalMessage}
+                                    isHighlighted={highlightedMessageId === row._id}
+                                />
                             }) : ''}
                             {/* <div ref={messagesContainerRef} /> */}
                         </div>
 
                         <div className="client-forum-input-section">
                             <form onSubmit={formik.handleSubmit}>
+                                {
+
+                                    replySomeOne ? <div className="client-reply-preview">
+                                        <div className="client-reply-preview-content">
+                                            <div className="client-reply-preview-icon">
+                                                <i className="bi bi-reply-fill"></i>
+                                            </div>
+                                            <div className="client-reply-preview-info">
+                                                <div className="client-reply-preview-author">
+                                                    Đang trả lời: {/* {replyMessage.author} */} {replySomeOne.name}
+                                                </div>
+                                                <div className="client-reply-preview-text">
+                                                    {/* {replyMessage.content} */}
+                                                    {replySomeOne.content}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="client-reply-preview-close"
+                                            onClick={() => handleOnCloseAnwser()}
+                                        >
+                                            <i className="bi bi-x"></i>
+                                        </button>
+                                    </div> : null
+                                }
+
+
                                 <div className="client-forum-input">
                                     <div className="client-input-wrapper">
                                         <input

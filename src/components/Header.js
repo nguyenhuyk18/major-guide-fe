@@ -1,19 +1,23 @@
 import { useDispatch, useSelector } from 'react-redux';
 import '../assets/css/Header.css'
-import { Link, useNavigate } from 'react-router-dom';
-import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+// import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
+import { LOGOUT } from '../constants/AuthConstant';
 
 export default function Header() {
 
-    const userInfo = useSelector(state => state.authAdminReducer.loggedUser);
-    const isLogin = useSelector(state => state.authAdminReducer.isLogin)
+    const userInfo = useSelector(state => state.authClientReducer.loggedUser);
+    const isLogin = useSelector(state => state.authClientReducer.isLogin);
+
+
+    const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const handleLogout = () => {
         const action = {
             // isLogin: false,
-            type: LOGOUT_ADMIN
+            type: LOGOUT
 
         }
         dispatch(action);
@@ -35,11 +39,11 @@ export default function Header() {
 
                         {/* Navigation */}
                         <nav className="client-nav">
-                            <Link className="client-nav-link active">Trang chủ</Link>
+                            <Link className={`client-nav-link ${location.pathname.match(/^\/$/) ? 'active' : ''}`} to="/">Trang chủ</Link>
                             <Link className="client-nav-link">Chuyên gia</Link>
                             <Link className="client-nav-link">Đại học</Link>
                             <Link className="client-nav-link">Tra Noc</Link>
-                            <Link className="client-nav-link">Liên hệ</Link>
+                            <Link className={`client-nav-link ${location.pathname.match(/^\/contact$/) ? 'active' : ''}`} to="/contact">Liên hệ</Link>
                         </nav>
 
                         {/* Actions */}

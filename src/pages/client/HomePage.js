@@ -10,7 +10,7 @@ export default function HomePage() {
         <>
             <div className="client-home-page">
 
-                <HeroSection></HeroSection>
+                <HeroSection />
 
 
 

@@ -7,7 +7,7 @@ export default function TimeSlotLabel(props) {
 
     return (
         <>
-            <td className="time-column">
+            <td className="time-column time-column-1">
                 <div className="time-slot-label">
                     <div className="slot-name">{nameShift}</div>
                     <div className="slot-time">{startTime} - {endTime}</div>
