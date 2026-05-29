@@ -1,11 +1,70 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../assets/css/HomePage.css'
 import HeroSection from '../../components/client/HeroSection';
 import ChatCommunity from '../../components/client/ChatCommunity';
 import { Link } from 'react-router-dom';
+import { getAllPosts } from '../../services/post.api';
+import { getListUser } from '../../services/user-access.api';
 
 
 export default function HomePage() {
+    const [recentPosts, setRecentPosts] = useState([]);
+    const [experts, setExperts] = useState([]);
+    const [loadingExperts, setLoadingExperts] = useState(true);
+
+    useEffect(() => {
+        fetchRecentPosts();
+        fetchExperts();
+    }, []);
+
+    const fetchRecentPosts = async () => {
+        try {
+            const res = await getAllPosts();
+            // Cấu trúc: res.data.data.posts
+            const posts = res?.data?.data?.posts || res?.data?.data?.result || res?.data?.data || [];
+            // Hiển thị tối đa 4 bài viết
+            setRecentPosts(Array.isArray(posts) ? posts.slice(0, 4) : []);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+    };
+
+    const fetchExperts = async () => {
+        setLoadingExperts(true);
+        try {
+            const res = await getListUser('', '', '', 4, '', 'expert');
+            if (res?.data?.data?.result) {
+                // Lấy 4 chuyên gia đầu tiên
+                setExperts(res.data.data.result.slice(0, 4));
+            } else if (Array.isArray(res?.data?.data)) {
+                // Fallback: data directly is an array
+                setExperts(res.data.data.slice(0, 4));
+            }
+        } catch (error) {
+            console.error('Error fetching experts:', error);
+        } finally {
+            setLoadingExperts(false);
+        }
+    };
+
+    const getExpertAvatar = (expert) => {
+        if (expert.fileAvartarUrl) {
+            return expert.fileAvartarUrl;
+        }
+        const initial = expert.name ? expert.name.charAt(0).toUpperCase() : 'E';
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=6366f1&color=fff&size=150`;
+    };
+
+    const getExpertMajor = (expert) => {
+        if (expert.expertProfile?.major) {
+            return expert.expertProfile.major;
+        }
+        if (expert.roleName === 'expert' && expert.expertProfile) {
+            return 'Chuyên gia tư vấn';
+        }
+        return 'Chuyên gia tư vấn';
+    };
+
     return (
         <>
             <div className="client-home-page">
@@ -15,230 +74,125 @@ export default function HomePage() {
 
 
                 {/* Featured Experts Section */}
-                <section className="client-section client-experts-section">
+                <section className="client-experts-section">
                     <div className="container">
                         <div className="client-section-header">
                             <h2 className="client-section-title">Chuyên gia nổi bật</h2>
-                            <p className="client-section-subtitle">Đội ngũ có tâm giúp bạn tuyển sinh đại học phù hợp nhất</p>
-                            <Link className="client-link-view-all">Xem tất cả →</Link>
+                            <p className="client-section-subtitle">Đội ngũ chuyên gia giàu kinh nghiệm, tận tâm hỗ trợ bạn tuyển sinh đại học</p>
+                            <Link to="/experts" className="client-link-view-all">
+                                Xem tất cả <i className="bi bi-arrow-right"></i>
+                            </Link>
                         </div>
 
-                        <div className="row g-4">
-                            {/* Expert Card 1 */}
-                            <div className="col-12 col-sm-6 col-lg-3">
-                                <div className="client-expert-card">
-                                    <div className="client-expert-avatar-wrapper">
-                                        <img src="https://i.pravatar.cc/150?img=33" alt="Expert" className="client-expert-avatar" />
-                                        <span className="client-expert-status"></span>
-                                    </div>
-                                    <h3 className="client-expert-name">TS. Nguyễn Thu Hà</h3>
-                                    <p className="client-expert-major">KHCN-CNTTvàTT</p>
-                                    <div className="client-expert-rating">
-                                        <i className="bi bi-star-fill"></i>
-                                        <span>4.5</span>
-                                        <span className="client-expert-reviews">(3.4k đánh giá)</span>
-                                    </div>
-                                    <p className="client-expert-bio">Chuyên gia lập trình phần mềm và 35 năm kinh nghiệm tư vấn chọn...</p>
-                                    <button className="client-btn-expert">
-                                        <i className="bi bi-calendar me-2"></i>
-                                        Nhắn tin ngay
-                                    </button>
-                                </div>
+                        {loadingExperts ? (
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-primary" role="status"></div>
                             </div>
-
-                            {/* Expert Card 2 */}
-                            <div className="col-12 col-sm-6 col-lg-3">
-                                <div className="client-expert-card">
-                                    <div className="client-expert-avatar-wrapper client-avatar-purple">
-                                        <span className="client-expert-initial">M</span>
-                                        <span className="client-expert-status client-status-offline"></span>
+                        ) : experts.length > 0 ? (
+                            <div className="row g-4">
+                                {experts.map((expert, index) => (
+                                    <div key={expert.id || expert._id || index} className="col-12 col-sm-6 col-lg-3">
+                                        <div className="client-expert-card">
+                                            <div className="client-expert-avatar-wrapper">
+                                                <img
+                                                    src={getExpertAvatar(expert)}
+                                                    alt={expert.name}
+                                                    className="client-expert-avatar"
+                                                    onError={(e) => {
+                                                        const initial = expert.name ? expert.name.charAt(0).toUpperCase() : 'E';
+                                                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=6366f1&color=fff&size=150`;
+                                                    }}
+                                                />
+                                                <span className="client-expert-status"></span>
+                                            </div>
+                                            <h3 className="client-expert-name">{expert.name || 'Chuyên gia'}</h3>
+                                            <p className="client-expert-major">{getExpertMajor(expert)}</p>
+                                            <div className="client-expert-rating">
+                                                <i className="bi bi-star-fill"></i>
+                                                <span>4.5</span>
+                                                <span className="client-expert-reviews">(3.4k đánh giá)</span>
+                                            </div>
+                                            <p className="client-expert-bio">
+                                                {expert.expertProfile?.information
+                                                    ? expert.expertProfile.information.substring(0, 60) + '...'
+                                                    : 'Chuyên gia tư vấn tuyển sinh hàng đầu, sẵn sàng hỗ trợ bạn 24/7.'}
+                                            </p>
+                                            <Link
+                                                to={`/choose-schedule?expert_id=${expert.id || expert._id}`}
+                                                className="client-btn-expert"
+                                            >
+                                                <i className="bi bi-calendar me-2"></i>
+                                                Đặt lịch hẹn
+                                            </Link>
+                                        </div>
                                     </div>
-                                    <h3 className="client-expert-name">ThS. Lê Minh</h3>
-                                    <p className="client-expert-major">KHXH-GIAO DUC</p>
-                                    <div className="client-expert-rating">
-                                        <i className="bi bi-star-fill"></i>
-                                        <span>4.8</span>
-                                        <span className="client-expert-reviews">(9.5k đánh giá)</span>
-                                    </div>
-                                    <p className="client-expert-bio">Giảng viên Đại học Sư phạm Hà Nội là triết học chủ đề Rust.</p>
-                                    <button className="client-btn-expert client-btn-expert-outline">
-                                        <i className="bi bi-calendar me-2"></i>
-                                        Đặt lịch hẹn
-                                    </button>
-                                </div>
+                                ))}
                             </div>
-
-                            {/* Expert Card 3 */}
-                            <div className="col-12 col-sm-6 col-lg-3">
-                                <div className="client-expert-card">
-                                    <div className="client-expert-avatar-wrapper client-avatar-blue">
-                                        <span className="client-expert-initial">T</span>
-                                        <span className="client-expert-status"></span>
-                                    </div>
-                                    <h3 className="client-expert-name">Trần Tuấn Anh</h3>
-                                    <p className="client-expert-major">KHCN-CNTT</p>
-                                    <div className="client-expert-rating">
-                                        <i className="bi bi-star-fill"></i>
-                                        <span>5.0</span>
-                                        <span className="client-expert-reviews">(4.2k đánh giá)</span>
-                                    </div>
-                                    <p className="client-expert-bio">Senior Developer tại Google, Chuyên về Software, mentor định hướng...</p>
-                                    <button className="client-btn-expert">
-                                        <i className="bi bi-calendar me-2"></i>
-                                        Nhắn tin ngay
-                                    </button>
-                                </div>
+                        ) : (
+                            <div className="text-center py-5">
+                                <p className="text-muted">Chưa có chuyên gia nào.</p>
                             </div>
-
-                            {/* Expert Card 4 */}
-                            <div className="col-12 col-sm-6 col-lg-3">
-                                <div className="client-expert-card">
-                                    <div className="client-expert-avatar-wrapper client-avatar-orange">
-                                        <span className="client-expert-initial">H</span>
-                                        <span className="client-expert-status"></span>
-                                    </div>
-                                    <h3 className="client-expert-name">Hoàng Lan</h3>
-                                    <p className="client-expert-major">DU-NGSC</p>
-                                    <div className="client-expert-rating">
-                                        <i className="bi bi-star-fill"></i>
-                                        <span>4.8</span>
-                                        <span className="client-expert-reviews">(5.8k đánh giá)</span>
-                                    </div>
-                                    <p className="client-expert-bio">Cựu du học sinh Úc, chuyên về học bổng và visa du học.</p>
-                                    <button className="client-btn-expert">
-                                        <i className="bi bi-calendar me-2"></i>
-                                        Nhắn tin ngay
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </section>
 
                 {/* Universities and Majors Section */}
-                <section className="client-section">
-                    <div className="container">
-                        <div className="row g-4">
-                            {/* Universities */}
-                            <div className="col-12 col-lg-7">
-                                <div className="client-subsection-header">
-                                    <h2 className="client-subsection-title">Các trường đại học hàng đầu</h2>
-                                    <Link className="client-link-small">Xem thêm →</Link>
-                                </div>
-                                <div className="row g-3">
-                                    <div className="col-12 col-md-6">
-                                        <div className="client-university-card">
-                                            <img src="https://via.placeholder.com/400x200/3b82f6/ffffff?text=University" alt="University" className="client-university-img" />
-                                            <div className="client-university-badge">4.6</div>
-                                            <div className="client-university-info">
-                                                <h4>Đại học Quốc Gia Hà Nội</h4>
-                                                <p><i className="bi bi-geo-alt"></i> Hà Nội</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-12 col-md-6">
-                                        <div className="client-university-card">
-                                            <img src="https://via.placeholder.com/400x200/f59e0b/ffffff?text=University" alt="University" className="client-university-img" />
-                                            <div className="client-university-badge">4.7</div>
-                                            <div className="client-university-info">
-                                                <h4>Đại học RMIT Việt Nam</h4>
-                                                <p><i className="bi bi-geo-alt"></i> HCM & Hà Nội</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            {/* Hot Majors */}
-                            <div className="col-12 col-lg-5">
-                                <div className="client-subsection-header">
-                                    <h2 className="client-subsection-title">Ngành học HOT</h2>
-                                    <Link className="client-link-small">Tất cả →</Link>
-                                </div>
-                                <div className="client-major-list">
-                                    <div className="client-major-item">
-                                        <div className="client-major-icon client-icon-blue">
-                                            <i className="bi bi-laptop"></i>
-                                        </div>
-                                        <div className="client-major-content">
-                                            <h4>CNTT & Lập trình</h4>
-                                            <p>8 trường liên kết</p>
-                                        </div>
-                                        <i className="bi bi-chevron-right"></i>
-                                    </div>
-                                    <div className="client-major-item">
-                                        <div className="client-major-icon client-icon-green">
-                                            <i className="bi bi-graph-up-arrow"></i>
-                                        </div>
-                                        <div className="client-major-content">
-                                            <h4>Digital Marketing</h4>
-                                            <p>6 trường liên kết</p>
-                                        </div>
-                                        <i className="bi bi-chevron-right"></i>
-                                    </div>
-                                    <div className="client-major-item">
-                                        <div className="client-major-icon client-icon-purple">
-                                            <i className="bi bi-palette"></i>
-                                        </div>
-                                        <div className="client-major-content">
-                                            <h4>Thiết kế đồ họa</h4>
-                                            <p>4 trường liên kết</p>
-                                        </div>
-                                        <i className="bi bi-chevron-right"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
                 {/* Recent Articles Section */}
-                <section className="client-section">
+                <section className="client-section" style={{ background: '#f8fafc' }}>
                     <div className="container">
                         <div className="client-section-header">
                             <h2 className="client-section-title">Bài viết gần đây</h2>
-                            <Link href="#" className="client-link-view-all">Xem tất cả →</Link>
+                            <p className="client-section-subtitle">Cập nhật tin tức và kiến thức tuyển sinh mới nhất</p>
+                            <Link to="/blog" className="client-link-view-all">
+                                Xem tất cả <i className="bi bi-arrow-right"></i>
+                            </Link>
                         </div>
                         <div className="row g-4">
-                            <div className="col-12 col-md-4">
-                                <div className="client-article-card">
-                                    <div className="client-article-image">
-                                        <img src="https://via.placeholder.com/400x250/6366f1/ffffff?text=Article" alt="Article" />
-                                        <span className="client-article-badge">TUYỂN SINH</span>
+                            {recentPosts.length > 0 ? (
+                                recentPosts.map((post) => (
+                                    <div key={post._id || post.id} className="col-12 col-sm-6 col-lg-3">
+                                        <div className="client-article-card">
+                                            <div className="client-article-image">
+                                                <img
+                                                    src={post.imageUrl || post.thumbnailUrl || post.coverImage || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop'}
+                                                    alt={post.title}
+                                                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop'; }}
+                                                />
+                                                <span className="client-article-badge">Blog</span>
+                                            </div>
+                                            <div className="client-article-content">
+                                                <p className="client-article-date">
+                                                    <i className="bi bi-calendar3"></i>
+                                                    {post.createdAt ? new Date(post.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}
+                                                </p>
+                                                <h3 className="client-article-title">{post.title}</h3>
+                                                {post.description && (
+                                                    <p className="client-article-excerpt">
+                                                        {post.description.length > 100 ? post.description.substring(0, 100) + '...' : post.description}
+                                                    </p>
+                                                )}
+                                                {post.content && !post.description && (
+                                                    <p className="client-article-excerpt">
+                                                        {post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content}
+                                                    </p>
+                                                )}
+                                                <Link to={`/blog/${post.id || post._id}`} className="client-article-read-more">
+                                                    Đọc thêm <i className="bi bi-arrow-right"></i>
+                                                </Link>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="client-article-content">
-                                        <p className="client-article-date"><i className="bi bi-calendar3"></i> 12/05/2024</p>
-                                        <h3 className="client-article-title">Công bố phương án tuyển sinh đại học chính quy năm 2024</h3>
-                                        <p className="client-article-excerpt">Nhiều trường đại học top đầu đã công bố phương án tuyển sinh năm 2024 cho các sinh viên muốn theo đuổi tại Việt...</p>
+                                ))
+                            ) : (
+                                <div className="col-12 text-center py-5">
+                                    <div style={{ color: '#94a3b8' }}>
+                                        <i className="bi bi-newspaper" style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}></i>
+                                        <p>Chưa có bài viết nào.</p>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="col-12 col-md-4">
-                                <div className="client-article-card">
-                                    <div className="client-article-image">
-                                        <img src="https://via.placeholder.com/400x250/10b981/ffffff?text=Article" alt="Article" />
-                                        <span className="client-article-badge client-badge-green">HƯỚNG NGHIỆP</span>
-                                    </div>
-                                    <div className="client-article-content">
-                                        <p className="client-article-date"><i className="bi bi-calendar3"></i> 10/05/2024</p>
-                                        <h3 className="client-article-title">Top 5 ngành nghề có thu nhập hấp dẫn trong 5 năm tới</h3>
-                                        <p className="client-article-excerpt">Xu hướng chuyên đổi số đang làm ra tiền việc làm cao thu nhập ngành công nghệ và đầu tức...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-4">
-                                <div className="client-article-card">
-                                    <div className="client-article-image">
-                                        <img src="https://via.placeholder.com/400x250/ec4899/ffffff?text=Article" alt="Article" />
-                                        <span className="client-article-badge client-badge-pink">TÂM LÝ HỌC</span>
-                                    </div>
-                                    <div className="client-article-content">
-                                        <p className="client-article-date"><i className="bi bi-calendar3"></i> 05/05/2024</p>
-                                        <h3 className="client-article-title">Bí quyết quản lý tài chính hiệu quả cho tân sinh viên</h3>
-                                        <p className="client-article-excerpt">Làm thế nào để chi tiêu hợp lý và tiết kiệm là vấn đề đáng quan tâm của nhiều sinh viên mới và HSSV? Cùng tìm...</p>
-                                    </div>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </section>

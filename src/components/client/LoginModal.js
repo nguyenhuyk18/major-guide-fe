@@ -154,16 +154,12 @@ export default function LoginModal() {
                                 </div>
 
                                 {/* Social Login */}
-                                <div className="client-social-login">
+                                {/* <div className="client-social-login">
                                     <button type="button" className="btn client-btn-social client-btn-google">
                                         <i className="bi bi-google me-2"></i>
                                         Google
                                     </button>
-                                    {/* <button type="button" className="btn client-btn-social client-btn-facebook">
-                                        <i className="bi bi-facebook me-2"></i>
-                                        Facebook
-                                    </button> */}
-                                </div>
+                                </div> */}
 
                                 {/* Register Link */}
                                 <div className="client-register-link">

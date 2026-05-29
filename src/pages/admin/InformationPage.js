@@ -5,7 +5,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
-import { getUserAccess, updateUserAccess, updateFileAvartar, getProvinceList, getWardByIdProvince } from '../../services/user-access.api';
+import { getUserAccess, updateUserAccess, updateFileAvartar, getProvinceList, getWardByIdProvince, getWardById } from '../../services/user-access.api';
 import { UPDATED_LOGGED_USER_ADMIN } from '../../constants/AuthAdminConstant';
 
 export default function InformationPage() {
@@ -19,6 +19,8 @@ export default function InformationPage() {
     const [wardList, setWardList] = useState([]);
     const fileInputRef = useRef(null);
 
+    // console.log(provinceList);
+    // console.log(wardList);
     const isExpert = loggedUser?.role_name === 'expert';
     const isAdmin = loggedUser?.role_name === 'admin';
 
@@ -30,6 +32,7 @@ export default function InformationPage() {
         if (loggedUser?.id) {
             fetchUserData(loggedUser.id);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loggedUser]);
 
     const getProvinces = async () => {
@@ -46,23 +49,27 @@ export default function InformationPage() {
             const res = await getUserAccess(id);
             if (res.data && res.data.data) {
                 const userData = res.data.data;
+                // console.log(userData);
                 setCurrentUser(userData);
-
+                // const getProvinceId = await getProvinceById(userData.wardId);
+                // const getProvinceId = await
+                const ward_info = await getWardById(userData.wardId);
+                console.log(ward_info.data.data.province_id);
                 // Update formik values
                 formik.setValues({
                     fullName: userData.name || '',
                     major: userData.expertProfile?.major || '',
                     level: userData.expertProfile?.level || 'bachelor',
                     price: userData.expertProfile?.price || '',
-                    province_id: userData.ward?.province_id || '',
+                    province_id: ward_info?.data?.data?.province_id?.id || '',
                     ward_id: userData.wardId || '',
                     teachingLocation: userData.expertProfile?.teachAt || '',
                     bio: userData.expertProfile?.information || '',
                 });
 
                 // Load wards if province exists
-                if (userData.ward?.province_id) {
-                    loadWards(userData.ward.province_id);
+                if (ward_info?.data?.data?.province_id?.id) {
+                    loadWards(ward_info?.data?.data?.province_id?.id);
                 }
             }
         } catch (error) {
@@ -238,12 +245,12 @@ export default function InformationPage() {
 
                             {/* Change Photo Button */}
                             {/* Change Photo Button */}
-                            <button
+                            {/* <button
                                 className="btn info-page-btn-change-photo w-100 mb-4"
                                 onClick={handleAvatarClick}
                             >
                                 Thay đổi ảnh đại diện
-                            </button>
+                            </button> */}
 
                             {/* Status Section */}
                             <div className="info-page-divider">

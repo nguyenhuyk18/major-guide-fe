@@ -45,6 +45,11 @@ const updateFileAvartar = async (id, file) => {
     return rs;
 }
 
+const getWardById = async (id) => {
+    const rs = await instanceCallApi.get(`/api/v2/ward/${id}`);
+    return rs;
+}
+
 
 const updateUserAccess = async (id, data) => {
     const rs = await instanceCallApi.put(`/api/v2/user/${id}`, data);
@@ -52,4 +57,4 @@ const updateUserAccess = async (id, data) => {
 }
 
 
-export { getUserAccess, getListUser, getProvinceList, getWardByIdProvince, getAllProvince, getUserByIds, updateFileAvartar, updateUserAccess }
+export { getUserAccess, getListUser, getProvinceList, getWardByIdProvince, getAllProvince, getUserByIds, updateFileAvartar, updateUserAccess, getWardById }

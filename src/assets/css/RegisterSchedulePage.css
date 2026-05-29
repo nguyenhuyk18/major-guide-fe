@@ -1,0 +1,173 @@
+/* @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"); */
+
+.schedule-page-bg {
+    background-color: #f8fafc; /* Màu nền xám thật nhạt toàn trang */
+    min-height: 100vh;
+}
+
+/* Badge của Mentor */
+.custom-badge {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+    padding: 6px 14px;
+    font-weight: 600;
+}
+
+/* Nút Toggle (This week / Next week) */
+.custom-toggle {
+    display: inline-flex;
+}
+.active-toggle {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    color: #212529;
+}
+
+/* Bọc ngoài bảng để làm bo góc */
+.schedule-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Thiết lập Bảng chuẩn */
+.custom-schedule-table {
+    width: 100%;
+    border-collapse: collapse !important; /* Bắt buộc để xóa khoảng trắng giữa các cột */
+    table-layout: fixed; /* Cố định chiều rộng 6 cột bằng nhau */
+}
+
+/* Ô tiêu đề và nội dung */
+.custom-schedule-table th, 
+.custom-schedule-table td {
+    border: 1px solid #e2e8f0; /* Viền mỏng */
+    padding: 12px;
+    position: relative;
+}
+
+/* Xóa viền ngoài cùng trùng với viền của schedule-wrapper */
+.custom-schedule-table th { border-top: none; }
+.custom-schedule-table tr:last-child td { border-bottom: none; }
+.custom-schedule-table th:first-child, .custom-schedule-table td:first-child { border-left: none; }
+.custom-schedule-table th:last-child, .custom-schedule-table td:last-child { border-right: none; }
+
+/* Tiêu đề thứ ngày */
+.custom-schedule-table th {
+    background-color: #f8fafc;
+    text-align: center;
+    padding: 16px 8px;
+}
+
+/* Ô chứa lịch (đặt height cố định để nút luôn nằm dưới) */
+.custom-schedule-table td {
+    height: 140px;
+    vertical-align: top;
+    background-color: #fff;
+}
+
+/* Background cho ô đã đặt */
+.bg-light-gray {
+    background-color: #f8fafc !important;
+}
+
+/* Chữ hiển thị giờ */
+.cell-time {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+/* Nội dung nằm dưới đáy ô (Trạng thái + Nút) */
+.cell-content {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+}
+
+.status-text {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+}
+
+/* Chấm trạng thái */
+.status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* Nút Chọn */
+.btn-chon {
+    background-color: #1877f2;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 0;
+}
+
+.btn-chon:hover {
+    background-color: #166fe5;
+}
+
+/* ── Status Badge chung ── */
+.shift-status-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    line-height: 1.5;
+}
+
+/* Có thể đặt – xanh lá */
+.shift-status-badge.status-available {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+/* Đang giữ chỗ – vàng cam */
+.shift-status-badge.status-holding {
+    background-color: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fde68a;
+}
+
+/* Đã hủy – đỏ nhạt */
+.shift-status-badge.status-cancle {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+/* Không có sẵn – xám tím */
+.shift-status-badge.status-unavailable {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+}
+
+/* Đã được đặt – tím indigo */
+.shift-status-badge.status-ordered {
+    background-color: #ede9fe;
+    color: #5b21b6;
+    border: 1px solid #ddd6fe;
+}
+
+/* Bận (không có shift trong ngày) – xám nhạt hơn */
+.shift-status-badge.status-busy {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+    font-style: italic;
+}

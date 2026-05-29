@@ -65,4 +65,19 @@ const addSlot = async (values) => {
     return rs;
 }
 
-export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById, cancleRegisterById, approveRegisterById, getShiftInDayOnly, addSlot }
+const getShiftByExpertId = async (id, start_time = '', end_time = '') => {
+    const rs = await instanceCallApi.get(`/api/v2/register/expert/${id}?start_time=${start_time}&end_time=${end_time}`);
+    return rs;
+}
+
+const checkShiftStatus = async (date_reverse, id_shift_in_day, id_expert) => {
+    const rs = await instanceCallApi.get(`/api/v2/shift-daily-status/check-status?date-reverse=${date_reverse}&id-shift-in-day=${id_shift_in_day}&id-expert=${id_expert}`);
+    return rs;
+}
+
+const findShiftById = async (id) => {
+    const rs = await instanceCallApi.get(`/api/v2/shift-in-day/shift/${id}`);
+    return rs;
+}
+
+export { getShiftInDay, getAllShift, getShiftById, getAllRegister, getAllRegisterById, cancleRegisterById, approveRegisterById, getShiftInDayOnly, addSlot, getShiftByExpertId, checkShiftStatus, findShiftById }

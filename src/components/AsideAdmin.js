@@ -1,8 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import '../assets/css/AsideAdmin.css'
 
 export default function AsideAdmin() {
     const location = useLocation();
+    const adminInfo = useSelector(state => state.authAdminReducer.loggedUser);
+    const isAdmin = adminInfo?.role_name === 'admin';
 
 
     return (
@@ -14,7 +17,9 @@ export default function AsideAdmin() {
                     </div>
                     <div className="d-flex flex-column">
                         <span className="fs-6 fw-bold">Admin Dashboard</span>
-                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Quản trị viên cấp cao</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                            {isAdmin ? 'Quản trị viên cấp cao' : 'Chuyên gia'}
+                        </span>
                     </div>
                 </div>
                 <hr className="admin-divider" />
@@ -44,12 +49,42 @@ export default function AsideAdmin() {
                             Quản lý chuyên gia
                         </Link>
                     </li>
-                    <li className="nav-item mb-1">
+                    { isAdmin ? '' : 
+                                        <li className="nav-item mb-1">
+                                        <Link to="/admin/expert-bookings" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/expert-bookings$/) ? 'active' : ''}`}>
+                                            <i className="bi bi-calendar-check me-2" />
+                                            Lịch đặt chuyên gia
+                                        </Link>
+                                    </li>
+                    }
+
+                    { isAdmin ? '' : <li className="nav-item mb-1">
                         <Link to="/admin/subcribe-register" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/subcribe-register$/) ? 'active' : ''}`}>
-                            <i className="bi bi-calendar-check me-2" />
+                            <i className="bi bi-calendar-plus me-2" />
                             Đăng ký lịch tư vấn
                         </Link>
+                    </li> }
+
+                    <li className="nav-item mb-1">
+                        <Link to="/admin/posts" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/posts/) ? 'active' : ''}`}>
+                            <i className="bi bi-file-post me-2" />
+                            {isAdmin ? 'Quản lý bài viết' : 'Bài viết của tôi'}
+                        </Link>
                     </li>
+                        
+                    { isAdmin ?  <li className="nav-item mb-1">
+                        <Link to="/admin/ai-chat" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/ai-chat/) ? 'active' : ''}`}>
+                            <i className="bi bi-robot me-2" />
+                            AI Chat
+                        </Link>
+                    </li> : '' }
+                    { isAdmin ? <li className="nav-item mb-1">
+                        <Link to="/admin/account" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/account/) ? 'active' : ''}`}>
+                            <i className="bi bi-person-gear me-2"></i>
+                            Quản lý tài khoản
+                        </Link>
+                    </li> : '' }
+
                     {/* <li className="nav-item mb-1">
                         <Link to="/admin" className="nav-link admin-nav-link">
                             <i className="bi bi-gear-fill me-2" />

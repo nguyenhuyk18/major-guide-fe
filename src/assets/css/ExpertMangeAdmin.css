@@ -21,15 +21,23 @@
 }
 
 .page-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-title i {
+    color: #3b82f6;
+    font-size: 1.5rem;
 }
 
 .page-description {
-    font-size: 1rem;
-    color: #9ca3af;
+    font-size: 0.9375rem;
+    color: #8b92a7;
     margin: 0;
     line-height: 1.6;
 }
@@ -44,15 +52,18 @@
     font-weight: 500;
     display: flex;
     align-items: center;
+    gap: 0.5rem;
     cursor: pointer;
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     white-space: nowrap;
+    text-decoration: none;
 }
 
 .btn-add-expert:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    color: #ffffff;
 }
 
 /* Filter Bar */
@@ -65,7 +76,7 @@
 
 .search-box {
     flex: 1;
-    min-width: 300px;
+    min-width: 280px;
     position: relative;
 }
 
@@ -75,14 +86,8 @@
     top: 50%;
     transform: translateY(-50%);
     color: #6b7280;
-    font-size: 1.125rem;
+    font-size: 1rem;
     pointer-events: none;
-}
-
-.btn-view:hover {
-    background-color: #8b5cf6;
-    border-color: #8b5cf6;
-    color: #ffffff;
 }
 
 .search-input {
@@ -138,6 +143,37 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Empty State */
+.empty-experts-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #1f2937;
+    border: 1px dashed #374151;
+    border-radius: 1rem;
+}
+
+.empty-experts-state i {
+    font-size: 4rem;
+    color: #4b5563;
+    margin-bottom: 1rem;
+}
+
+.empty-experts-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-experts-state p {
+    color: #8b92a7;
+    margin: 0;
+}
+
 /* Table Container */
 .table-container {
     background-color: #1f2937;
@@ -146,138 +182,172 @@
     overflow: hidden;
 }
 
+.table-responsive {
+    overflow-x: auto;
+}
+
 /* Expert Table */
-.expert-table {
+.consultation-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.expert-table thead {
+.consultation-table thead {
     background-color: #111827;
     border-bottom: 1px solid #374151;
 }
 
-.expert-table th {
-    padding: 1rem 1.5rem;
+.consultation-table th {
+    padding: 1rem 1.25rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
     color: #9ca3af;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
-.expert-table tbody tr {
+.consultation-table tbody tr {
     border-bottom: 1px solid #374151;
     transition: all 0.2s;
 }
 
-.expert-table tbody tr:hover {
+.consultation-table tbody tr:hover {
     background-color: #111827;
 }
 
-.expert-table tbody tr:last-child {
+.consultation-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.expert-table td {
-    padding: 1.25rem 1.5rem;
+.consultation-table td {
+    padding: 1rem 1.25rem;
     vertical-align: middle;
 }
 
-/* Avatar Column */
-.expert-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 0.75rem;
+/* Table Avatar */
+.table-avatar-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.table-avatar {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    border-radius: 0.5rem;
     border: 2px solid #374151;
 }
 
-/* Expert Info */
-.expert-info {
+.table-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+/* Table Expert Info */
+.table-expert-info {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
 
-.expert-name {
+.table-expert-name {
     font-size: 0.9375rem;
     font-weight: 600;
     color: #ffffff;
 }
 
-.expert-id {
-    font-size: 0.8125rem;
+.table-expert-id {
+    font-size: 0.75rem;
     color: #6b7280;
+    font-family: 'Courier New', monospace;
 }
 
-/* Rating Cell */
-.rating-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+/* Expert Specialty */
+.table-expert-specialty {
+    font-size: 0.875rem;
+    color: #d1d5db;
 }
 
-.rating-icon {
-    color: #fbbf24;
-    font-size: 1rem;
-}
-
-.rating-value {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: #ffffff;
-}
-
-.rating-count {
-    font-size: 0.8125rem;
-    color: #6b7280;
-}
-
-/* Status Badge */
-.status-badge {
+/* Table Status Badge */
+.table-status-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.8125rem;
     font-weight: 500;
     white-space: nowrap;
 }
 
-.status-dot {
-    font-size: 0.5rem;
+.table-status-badge i {
+    font-size: 0.75rem;
 }
 
-.status-available {
+.table-status-badge.status-active {
     background-color: rgba(34, 197, 94, 0.15);
     color: #22c55e;
     border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.status-busy {
+.table-status-badge.status-busy {
     background-color: rgba(251, 191, 36, 0.15);
     color: #fbbf24;
     border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
-.status-inactive {
+.table-status-badge.status-inactive {
     background-color: rgba(107, 114, 128, 0.15);
     color: #9ca3af;
     border: 1px solid rgba(107, 114, 128, 0.3);
 }
 
-/* Action Buttons */
-.action-buttons {
+/* Table Contact Info */
+.table-contact-info {
     display: flex;
     gap: 0.5rem;
 }
 
-.btn-action {
-    width: 36px;
-    height: 36px;
+.contact-item {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #111827;
+    border: 1px solid #374151;
+    border-radius: 0.375rem;
+    color: #8b92a7;
+    font-size: 0.875rem;
+}
+
+.contact-item:hover {
+    background-color: #374151;
+    color: #ffffff;
+}
+
+/* Table Actions */
+.table-actions {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.table-btn-action {
+    width: 34px;
+    height: 34px;
     background-color: transparent;
     border: 1px solid #374151;
     border-radius: 0.5rem;
@@ -287,30 +357,37 @@
     cursor: pointer;
     transition: all 0.2s;
     color: #9ca3af;
+    font-size: 1rem;
 }
 
-.btn-action:hover {
+.table-btn-action:hover {
     transform: scale(1.05);
 }
 
-.btn-edit:hover {
+.table-btn-action.btn-view:hover {
     background-color: #3b82f6;
     border-color: #3b82f6;
     color: #ffffff;
 }
 
-.btn-delete:hover {
+.table-btn-action.btn-edit:hover {
+    background-color: #8b5cf6;
+    border-color: #8b5cf6;
+    color: #ffffff;
+}
+
+.table-btn-action.btn-delete:hover {
     background-color: #ef4444;
     border-color: #ef4444;
     color: #ffffff;
 }
 
 /* Pagination */
-.pagination-container {
+.table-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.25rem;
     border-top: 1px solid #374151;
     background-color: #111827;
 }
@@ -331,8 +408,7 @@
     gap: 0.5rem;
 }
 
-.btn-pagination,
-.btn-page {
+.btn-pagination {
     background-color: transparent;
     border: 1px solid #374151;
     color: #9ca3af;
@@ -341,15 +417,12 @@
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s;
-    min-width: 36px;
-    height: 36px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.375rem;
 }
 
-.btn-pagination:hover:not(:disabled),
-.btn-page:hover {
+.btn-pagination:hover:not(:disabled) {
     background-color: #374151;
     border-color: #4b5563;
     color: #ffffff;
@@ -360,17 +433,6 @@
     cursor: not-allowed;
 }
 
-.btn-page.active {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-    color: #ffffff;
-}
-
-.pagination-dots {
-    color: #6b7280;
-    padding: 0 0.25rem;
-}
-
 /* Responsive Design */
 @media (max-width: 1200px) {
     .expert-management {
@@ -378,7 +440,7 @@
     }
 
     .page-title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -408,6 +470,10 @@
         flex: 1;
         min-width: calc(50% - 0.375rem);
     }
+
+    .consultation-table {
+        min-width: 800px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -416,31 +482,21 @@
     }
 
     .page-title {
-        font-size: 1.5rem;
+        font-size: 1.375rem;
     }
 
     .page-description {
         font-size: 0.875rem;
     }
 
-    .expert-table {
-        font-size: 0.875rem;
+    .consultation-table th,
+    .consultation-table td {
+        padding: 0.875rem 1rem;
     }
 
-    .expert-table th,
-    .expert-table td {
-        padding: 1rem;
-    }
-
-    .expert-avatar {
-        width: 40px;
-        height: 40px;
-    }
-
-    .pagination-container {
+    .table-footer {
         flex-direction: column;
         gap: 1rem;
-        align-items: flex-start;
     }
 
     .pagination-controls {
@@ -450,33 +506,23 @@
 }
 
 @media (max-width: 576px) {
-    .expert-table th,
-    .expert-table td {
+    .consultation-table th,
+    .consultation-table td {
         padding: 0.75rem 0.5rem;
     }
 
-    .expert-name {
+    .table-expert-name {
         font-size: 0.875rem;
     }
 
-    .expert-id {
+    .table-status-badge {
         font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
     }
 
-    .rating-cell {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-    }
-
-    .status-badge {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.75rem;
-    }
-
-    .btn-action {
-        width: 32px;
-        height: 32px;
+    .table-btn-action {
+        width: 30px;
+        height: 30px;
     }
 
     .filter-select {
@@ -496,6 +542,6 @@
     }
 }
 
-.table-row {
+.consultation-table tbody tr {
     animation: fadeIn 0.3s ease-out;
 }

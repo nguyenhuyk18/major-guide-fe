@@ -1,0 +1,162 @@
+/* ========== PAYMENT CALLBACK PAGE ========== */
+
+.payment-callback-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.payment-callback-card {
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.callback-content {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.callback-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.callback-icon.processing {
+    background: #f0f7ff;
+}
+
+.callback-icon.success {
+    background: #d1fae5;
+}
+
+.callback-icon.failed {
+    background: #fee2e2;
+}
+
+.callback-icon.error {
+    background: #fef3c7;
+}
+
+.callback-icon i {
+    font-size: 3rem;
+}
+
+.callback-icon.success i {
+    color: #059669;
+}
+
+.callback-icon.failed i {
+    color: #dc2626;
+}
+
+.callback-icon.error i {
+    color: #d97706;
+}
+
+.callback-content h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.75rem;
+}
+
+.callback-content p {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 2rem;
+    line-height: 1.6;
+}
+
+.callback-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.callback-actions .btn {
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.callback-actions .btn-primary {
+    background: #0d6efd;
+    border: none;
+    color: #fff;
+}
+
+.callback-actions .btn-primary:hover {
+    background: #0b5ed7;
+}
+
+.callback-actions .btn-warning {
+    background: #fbbf24;
+    border: none;
+    color: #1f2937;
+}
+
+.callback-actions .btn-warning:hover {
+    background: #f59e0b;
+}
+
+.callback-actions .btn-outline-primary {
+    background: transparent;
+    border: 2px solid #0d6efd;
+    color: #0d6efd;
+}
+
+.callback-actions .btn-outline-primary:hover {
+    background: #f0f7ff;
+}
+
+.callback-actions .btn-outline-secondary {
+    background: transparent;
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+}
+
+.callback-actions .btn-outline-secondary:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .callback-content {
+        padding: 2rem 1.5rem;
+    }
+
+    .callback-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .callback-icon i {
+        font-size: 2.5rem;
+    }
+
+    .callback-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .callback-content p {
+        font-size: 0.9375rem;
+    }
+}

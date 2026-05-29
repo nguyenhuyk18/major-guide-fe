@@ -1,0 +1,629 @@
+/* ClientInformationPage.css - Modern Unique Design */
+
+/* ===== CSS Variables ===== */
+:root {
+    --cip-primary: #6366f1;
+    --cip-primary-dark: #4f46e5;
+    --cip-primary-light: #818cf8;
+    --cip-success: #10b981;
+    --cip-danger: #ef4444;
+    --cip-warning: #f59e0b;
+    --cip-bg: #f8fafc;
+    --cip-card-bg: #ffffff;
+    --cip-text-primary: #1e293b;
+    --cip-text-secondary: #64748b;
+    --cip-text-muted: #94a3b8;
+    --cip-border: #e2e8f0;
+    --cip-border-light: #f1f5f9;
+    --cip-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --cip-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --cip-radius: 16px;
+    --cip-radius-sm: 10px;
+    --cip-radius-full: 9999px;
+}
+
+/* ===== Page Container ===== */
+.cip-page-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 1rem;
+}
+
+.cip-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ===== Header Banner ===== */
+.cip-header-banner {
+    background: var(--cip-card-bg);
+    border-radius: var(--cip-radius);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--cip-shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.cip-header-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(135deg, transparent, rgba(99, 102, 241, 0.05));
+    pointer-events: none;
+}
+
+.cip-header-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--cip-primary), var(--cip-primary-light));
+    border-radius: var(--cip-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.cip-header-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--cip-text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.cip-header-subtitle {
+    font-size: 1rem;
+    color: var(--cip-text-secondary);
+    margin: 0;
+}
+
+/* ===== Breadcrumb ===== */
+.cip-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+.cip-breadcrumb-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.cip-breadcrumb-link:hover {
+    color: white;
+}
+
+.cip-breadcrumb-separator {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.cip-breadcrumb-current {
+    color: white;
+    font-weight: 500;
+}
+
+/* ===== Main Layout ===== */
+.cip-main-content {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 992px) {
+    .cip-main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Profile Card (Left) ===== */
+.cip-profile-card {
+    background: var(--cip-card-bg);
+    border-radius: var(--cip-radius);
+    overflow: hidden;
+    box-shadow: var(--cip-shadow-lg);
+    position: sticky;
+    top: 1rem;
+}
+
+.cip-profile-cover {
+    height: 120px;
+    background: linear-gradient(135deg, var(--cip-primary), #8b5cf6);
+}
+
+.cip-profile-body {
+    padding: 0 2rem 2rem;
+    margin-top: -60px;
+    text-align: center;
+}
+
+.cip-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.cip-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    background: var(--cip-bg);
+}
+
+.cip-avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--cip-primary);
+    border: 3px solid white;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+}
+
+.cip-avatar-edit-btn:hover {
+    background: var(--cip-primary-dark);
+    transform: scale(1.1);
+}
+
+.cip-avatar-edit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.cip-profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cip-text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.cip-profile-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--cip-primary);
+    background: rgba(99, 102, 241, 0.1);
+    padding: 0.375rem 1rem;
+    border-radius: var(--cip-radius-full);
+    margin-bottom: 1.5rem;
+}
+
+/* ===== Profile Info List ===== */
+.cip-profile-info {
+    text-align: left;
+    border-top: 1px solid var(--cip-border);
+    padding-top: 1.5rem;
+}
+
+.cip-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid var(--cip-border-light);
+}
+
+.cip-info-item:last-child {
+    border-bottom: none;
+}
+
+.cip-info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--cip-radius-sm);
+    background: var(--cip-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cip-text-secondary);
+    flex-shrink: 0;
+}
+
+.cip-info-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.cip-info-label {
+    font-size: 0.75rem;
+    color: var(--cip-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.cip-info-value {
+    font-size: 0.9375rem;
+    color: var(--cip-text-primary);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.cip-info-value.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cip-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--cip-radius-full);
+}
+
+.cip-status-badge.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--cip-success);
+}
+
+.cip-status-badge.inactive {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--cip-danger);
+}
+
+.cip-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* ===== Form Card (Right) ===== */
+.cip-form-card {
+    background: var(--cip-card-bg);
+    border-radius: var(--cip-radius);
+    box-shadow: var(--cip-shadow-lg);
+}
+
+.cip-form-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--cip-border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cip-form-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--cip-primary), var(--cip-primary-light));
+    border-radius: var(--cip-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.cip-form-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--cip-text-primary);
+    margin: 0;
+}
+
+.cip-form-subtitle {
+    font-size: 0.875rem;
+    color: var(--cip-text-secondary);
+    margin: 0;
+}
+
+.cip-form-body {
+    padding: 2rem;
+}
+
+/* ===== Form Groups ===== */
+.cip-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .cip-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cip-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.cip-form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.cip-form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cip-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.cip-form-label-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cip-form-label-icon {
+    color: var(--cip-primary);
+}
+
+/* ===== Input Styles ===== */
+.cip-input-wrapper {
+    position: relative;
+}
+
+.cip-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--cip-text-primary);
+    background: var(--cip-bg);
+    border: 2px solid transparent;
+    border-radius: var(--cip-radius-sm);
+    transition: all 0.2s;
+    outline: none;
+}
+
+.cip-input:hover {
+    background: #f1f5f9;
+}
+
+.cip-input:focus {
+    background: white;
+    border-color: var(--cip-primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.cip-input:disabled {
+    background: #f1f5f9;
+    color: var(--cip-text-muted);
+    cursor: not-allowed;
+}
+
+.cip-input::placeholder {
+    color: var(--cip-text-muted);
+}
+
+.cip-input-note {
+    font-size: 0.75rem;
+    color: var(--cip-text-muted);
+    margin-top: 0.375rem;
+}
+
+/* ===== Select Styles ===== */
+.cip-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--cip-text-primary);
+    background: var(--cip-bg);
+    border: 2px solid transparent;
+    border-radius: var(--cip-radius-sm);
+    transition: all 0.2s;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    padding-right: 2.5rem;
+}
+
+.cip-select:hover {
+    background-color: #f1f5f9;
+}
+
+.cip-select:focus {
+    background-color: white;
+    border-color: var(--cip-primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.cip-select:disabled {
+    background-color: #f1f5f9;
+    color: var(--cip-text-muted);
+    cursor: not-allowed;
+}
+
+/* ===== Radio Group ===== */
+.cip-radio-group {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.cip-radio-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.cip-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--cip-border);
+    border-radius: 50%;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.cip-radio:checked {
+    border-color: var(--cip-primary);
+    background: var(--cip-primary);
+}
+
+.cip-radio:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.cip-radio:focus {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.cip-radio-label {
+    font-size: 0.9375rem;
+    color: var(--cip-text-primary);
+    cursor: pointer;
+}
+
+/* ===== Form Actions ===== */
+.cip-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--cip-border);
+    margin-top: 0.5rem;
+}
+
+.cip-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: var(--cip-radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cip-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.cip-btn-cancel {
+    background: var(--cip-bg);
+    color: var(--cip-text-secondary);
+}
+
+.cip-btn-cancel:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: var(--cip-text-primary);
+}
+
+.cip-btn-save {
+    background: linear-gradient(135deg, var(--cip-primary), var(--cip-primary-dark));
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.cip-btn-save:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+}
+
+.cip-btn-save:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* ===== Loading State ===== */
+.cip-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 1rem;
+}
+
+.cip-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(99, 102, 241, 0.1);
+    border-top-color: var(--cip-primary);
+    border-radius: 50%;
+    animation: cip-spin 0.8s linear infinite;
+}
+
+@keyframes cip-spin {
+    to { transform: rotate(360deg); }
+}
+
+.cip-loading-text {
+    font-size: 1rem;
+    color: white;
+    font-weight: 500;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 576px) {
+    .cip-page-wrapper {
+        padding: 1rem 0.75rem;
+    }
+
+    .cip-header-banner {
+        padding: 1.5rem;
+    }
+
+    .cip-header-title {
+        font-size: 1.5rem;
+    }
+
+    .cip-profile-body {
+        padding: 0 1.25rem 1.5rem;
+    }
+
+    .cip-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .cip-form-header {
+        padding: 1.25rem;
+    }
+
+    .cip-form-body {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .cip-form-actions {
+        flex-direction: column;
+    }
+
+    .cip-btn {
+        width: 100%;
+    }
+}

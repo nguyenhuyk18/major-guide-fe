@@ -6,7 +6,7 @@ export default function ExpertListCard(props) {
 
     return (
         <>
-            <div className="expert-card">
+            <div className="expert-card admin-card">
                 <div className="expert-header">
                     <div className="expert-avatar-wrapper">
                         <img src={`${expertInfo.fileAvartarUrl}`} alt="Nguyễn Văn An" className="expert-avatar" />

@@ -31,4 +31,15 @@ const createExpert = async (data) => {
     return rs;
 }
 
-export { loginAdmin, createExpert, loginClient }
+
+const registerClient = async (data) => {
+    const rs = await instanceCallApi.post('/api/v2/authorizer', JSON.stringify(data), {
+        headers: {
+            "Content-Type": 'application/json'
+        }
+    });
+
+    return rs;
+}
+
+export { loginAdmin, createExpert, loginClient, registerClient }

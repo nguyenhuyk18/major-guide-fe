@@ -1,0 +1,443 @@
+/* ExpertPage.css */
+
+/* Hero Section */
+.expert-hero-section {
+    background: #fff;
+    padding: 4rem 0 3rem;
+}
+
+.expert-hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.expert-hero-subtitle {
+    font-size: 1.125rem;
+    color: #6b7280;
+    max-width: 700px;
+    line-height: 1.7;
+}
+
+/* Filter Section */
+.expert-filter-section {
+    background: #fff;
+    padding: 2rem 0 3rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.expert-filter-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: end;
+    max-width: 600px;
+}
+
+.expert-filter-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.expert-filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+/* Search Box */
+.expert-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.expert-search-box i {
+    position: absolute;
+    left: 1rem;
+    color: #9ca3af;
+    font-size: 1rem;
+}
+
+.expert-search-input {
+    width: 100%;
+    padding: 0.875rem 2.5rem 0.875rem 3rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+}
+
+.expert-search-input:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+.expert-search-input::placeholder {
+    color: #9ca3af;
+}
+
+/* Clear search button */
+.expert-search-clear {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.expert-search-clear:hover {
+    color: #ef4444;
+}
+
+/* Filter Select */
+.expert-filter-select {
+    width: 100%;
+    padding: 0.875rem 2.5rem 0.875rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 0.75rem center/16px 16px;
+    appearance: none;
+    transition: all 0.2s;
+}
+
+.expert-filter-select:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+/* Filter Button */
+.expert-filter-btn {
+    padding: 0.875rem 1.5rem;
+    background: #0d6efd;
+    border: none;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.expert-filter-btn:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* Cards Section */
+.expert-cards-section {
+    background: #f9fafb;
+    padding: 3rem 0;
+}
+
+/* Result count */
+.expert-result-count {
+    font-size: 0.9375rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Empty / Error state */
+.expert-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    gap: 1rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+.expert-empty-icon {
+    font-size: 3.5rem;
+    color: #d1d5db;
+}
+
+/* Skeleton loader */
+@keyframes expertSkeletonPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+.expert-card-skeleton {
+    gap: 1rem;
+    animation: expertSkeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeleton {
+    background: #e5e7eb;
+    border-radius: 0.5rem;
+}
+
+.skeleton-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.skeleton-line {
+    height: 14px;
+    width: 90%;
+}
+
+.skeleton-line-title {
+    height: 20px;
+    width: 60%;
+}
+
+.skeleton-line-sm {
+    width: 45%;
+}
+
+/* Expert Card */
+.expert-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.expert-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+    border-color: #0d6efd;
+}
+
+.expert-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+/* Avatar */
+.expert-avatar-wrapper {
+    position: relative;
+}
+
+.expert-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+}
+
+.expert-online-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    background: #10b981;
+    border: 3px solid #fff;
+    border-radius: 50%;
+}
+
+.expert-offline-badge {
+    background: #9ca3af;
+}
+
+/* Degree Badge */
+.expert-degree-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #0d6efd;
+    background: #dbeafe;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.expert-degree-master {
+    color: #7c3aed;
+    background: #ede9fe;
+}
+
+.expert-degree-professor {
+    color: #059669;
+    background: #d1fae5;
+}
+
+/* Card Content */
+.expert-card-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.expert-card-major {
+    font-size: 0.9375rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.expert-card-bio {
+    font-size: 0.9375rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+/* Rating */
+.expert-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.expert-stars {
+    display: flex;
+    gap: 0.125rem;
+}
+
+.expert-stars i {
+    color: #fbbf24;
+    font-size: 1rem;
+}
+
+.expert-rating-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Card Actions */
+.expert-card-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.expert-btn-book {
+    text-decoration: none;
+    text-align: center;
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: #0d6efd;
+    border: none;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.expert-btn-book:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+}
+
+.expert-btn-detail {
+    text-decoration: none;
+    text-align: center;
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.expert-btn-detail:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #1f2937;
+}
+
+/* Pagination */
+.expert-pagination {
+    margin-top: 3rem;
+}
+
+.pagination .page-link {
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    padding: 0.625rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination .page-item.active .page-link {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.pagination .page-link:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+
+/* Responsive */
+@media (max-width: 1199px) {
+    .expert-filter-wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .expert-hero-title {
+        font-size: 2rem;
+    }
+    
+    .expert-hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .expert-filter-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .expert-avatar {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .expert-online-badge {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .expert-card-actions {
+        flex-direction: column;
+    }
+}

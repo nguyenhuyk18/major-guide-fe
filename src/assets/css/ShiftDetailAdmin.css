@@ -273,7 +273,7 @@
 }
 
 /* Expert Card */
-.expert-card {
+.expert-card.admin-card {
     background: linear-gradient(135deg, #1a202c 0%, #0f1419 100%);
     border: 1px solid #2d3748;
     border-radius: 1rem;

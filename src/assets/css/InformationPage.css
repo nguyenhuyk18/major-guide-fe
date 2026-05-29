@@ -18,6 +18,25 @@
     --info-page-success-dark: #059669;
 }
 
+
+
+select.info-page-form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+select.info-page-form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: var(--info-page-bg-input);; /* cùng màu input */
+  color: white;
+  border: 1px solid #1e293b;
+  outline: none;
+}
+
+
 /* Apply font to InformationPage container */
 .info-page-container {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

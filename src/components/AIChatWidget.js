@@ -1,0 +1,430 @@
+import React, { useState, useRef, useEffect } from 'react';
+import '../assets/css/AIChatWidget.css';
+import ExpertCardChat from './ExpertCardChat';
+import { sendAiChatClient } from '../services/chatai.api';
+
+const WELCOME_MESSAGE = {
+    id: 'welcome',
+    role: 'assistant',
+    content: `Xin chào! 👋 Tôi là trợ lý AI của MajorGuide. Tôi có thể giúp bạn:
+
+Chúng ta trò truyện với nhau nhé?`,
+    time: new Date()
+};
+
+const MOCK_RESPONSES = {
+    'tư vấn chọn chuyên gia phù hợp': `Dựa trên nhu cầu của bạn, tôi gợi ý bạn nên:
+
+1. **Xác định lĩnh vực cần tư vấn** - Bạn quan tâm đến vấn đề gì? (học tập, nghề nghiệp, kỹ năng...)
+
+2. **Xem profile chuyên gia** - Mỗi chuyên gia đều có chuyên môn riêng, hãy đọc kỹ mô tả và đánh giá.
+
+3. **Đặt lịch tư vấn thử** - Bạn có thể đặt 15-30 phút để trò chuyện và cảm nhận.
+
+Bạn muốn tìm hiểu thêm về lĩnh vực nào?`,
+    'hướng dẫn đặt lịch tư vấn': `Để đặt lịch tư vấn, bạn làm theo các bước sau:
+
+1. **Chọn chuyên gia** → Truy cập trang "Chuyên gia" và chọn người phù hợp
+
+2. **Chọn lịch rảnh** → Xem lịch trống và chọn khung giờ thuận tiện
+
+3. **Xác nhận đặt chỗ** → Điền thông tin và thanh toán để giữ chỗ
+
+4. **Hoàn tất** → Bạn sẽ nhận được email xác nhận và link cuộc họp
+
+⚠️ **Lưu ý**: Vui lòng hủy lịch trước 24h nếu không thể tham dự.`,
+    'chính sách hủy lịch như thế nào': `Chính sách hủy lịch của MajorGuide:
+
+**Hủy trước 24h:**
+• Hoàn tiền 100%
+• Không mất phí
+
+**Hủy trong 24h:**
+• Không hoàn tiền
+• Có thể đặt lại lịch mới
+
+**Không đến:**
+• Mất toàn bộ phí đặt cọc
+
+**Trường hợp đặc biệt:**
+• Bệnh lý có giấy xác nhận → Xem xét hoàn tiền
+• Sự cố bất khả kháng → Liên hệ hỗ trợ
+
+📞 Hotline: 1900 xxxx để được hỗ trợ ngay.`,
+    'blog có những chủ đề gì': `Blog của MajorGuide cung cấp nhiều chủ đề hữu ích:
+
+📚 **Học tập & Giáo dục**
+• Phương pháp học hiệu quả
+• Hướng nghiệp, chọn ngành
+
+💼 **Phát triển sự nghiệp**
+• Kỹ năng mềm
+• Xây dựng thương hiệu cá nhân
+
+🧠 **Kỹ năng & Kiến thức**
+• Kỹ năng giao tiếp
+• Quản lý thời gian
+
+💡 **Cộng đồng**
+• Chia sẻ từ chuyên gia
+• Câu chuyện thành công
+
+🔍 Truy cập /blog để khám phá thêm!`
+};
+
+const TypingIndicator = () => (
+    <div className="ai-msg-typing">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+);
+
+const AIChatWidget = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([WELCOME_MESSAGE]);
+    const [inputValue, setInputValue] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const messagesEndRef = useRef(null);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        setTimeout(() => setIsVisible(true), 500);
+    }, []);
+
+    useEffect(() => {
+        if (isOpen && messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages, isOpen, isTyping]);
+
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isOpen]);
+
+    const getAIResponse = (question) => {
+        const lowerQ = question.toLowerCase();
+        for (const [key, response] of Object.entries(MOCK_RESPONSES)) {
+            if (lowerQ.includes(key)) {
+                return { type: 'text', content: response };
+            }
+        }
+        return {
+            type: 'text',
+            content: `Cảm ơn câu hỏi của bạn! "${question}"
+
+Tôi đang học hỏi để trả lời tốt hơn. Hiện tại, bạn có thể:
+
+Liên hệ trực tiếp: **1900 xxxx**
+Email: **support@majorguide.vn**
+Chat với đội ngũ tư vấn viên 24/7
+
+Hoặc thử hỏi tôi về: đặt lịch, chuyên gia, blog, chính sách...`
+        };
+    };
+
+    const parseContent = (content) => {
+        if (typeof content !== 'string') return null;
+        try {
+            return JSON.parse(content);
+        } catch {
+            return null;
+        }
+    };
+
+    const handleSend = async (question = inputValue.trim()) => {
+        if (!question || isTyping) return;
+
+        const userMsg = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: question,
+            time: new Date()
+        };
+
+        setMessages(prev => [...prev, userMsg]);
+        setInputValue('');
+        setIsTyping(true);
+
+        try {
+            // Gọi endpoint RAG: /api/v2/chat-ai/rag
+            const rs = await sendAiChatClient(question);
+            // BFF trả về: { data: { answer, context_used, results_count, query } }
+            const rawData = rs.data?.data;
+
+            let parsedData = null;
+            if (rawData && typeof rawData === 'object' && rawData.answer) {
+                // RAG response: { answer, context_used, results_count, query }
+                parsedData = rawData;
+            } else if (rawData && typeof rawData === 'object' && rawData.message) {
+                // Tool response: { message, experts?, email1?, emailContent? }
+                parsedData = rawData;
+            } else if (typeof rawData === 'string') {
+                parsedData = parseContent(rawData);
+            }
+
+            // ── Trường hợp 1: expert list (từ tool all_expert) ──
+            if (parsedData?.experts && Array.isArray(parsedData.experts)) {
+                const aiMsg = {
+                    id: (Date.now() + 1).toString(),
+                    role: 'assistant',
+                    time: new Date(),
+                    isExpertList: true,
+                    experts: parsedData.experts,
+                    content: parsedData.message || `Tìm thấy ${parsedData.experts.length} chuyên gia phù hợp.`
+                };
+                setIsTyping(false);
+                setMessages(prev => [...prev, aiMsg]);
+                return;
+            }
+
+            // ── Trường hợp 2: RAG response (answer) ──
+            if (parsedData?.answer) {
+                const aiMsg = {
+                    id: (Date.now() + 1).toString(),
+                    role: 'assistant',
+                    time: new Date(),
+                    isExpertList: false,
+                    experts: null,
+                    content: parsedData.answer
+                };
+                setIsTyping(false);
+                setMessages(prev => [...prev, aiMsg]);
+                return;
+            }
+
+            // ── Trường hợp 3: fallback – plain text message ──
+            const aiMsg = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                time: new Date(),
+                isExpertList: false,
+                experts: null,
+                content: parsedData?.message || String(rawData) || 'Không có phản hồi.'
+            };
+            setIsTyping(false);
+            setMessages(prev => [...prev, aiMsg]);
+
+        } catch (err) {
+            setIsTyping(false);
+            const fallback = getAIResponse(question);
+            const aiMsg = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                time: new Date(),
+                isExpertList: false,
+                experts: null,
+                content: fallback.content
+            };
+            setMessages(prev => [...prev, aiMsg]);
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    };
+
+    const formatTime = (date) => {
+        return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const renderMessageContent = (content) => {
+        if (!content) return null;
+        const lines = content.split('\n');
+        return lines.map((line, idx) => {
+            const trimmed = line.trim();
+            if (!trimmed) return <br key={idx} />;
+
+            const parts = trimmed.split(/(\*\*[^*]+\*\*)/g);
+            const rendered = parts.map((part, i) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                    return <strong key={i}>{part.slice(2, -2)}</strong>;
+                }
+                return part;
+            });
+
+            return <div key={idx}>{rendered}</div>;
+        });
+    };
+
+    return (
+        <div className={`ai-chat-container ${isVisible ? 'visible' : ''}`}>
+            {isOpen && (
+                <div className="ai-chat-window">
+                    {/* Header */}
+                    <div className="ai-chat-header">
+                        <div className="ai-header-left">
+                            <div className="ai-avatar">
+                                <div className="ai-avatar-ring">
+                                    <div className="ai-avatar-inner">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="ai-header-info">
+                                <span className="ai-header-name">MajorGuide AI</span>
+                                <span className="ai-header-status">
+                                    <span className="ai-status-dot"></span>
+                                    Trực tuyến
+                                </span>
+                            </div>
+                        </div>
+                        <button className="ai-header-close" onClick={() => setIsOpen(false)}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="ai-chat-body">
+                        <div className="ai-messages">
+                            {messages.map((msg) => (
+                                <div key={msg.id} className={`ai-msg ai-msg-${msg.role}`}>
+                                    {msg.role === 'assistant' && (
+                                        <div className="ai-msg-avatar">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    )}
+                                    <div className="ai-msg-bubble">
+                                        {msg.isExpertList ? (
+                                            <div className="ai-expert-list">
+                                                <div className="ai-expert-list-header">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
+                                                        <circle cx="9" cy="7" r="4" stroke="#6366f1" strokeWidth="2"/>
+                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
+                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
+                                                    </svg>
+                                                    <span>{msg.content}</span>
+                                                </div>
+                                                <div className="ai-expert-list-scroll">
+                                                    {msg.experts.map((expert) => (
+                                                        <ExpertCardChat key={expert.id} expert={expert} />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="ai-msg-content">
+                                                {renderMessageContent(msg.content)}
+                                            </div>
+                                        )}
+                                        <span className="ai-msg-time">{formatTime(msg.time)}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            {isTyping && (
+                                <div className="ai-msg ai-msg-assistant">
+                                    <div className="ai-msg-avatar">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div className="ai-msg-bubble">
+                                        <TypingIndicator />
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+                    </div>
+
+                    {/* Suggestions */}
+                    {/* {messages.length === 1 && (
+                        <div className="ai-suggestions">
+                            <span className="ai-suggestions-label">Gợi ý câu hỏi:</span>
+                            <div className="ai-suggestions-list">
+                                {SUGGESTED_QUESTIONS.map((q, idx) => (
+                                    <button
+                                        key={idx}
+                                        className="ai-suggestion-btn"
+                                        onClick={() => handleSend(q)}
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                                            <path d="M9.09 9A3 3 0 0 1 15 10C15 12 12 13 12 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                            <circle cx="12" cy="17" r="0.5" fill="currentColor"/>
+                                        </svg>
+                                        {q}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )} */}
+
+                    {/* Input */}
+                    <div className="ai-chat-footer">
+                        <div className="ai-input-wrapper">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                className="ai-input"
+                                placeholder="Nhập câu hỏi của bạn..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                disabled={isTyping}
+                            />
+                            <button
+                                className={`ai-send-btn ${inputValue.trim() ? 'active' : ''}`}
+                                onClick={() => handleSend()}
+                                disabled={!inputValue.trim() || isTyping}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p className="ai-footer-note">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
+                                <path d="M12 16V12M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            MajorGuide AI có thể đưa ra thông tin không chính xác. Hãy kiểm chứng kỹ.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* FAB Button */}
+            <button
+                className={`ai-fab ${isOpen ? 'active' : ''}`}
+                onClick={() => setIsOpen(!isOpen)}
+                aria-label="Mở chat AI"
+            >
+                <div className="ai-fab-icon">
+                    {isOpen ? (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                        </svg>
+                    ) : (
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8 10h8M8 14h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                    )}
+                </div>
+                <div className="ai-fab-pulse"></div>
+                <div className="ai-fab-ring"></div>
+            </button>
+        </div>
+    );
+};
+
+export default AIChatWidget;

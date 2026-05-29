@@ -15,7 +15,7 @@ export default function ChatCommunity() {
     const frameContainerChat = useRef(null);
     const hasMoreMessage = useRef(true);
     const page = useRef(1);
-    const [listReply, setIsReply] = useState([]);
+    // const [listReply, setIsReply] = useState([]);
     const [replySomeOne, setIsReplySomeone] = useState(null);
     const [highlightedMessageId, setHighlightedMessageId] = useState(null);
     const idUser = useSelector(state => state?.authClientReducer?.loggedUser?.id);
@@ -153,7 +153,7 @@ export default function ChatCommunity() {
                 // Reset replyTo field for next message
                 formik.setFieldValue('replyTo', '');
 
-                setTimeout(() => scrollToBottom, 200);
+                setTimeout(() => scrollToBottom(), 200);
             } catch (error) {
                 toast.error('Không thể gửi tin nhắn hãy đăng nhập và gửi lại sau !!!');
             }
