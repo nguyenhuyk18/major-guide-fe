@@ -30,6 +30,12 @@ export default function LoginAdminPage() {
             try {
                 const rs = await loginAdmin(values);
 
+                if (!['expert', 'admin'].includes(rs.data.data.roleName)) {
+                    toast.info('Khu vực này chỉ dành cho chuyên gia và quản trị viên.');
+                    navigate('/');
+                    return;
+                }
+
                 const action = {
                     type: LOGIN_ADMIN,
                     payload: {

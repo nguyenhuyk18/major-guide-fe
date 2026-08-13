@@ -1,21 +1,13 @@
 import { instanceCallApi } from './api.setting';
 
-const createLinkPayment = async (orderId, amount, description) => {
-    const rs = await instanceCallApi.post(`/api/v2/payment/create-link`, {
-        orderId,
-        amount,
-        description
-    });
+const createLinkPayment = async (orderId) => {
+    const rs = await instanceCallApi.post(`/api/v2/payment/checkout-session`, { orderId });
     return rs;
 };
 
-const confirmPayment = async (isValid, orderId, responseCode) => {
-    const rs = await instanceCallApi.post(`/api/v2/payment/confirm`, {
-        isValid,
-        orderId,
-        responseCode
-    });
+const getCheckoutStatus = async (sessionId) => {
+    const rs = await instanceCallApi.get(`/api/v2/payment/checkout-session/${encodeURIComponent(sessionId)}/status`);
     return rs;
 };
 
-export { createLinkPayment, confirmPayment };
+export { createLinkPayment, getCheckoutStatus };

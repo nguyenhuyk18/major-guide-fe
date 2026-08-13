@@ -1,14 +1,13 @@
 // import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '../assets/css/HeaderAdmin.css'
-import { faBell } from '@fortawesome/free-regular-svg-icons';
 import { Helmet } from 'react-helmet';
 import { useDispatch, useSelector } from 'react-redux';
 import { LOGOUT_ADMIN } from '../constants/AuthAdminConstant';
 import { Link, useNavigate } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 
-export default function HeaderAdmin() {
+export default function HeaderAdmin({ onMenuClick }) {
 
     const userInfo = useSelector(state => state.authAdminReducer.loggedUser);
 
@@ -31,41 +30,38 @@ export default function HeaderAdmin() {
             <Helmet>
                 <title>TRANG QUẢN TRỊ VIÊN</title>
             </Helmet>
-            <header className="admin-header px-4 py-3">
-                <div className="d-flex align-items-center ms-auto gap-4 setting-account">
+            <header className="admin-header">
+                <button className="admin-mobile-menu" type="button" onClick={onMenuClick}><i className="bi bi-list" /></button>
+                <div className="admin-header-title"><span>Workspace</span><strong>Xin chào, {userInfo.name?.split(' ').slice(-1)[0] || 'bạn'}!</strong></div>
+                <div className="admin-header-actions">
 
                     {/* Notification */}
-                    <div className="position-relative cursor-pointer">
-                        <FontAwesomeIcon icon={faBell} className="text-secondary fs-5" />
-                        <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-dark rounded-circle" />
-                    </div>
+                    <NotificationBell />
 
                     {/* User + Dropdown */}
                     <div className="dropdown">
-                        <div
-                            className="d-flex align-items-center gap-3 cursor-pointer"
+                        <button
+                            className="admin-account-trigger"
+                            type="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             style={{ pointerEvents: '' }}
                         >
-                            <div className="text-end d-none d-md-block">
-                                <div className="fw-semibold text-white" style={{ fontSize: '0.9rem' }}>
+                            <div className="admin-account-copy">
+                                <strong>
                                     {userInfo.name}
-                                </div>
-                                <div className="text-secondary" style={{ fontSize: '0.75rem' }}>
+                                </strong>
+                                <span>
                                     {userInfo.role_name === 'expert' ? 'Chuyên Gia Tư Vấn' : 'Quản Trị Viên'}
-                                </div>
+                                </span>
                             </div>
 
                             <img
-                                src={`${userInfo.fileAvartarUrl}`}
-                                style={{ objectFit: 'cover' }}
-                                className="rounded-circle border border-secondary"
-                                width={40}
-                                height={40}
+                                src={userInfo.fileAvartarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo.name || 'Admin')}&background=5b7cfa&color=fff`}
                                 alt="Avatar"
                             />
-                        </div>
+                            <i className="bi bi-chevron-down admin-account-chevron" />
+                        </button>
 
                         {/* Dropdown menu */}
                         <ul className="dropdown-menu dropdown-menu-end shadow admin-dropdown">

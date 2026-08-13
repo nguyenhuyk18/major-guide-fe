@@ -257,14 +257,34 @@ export default function Header() {
 
                                         <div className="dropdown-divider"></div>
 
-                                        <Link 
-                                            to="/thong-tin-ca-nhan.html" 
+                                        <Link
+                                            to="/thong-tin-ca-nhan.html"
                                             className="dropdown-menu-item"
                                             onClick={() => setShowDropdown(false)}
                                         >
                                             <i className="bi bi-person"></i>
                                             Thông tin tài khoản
                                         </Link>
+
+                                        {userInfo?.role_name === 'member' ? (
+                                            <Link
+                                                to="/messages"
+                                                className="dropdown-menu-item"
+                                                onClick={() => setShowDropdown(false)}
+                                            >
+                                                <i className="bi bi-chat-dots"></i>
+                                                Tin nhắn chuyên gia
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                to="/admin/messages"
+                                                className="dropdown-menu-item"
+                                                onClick={() => setShowDropdown(false)}
+                                            >
+                                                <i className="bi bi-speedometer2"></i>
+                                                Khu vực chuyên gia
+                                            </Link>
+                                        )}
 
                                         {isLogin && (
                                             <>

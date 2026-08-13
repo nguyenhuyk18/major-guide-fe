@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -7,12 +7,14 @@ import { getAllBooking } from '../../services/booking.api';
 import { createLinkPayment } from '../../services/payment.api';
 import { getUserById } from '../../services/expert.api';
 import BookingDetailModal from '../../components/BookingDetailModal';
+import { isToday, isTodayOrFuture } from '../../helpers/date';
 
 export default function MyBookingsPage() {
     const userInfo = useSelector(state => state.authClientReducer.loggedUser);
     const isLogin = useSelector(state => state.authClientReducer.isLogin);
 
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] = useState(null);
@@ -20,26 +22,6 @@ export default function MyBookingsPage() {
     const [filterStatus, setFilterStatus] = useState('all');
     const [processingPayment, setProcessingPayment] = useState(null);
     const [expertsCache, setExpertsCache] = useState({});
-
-    // Check if a booking is on a specific date
-    const isBookingOnDate = (booking, targetDate) => {
-        if (!booking.day_support) return false;
-        const bookingDate = new Date(booking.day_support);
-        const target = new Date(targetDate);
-        bookingDate.setHours(0, 0, 0, 0);
-        target.setHours(0, 0, 0, 0);
-        return bookingDate.getTime() === target.getTime();
-    };
-
-    // Check if booking date is today or in the future
-    const isUpcomingOrToday = (booking) => {
-        if (!booking.day_support) return false;
-        const bookingDate = new Date(booking.day_support);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        bookingDate.setHours(0, 0, 0, 0);
-        return bookingDate >= today;
-    };
 
     useEffect(() => {
         if (!isLogin) {
@@ -49,6 +31,13 @@ export default function MyBookingsPage() {
         }
         fetchBookings();
     }, [isLogin, navigate]);
+
+    useEffect(() => {
+        if (searchParams.get('payment') === 'cancelled') {
+            toast.info('Bạn đã huỷ thanh toán Stripe. Lịch vẫn được giữ nếu chưa hết hạn.');
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const fetchBookings = async () => {
         if (!userInfo?.id) return;
@@ -113,23 +102,19 @@ export default function MyBookingsPage() {
             
             setProcessingPayment(booking._id);
             
-            const totalAmount = (booking.price_support || 0) + 45000;
-            const description = `Thanh toán lịch tư vấn với ${booking.name_expert}`;
-            
-            const res = await createLinkPayment(booking.id_reverse, totalAmount, description);
-            const { link_payment } = res?.data?.data || {};
+            const res = await createLinkPayment(booking.id_reverse);
+            const { checkoutUrl } = res?.data?.data || {};
             // console.log(res);
             
-            if (link_payment) {
-                toast.success('Đang chuyển đến thanh toán...');
-                window.location.href = link_payment;
-                console.log(link_payment);
+            if (checkoutUrl) {
+                toast.success('Đang chuyển đến Stripe Checkout...');
+                window.location.assign(checkoutUrl);
             } else {
                 toast.error('Không thể tạo link thanh toán!');
             }
         } catch (err) {
             console.error('Payment error:', err);
-            toast.error('Thanh toán thất bại, vui lòng thử lại!');
+            toast.error(err?.response?.data?.message || 'Không thể tạo phiên Stripe Checkout. Vui lòng thử lại!');
         } finally {
             setProcessingPayment(null);
         }
@@ -189,11 +174,10 @@ export default function MyBookingsPage() {
     const filteredBookings = (() => {
         if (filterStatus === 'all') return bookings;
         if (filterStatus === 'upcoming') {
-            // Lịch tư vấn sắp tới: đã thanh toán + ngày hôm nay hoặc tương lai (hoặc ngày 28/05)
+            // Lịch tư vấn sắp tới: đã thanh toán + ngày hôm nay hoặc tương lai.
             return bookings.filter(b => {
                 const isPaid = b.status === 'paied';
-                const isTargetDate = isBookingOnDate(b, '2026-05-28') || isUpcomingOrToday(b);
-                return isPaid && isTargetDate;
+                return isPaid && isTodayOrFuture(b.day_support);
             });
         }
         return bookings.filter(b => b.status === filterStatus);
@@ -207,29 +191,50 @@ export default function MyBookingsPage() {
         failed: bookings.filter(b => b.status === 'failed').length,
         upcoming: bookings.filter(b => {
             const isPaid = b.status === 'paied';
-            const isTargetDate = isBookingOnDate(b, '2026-05-28') || isUpcomingOrToday(b);
-            return isPaid && isTargetDate;
+            return isPaid && isTodayOrFuture(b.day_support);
         }).length,
     };
 
     return (
         <div className="my-bookings-page">
-            <div className="container py-4">
-                <div className="bookings-header mb-4">
-                    <div>
-                        <h1 className="page-title">
-                            <i className="bi bi-calendar-check"></i>
-                            Lịch đã đặt
-                        </h1>
-                        <p className="page-subtitle">Xem và quản lý các lịch tư vấn của bạn</p>
+            <div className="container bookings-container">
+                <section className="bookings-hero">
+                    <div className="bookings-hero-content">
+                        <span className="bookings-eyebrow">
+                            <i className="bi bi-stars"></i>
+                            Không gian tư vấn của bạn
+                        </span>
+                        <h1 className="page-title">Lịch tư vấn</h1>
+                        <p className="page-subtitle">
+                            Theo dõi lịch hẹn, thanh toán và tham gia buổi tư vấn đúng giờ.
+                        </p>
                     </div>
-                    <Link to="/experts" className="btn btn-primary">
+                    <Link to="/experts" className="bookings-new-button">
                         <i className="bi bi-plus-lg"></i>
                         Đặt lịch mới
                     </Link>
-                </div>
+                    <div className="bookings-summary" aria-label="Tổng quan lịch tư vấn">
+                        <div className="summary-item">
+                            <span className="summary-icon summary-icon-blue"><i className="bi bi-calendar2-check"></i></span>
+                            <span><strong>{statusCounts.all}</strong><small>Tổng lịch hẹn</small></span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-icon summary-icon-green"><i className="bi bi-calendar-event"></i></span>
+                            <span><strong>{statusCounts.upcoming}</strong><small>Lịch sắp tới</small></span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-icon summary-icon-amber"><i className="bi bi-credit-card"></i></span>
+                            <span><strong>{statusCounts.reserved}</strong><small>Chờ thanh toán</small></span>
+                        </div>
+                    </div>
+                </section>
 
-                <div className="bookings-filters mb-4">
+                <div className="bookings-toolbar">
+                    <div className="bookings-toolbar-title">
+                        <strong>Danh sách lịch hẹn</strong>
+                        <span>{filteredBookings.length} lịch</span>
+                    </div>
+                    <div className="bookings-filters">
                     <div className="filter-tabs">
                         <button
                             className={`filter-tab ${filterStatus === 'all' ? 'active' : ''}`}
@@ -257,6 +262,7 @@ export default function MyBookingsPage() {
                         <button
                             className={`filter-tab ${filterStatus === 'upcoming' ? 'active' : ''}`}
                             onClick={() => setFilterStatus('upcoming')}
+                            data-status="upcoming"
                         >
                             <i className="bi bi-calendar-event"></i>
                             Lịch sắp tới
@@ -278,6 +284,7 @@ export default function MyBookingsPage() {
                             Thất bại
                             <span className="filter-count">{statusCounts.failed}</span>
                         </button>
+                    </div>
                     </div>
                 </div>
 
@@ -382,10 +389,10 @@ export default function MyBookingsPage() {
                                 </div>
 
                                 <div className="booking-card-footer">
-                                    {filterStatus === 'upcoming' && booking.meet_link && (
+                                    {booking.status === 'paied' && isToday(booking.day_support) && (
                                         <button
-                                            className="btn btn-success btn-sm me-2"
-                                            onClick={() => window.open(booking.meet_link, '_blank')}
+                                            className="booking-action booking-action-join"
+                                            onClick={() => navigate(`/video-call/${booking.id_reverse || booking._id}`)}
                                         >
                                             <i className="bi bi-camera-video"></i>
 
@@ -395,7 +402,7 @@ export default function MyBookingsPage() {
                                     )}
                                     {booking.status === 'reserved' && (
                                         <button
-                                            className="btn btn-warning btn-sm me-2"
+                                            className="booking-action booking-action-payment"
                                             onClick={() => handlePayment(booking)}
                                             disabled={processingPayment === booking._id}
                                         >
@@ -407,13 +414,13 @@ export default function MyBookingsPage() {
                                             ) : (
                                                 <>
                                                     <i className="bi bi-credit-card"></i>
-                                                    Thanh toán ngay
+                                                    Thanh toán bằng thẻ
                                                 </>
                                             )}
                                         </button>
                                     )}
                                     <button
-                                        className="btn btn-outline-primary btn-sm"
+                                        className="booking-action booking-action-detail"
                                         onClick={() => handleViewDetail(booking)}
                                     >
                                         <i className="bi bi-eye"></i>

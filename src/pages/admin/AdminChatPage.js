@@ -433,17 +433,18 @@ export default function AdminChatPage() {
             }
         } catch (error) {
             const errorMsg = error.response?.data?.message
+                || error.response?.data?.detail
                 || error.message
                 || 'Đã xảy ra lỗi khi kết nối tới AI. Vui lòng thử lại.';
             const am = { id: (Date.now() + 1).toString(), role: 'assistant', content: errorMsg, time: new Date() };
-            setChat(prev => ({ ...prev, messages: [...prev.messages, am] }));
+            setChat(prev => [...prev, am]);
         } finally {
             setTyping(false);
         }
     }, [input, typing]);
 
     const clearChat = () => {
-        setChat({ messages: [{ time: new Date() }], createdAt: new Date() });
+        setChat([]);
     };
 
     const lastName = userInfo?.name?.split(' ').pop() || 'Admin';

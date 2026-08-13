@@ -63,7 +63,9 @@ export default function FrameChatCurrent(props) {
         <>
             <div className={`client-msg-item client-msg-reply ${isReply ? 'client-msg-reply-item' : ''} ${isHighlighted ? 'highlighted' : ''}`} id={currentMessage.idmessage}>
                 <div className="client-msg-avatar">
-                    <img src={`${currentMessage.fileurl}`} alt="Expert" className="client-avatar-photo" />
+                    {currentMessage.fileurl
+                        ? <img src={currentMessage.fileurl} alt={currentMessage.name} className="client-avatar-photo" />
+                        : <span className="client-avatar-fallback">{currentMessage.name?.charAt(0)?.toUpperCase() || 'M'}</span>}
                 </div>
                 <div className={`client-msg-body ${isReply ? 'client-msg-reply-item' : ''} ${isHighlighted ? 'highlighted' : ''}`}>
                     <div className="client-msg-header">

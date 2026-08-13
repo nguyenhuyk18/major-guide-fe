@@ -9,8 +9,11 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { io } from "socket.io-client";
 import { CHAT_COMNUNITY } from '../../constants/constant';
+import '../../assets/css/ChatCommunity.css';
 
 export default function ChatCommunity() {
+    const userInfo = useSelector(state => state?.authClientReducer?.access_token);
+
     const userCalled = useRef(new Map());
     const frameContainerChat = useRef(null);
     const hasMoreMessage = useRef(true);
@@ -22,6 +25,17 @@ export default function ChatCommunity() {
     // console.log(idUser)
 
     const [messageList, setMessageList] = useState([]);
+    const [isConnected, setIsConnected] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const socketRef = useRef(null);
+
+    const appendMessageIfMissing = (message) => {
+        if (!message?._id) return;
+        setMessageList(currentMessages => {
+            const alreadyExists = currentMessages.some(item => item._id === message._id);
+            return alreadyExists ? currentMessages : [...currentMessages, message];
+        });
+    };
 
     const scrollToBottom = () => {
         if (frameContainerChat.current) {
@@ -37,14 +51,36 @@ export default function ChatCommunity() {
     }
 
     useEffect(() => {
-        getChatList()
+        getChatList();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (!userInfo) {
+            setIsConnected(false);
+            return undefined;
+        }
 
         const socket = io(process.env['REACT_APP_API_URL'],
             {
                 path: '/socket.io',
-                transports: ['websocket']
+                transports: ['websocket'],
+                reconnection: true,
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 1000,
+                auth: {
+                    token: userInfo
+                }
             }
         );
+        socketRef.current = socket;
+
+        socket.on('connect', () => setIsConnected(true));
+        socket.on('disconnect', () => setIsConnected(false));
+        socket.on('connect_error', (error) => {
+            setIsConnected(false);
+            console.error('[CommunityChat] Socket connection error:', error.message);
+        });
 
         socket.on(CHAT_COMNUNITY[0], async (data) => {
             const { id, userId, replyTo, message } = data;
@@ -57,13 +93,12 @@ export default function ChatCommunity() {
                     toast.error('Lỗi đã xảy ra !!!');
                 }
             }
-            // console.log('hahhaah')
-            setMessageList(prevMessage => [...prevMessage, {
+            appendMessageIfMissing({
                 _id: id,
                 sendBy: userId,
                 content: message,
                 replyTo: replyTo
-            }])
+            });
 
 
             requestAnimationFrame(() => {
@@ -78,10 +113,15 @@ export default function ChatCommunity() {
 
 
         return () => {
+            socket.off(CHAT_COMNUNITY[0]);
+            socket.off('connect');
+            socket.off('disconnect');
+            socket.off('connect_error');
             socket.disconnect()
+            if (socketRef.current === socket) socketRef.current = null;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [userInfo])
 
 
 
@@ -121,6 +161,8 @@ export default function ChatCommunity() {
         } catch (error) {
             console.log(error);
             toast.error('Server đang bị lỗi hãy thử lại sau !!!');
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -135,7 +177,10 @@ export default function ChatCommunity() {
         },
         // Kiểm tra dữ liệu hợp lệ không
         validationSchema: Yup.object({
-            content: Yup.string().required('Vui lòng nhập nội dung bạn muốn nhập'),
+            content: Yup.string()
+                .trim()
+                .required('Vui lòng nhập nội dung tin nhắn')
+                .max(1000, 'Tin nhắn không được vượt quá 1000 ký tự'),
             // password: Yup.string().required('Vui lòng nhập mật khẩu của bạn !!')
         }),
 
@@ -147,13 +192,27 @@ export default function ChatCommunity() {
                     replyTo: replySomeOne?._id || ''
                 };
 
-                await sendMessage(messageData);
+                const response = await sendMessage(messageData);
+                const savedMessage = response?.data?.data;
+
+                if (savedMessage?._id || savedMessage?.id) {
+                    appendMessageIfMissing({
+                        ...savedMessage,
+                        _id: savedMessage._id || savedMessage.id,
+                        sendBy: savedMessage.sendBy || idUser,
+                        content: savedMessage.content || messageData.content,
+                        replyTo: savedMessage.replyTo || messageData.replyTo
+                    });
+                }
+
                 resetForm();
                 setIsReplySomeone(null);
                 // Reset replyTo field for next message
                 formik.setFieldValue('replyTo', '');
 
-                setTimeout(() => scrollToBottom(), 200);
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(scrollToBottom);
+                });
             } catch (error) {
                 toast.error('Không thể gửi tin nhắn hãy đăng nhập và gửi lại sau !!!');
             }
@@ -309,136 +368,155 @@ export default function ChatCommunity() {
     }
 
     return (
-        <>
-            <section className="client-section client-forum-section">
-                <div className="container">
-                    <div className="client-forum-header">
-                        <div className="client-forum-icon">
-                            <i className="bi bi-chat-left-text"></i>
-                        </div>
-                        <div>
-                            <h2 className="client-forum-title">Thảo luận cộng đồng</h2>
-                            <p className="client-forum-subtitle">Kết nối học viện hỏi đáp những chung cộng đồng học sinh toàn quốc</p>
-                        </div>
+        <section className="client-section client-forum-section community-chat">
+            <div className="community-chat-glow community-chat-glow-one"></div>
+            <div className="community-chat-glow community-chat-glow-two"></div>
+            <div className="container community-chat-container">
+                <div className="community-chat-intro">
+                    <div>
+                        <span className="community-chat-eyebrow"><i className="bi bi-stars"></i> Không gian kết nối</span>
+                        <h2>Hỏi đáp cùng cộng đồng</h2>
+                        <p>Chia sẻ băn khoăn, trao đổi kinh nghiệm và cùng nhau tìm ra hướng đi phù hợp.</p>
                     </div>
+                    <div className="community-chat-intro-badge">
+                        <span><i className="bi bi-shield-check"></i></span>
+                        <div><strong>Cộng đồng tích cực</strong><small>Tôn trọng và hỗ trợ lẫn nhau</small></div>
+                    </div>
+                </div>
 
-                    <div className="client-forum-thread">
-                        <div className="client-thread-header">
-                            <div className="client-thread-avatar">
-                                <img src="https://i.pravatar.cc/40?img=1" alt="User" />
-                            </div>
-                            <div className="client-thread-info">
-                                <h4>Hỏi đáp Tuyển sinh 2024</h4>
-                                {/* <p><i className="bi bi-people"></i> 1,245 thành viên online</p> */}
-                            </div>
+                <div className="community-chat-shell">
+                    <header className="community-chat-header">
+                        <div className="community-chat-room-icon">
+                            <i className="bi bi-people-fill"></i>
+                            <span></span>
                         </div>
-                        <div className="client-forum-messages" style={{
-                            height: '600px',
-                            overflowY: 'auto'
-                        }}
-                            onScroll={(e) => handleOnScroll(e)}
-                            ref={frameContainerChat}
-                        >
+                        <div className="community-chat-room-info">
+                            <h3>Phòng thảo luận chung</h3>
+                            <p><span className={isConnected ? 'online' : ''}></span>{isConnected ? 'Đang kết nối trực tuyến' : 'Đang kết nối lại...'}</p>
+                        </div>
+                        <div className="community-chat-live">
+                            <i className="bi bi-broadcast"></i>
+                            <span>LIVE</span>
+                        </div>
+                    </header>
 
-                            {messageList && messageList.length ? messageList.map(row => {
+                    <div
+                        className="client-forum-messages community-chat-messages"
+                        onScroll={handleOnScroll}
+                        ref={frameContainerChat}
+                    >
+                        {hasMoreMessage.current && messageList.length > 0 && (
+                            <div className="community-chat-history-hint">
+                                <i className="bi bi-arrow-up"></i> Cuộn lên để xem tin nhắn cũ hơn
+                            </div>
+                        )}
 
-                                const user = userCalled.current.get(row.sendBy);
-                                // console.log(emailUser, ' ', user);
-                                if (idUser && idUser === row.sendBy) {
-                                    return <FrameChatCurrent
+                        {isLoading ? (
+                            <div className="community-chat-state">
+                                <span className="community-chat-loader"></span>
+                                <strong>Đang tải cuộc trò chuyện</strong>
+                                <p>Chờ một chút nhé...</p>
+                            </div>
+                        ) : !userInfo ? (
+                            <div className="community-chat-state community-chat-login-state">
+                                <span><i className="bi bi-chat-heart"></i></span>
+                                <strong>Tham gia cuộc trò chuyện</strong>
+                                <p>Đăng nhập để xem tin nhắn và kết nối với mọi người trong cộng đồng.</p>
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#loginClientModal">
+                                    <i className="bi bi-box-arrow-in-right"></i> Đăng nhập ngay
+                                </button>
+                            </div>
+                        ) : messageList.length === 0 ? (
+                            <div className="community-chat-state">
+                                <span><i className="bi bi-chat-square-dots"></i></span>
+                                <strong>Hãy mở đầu cuộc trò chuyện</strong>
+                                <p>Chưa có tin nhắn nào. Gửi một lời chào tới cộng đồng nhé!</p>
+                            </div>
+                        ) : messageList.map(row => {
+                            const user = userCalled.current.get(row.sendBy) || {};
+                            const currentMessage = {
+                                idmessage: row._id,
+                                content: row.content,
+                                fileurl: user.fileAvartarUrl,
+                                name: user.name || 'Thành viên',
+                                replyTo: row.replyTo
+                            };
+
+                            if (idUser && idUser === row.sendBy) {
+                                return (
+                                    <FrameChatCurrent
+                                        key={row._id}
                                         replyMessage={null}
-                                        currentMessage={{
-                                            idmessage: row._id,
-                                            content: row.content,
-                                            fileurl: user.fileAvartarUrl,
-                                            name: user.name,
-                                            replyTo: row.replyTo
-                                        }}
+                                        currentMessage={currentMessage}
                                         handleOnReplyClick={handleOnReplyClick}
                                         getOriginalMessage={getOriginalMessage}
                                         isHighlighted={highlightedMessageId === row._id}
                                     />
-                                }
-                                return <FrameChatOrder
+                                );
+                            }
+                            return (
+                                <FrameChatOrder
+                                    key={row._id}
                                     replyMessage={null}
-                                    currentMessage={{
-                                        idmessage: row._id,
-                                        content: row.content,
-                                        fileurl: user.fileAvartarUrl,
-                                        name: user.name,
-                                        replyTo: row.replyTo
-                                    }}
+                                    currentMessage={currentMessage}
                                     handleOnAnwser={handleOnAnwser}
                                     handleOnReplyClick={handleOnReplyClick}
                                     getOriginalMessage={getOriginalMessage}
                                     isHighlighted={highlightedMessageId === row._id}
                                 />
-                            }) : ''}
-                            {/* <div ref={messagesContainerRef} /> */}
-                        </div>
+                            );
+                        })}
+                    </div>
 
-                        <div className="client-forum-input-section">
-                            <form onSubmit={formik.handleSubmit}>
-                                {
-
-                                    replySomeOne ? <div className="client-reply-preview">
-                                        <div className="client-reply-preview-content">
-                                            <div className="client-reply-preview-icon">
-                                                <i className="bi bi-reply-fill"></i>
-                                            </div>
-                                            <div className="client-reply-preview-info">
-                                                <div className="client-reply-preview-author">
-                                                    Đang trả lời: {/* {replyMessage.author} */} {replySomeOne.name}
-                                                </div>
-                                                <div className="client-reply-preview-text">
-                                                    {/* {replyMessage.content} */}
-                                                    {replySomeOne.content}
-                                                </div>
-                                            </div>
+                    <div className="client-forum-input-section community-chat-composer">
+                        <form onSubmit={formik.handleSubmit}>
+                            {replySomeOne && (
+                                <div className="client-reply-preview">
+                                    <div className="client-reply-preview-content">
+                                        <div className="client-reply-preview-icon"><i className="bi bi-reply-fill"></i></div>
+                                        <div className="client-reply-preview-info">
+                                            <div className="client-reply-preview-author">Đang trả lời {replySomeOne.name}</div>
+                                            <div className="client-reply-preview-text">{replySomeOne.content}</div>
                                         </div>
-                                        <button
-                                            type="button"
-                                            className="client-reply-preview-close"
-                                            onClick={() => handleOnCloseAnwser()}
-                                        >
-                                            <i className="bi bi-x"></i>
-                                        </button>
-                                    </div> : null
-                                }
-
-
-                                <div className="client-forum-input">
-                                    <div className="client-input-wrapper">
-                                        <input
-                                            type="text"
-                                            className={`client-input-message ${formik.touched.content && formik.errors.content ? 'is-invalid' : ''}`}
-                                            placeholder="Nhập tin nhắn của bạn..."
-                                            name='content'
-                                            value={formik.values.content}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                        />
-                                        <button type="button" className="client-btn-emoji">
-                                            <i className="bi bi-emoji-smile"></i>
-                                        </button>
                                     </div>
-                                    <button type="submit" className="client-btn-send">
-                                        <i className="bi bi-send-fill"></i>
+                                    <button type="button" className="client-reply-preview-close" onClick={handleOnCloseAnwser} aria-label="Hủy trả lời">
+                                        <i className="bi bi-x-lg"></i>
                                     </button>
                                 </div>
+                            )}
 
-                                {/* Error message now inside the forum thread */}
-                                {formik.touched.content && formik.errors.content && (
-                                    <div className="client-input-error">
-                                        <i className="bi bi-exclamation-circle me-2"></i>
-                                        {formik.errors.content}
-                                    </div>
-                                )}
-                            </form>
-                        </div>
+                            <div className="client-forum-input">
+                                <div className="client-input-wrapper">
+                                    <span className="community-chat-input-icon"><i className="bi bi-chat-text"></i></span>
+                                    <input
+                                        type="text"
+                                        maxLength="1000"
+                                        disabled={!userInfo}
+                                        className={`client-input-message ${formik.touched.content && formik.errors.content ? 'is-invalid' : ''}`}
+                                        placeholder={userInfo ? 'Viết tin nhắn cho cộng đồng...' : 'Đăng nhập để gửi tin nhắn'}
+                                        name="content"
+                                        value={formik.values.content}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        autoComplete="off"
+                                    />
+                                    {!!formik.values.content.length && <small>{formik.values.content.length}/1000</small>}
+                                </div>
+                                <button type="submit" className="client-btn-send" disabled={!userInfo || !formik.values.content.trim()} aria-label="Gửi tin nhắn">
+                                    <i className="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+
+                            {formik.touched.content && formik.errors.content && (
+                                <div className="client-input-error">
+                                    <i className="bi bi-exclamation-circle"></i>
+                                    {formik.errors.content}
+                                </div>
+                            )}
+                        </form>
                     </div>
                 </div>
-            </section >
-        </>
+            </div>
+        </section>
     );
 }

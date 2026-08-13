@@ -128,7 +128,7 @@ export default function ExpertPage() {
                                             <p className="expert-card-bio">{expert.expertProfile?.information || 'Chưa có thông tin.'}</p>
                                             <div className="expert-card-actions">
                                                 <Link to={`/choose-schedule?expert_id=${expert._id}`} className="expert-btn-book">Đặt lịch</Link>
-                                                <Link className="expert-btn-detail">Xem chi tiết</Link>
+                                                <Link to={`/experts/${expert.id || expert._id}`} className="expert-btn-detail">Xem chi tiết</Link>
                                             </div>
                                         </div>
                                     </div>

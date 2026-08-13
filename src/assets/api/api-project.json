@@ -1,0 +1,3235 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v2/shift": {
+      "get": {
+        "operationId": "ShiftController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "In ra toàn bộ ca mỗi ngày !!",
+        "tags": [
+          "Shift"
+        ]
+      }
+    },
+    "/api/v2/shift/{id}": {
+      "get": {
+        "operationId": "ShiftController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "In ca theo mã ca !!",
+        "tags": [
+          "Shift"
+        ]
+      }
+    },
+    "/api/v2/register": {
+      "post": {
+        "operationId": "RegisterController_createRegister",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tạo đơn đăng ký !!!",
+        "tags": [
+          "Register"
+        ]
+      },
+      "get": {
+        "operationId": "RegisterController_getAllRegister",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Api lấy toàn bộ đơn đăng ký (có phân trang)",
+        "tags": [
+          "Register"
+        ]
+      }
+    },
+    "/api/v2/register/accept-register/{id}": {
+      "put": {
+        "operationId": "RegisterController_updateRegister",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Chấp nhận đơn đăng ký lịch mới của chuyên gia",
+        "tags": [
+          "Register"
+        ]
+      }
+    },
+    "/api/v2/register/cancle-register/{id}": {
+      "put": {
+        "operationId": "RegisterController_disapproveRegister",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Hủy đơn đăng ký của chuyên gia",
+        "tags": [
+          "Register"
+        ]
+      }
+    },
+    "/api/v2/register/expert/{id_expert}": {
+      "get": {
+        "operationId": "RegisterController_findRegisterByIdExpert",
+        "parameters": [
+          {
+            "name": "id_expert",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_time",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_time",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Lấy đơn đăng ký theo mã chuyên gia !!!",
+        "tags": [
+          "Register"
+        ]
+      }
+    },
+    "/api/v2/register/{id}": {
+      "get": {
+        "operationId": "RegisterController_findRegisterById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Lấy đơn đăng ký theo mã id!!!",
+        "tags": [
+          "Register"
+        ]
+      }
+    },
+    "/api/v2/shift-in-day/only-shift": {
+      "get": {
+        "operationId": "ShiftInDayController_getOnlyShift",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Api nay chi de lay toan bo shift in day",
+        "tags": [
+          "Shift In Day"
+        ]
+      }
+    },
+    "/api/v2/shift-in-day": {
+      "get": {
+        "operationId": "ShiftInDayController_getAll",
+        "parameters": [
+          {
+            "name": "start_time",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_time",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Api này để xem được các ca trong 1 ngày nhắm giúp dễ truy vấn số chuyên gia trong ca đấy",
+        "tags": [
+          "Shift In Day"
+        ]
+      }
+    },
+    "/api/v2/shift-in-day/{id}": {
+      "get": {
+        "operationId": "ShiftInDayController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "specify_time",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Api này để xem các chuyên gia có trong ca đó",
+        "tags": [
+          "Shift In Day"
+        ]
+      }
+    },
+    "/api/v2/shift-in-day/shift/{id}": {
+      "get": {
+        "operationId": "ShiftInDayController_getByIdShft",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Api này chỉ để lấy thông tin ca",
+        "tags": [
+          "Shift In Day"
+        ]
+      }
+    },
+    "/api/v2/shift-daily-status/check-status": {
+      "get": {
+        "operationId": "ShiftDailyStatusController_checkSlotAvailable",
+        "parameters": [
+          {
+            "name": "date-reverse",
+            "required": false,
+            "in": "query",
+            "description": "Date in YYYY-MM-DD format",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id-shift-in-day",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id-expert",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Shift Daily Status"
+        ]
+      }
+    },
+    "/api/v2/province": {
+      "get": {
+        "operationId": "ProvinceController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Lấy toàn bộ các tỉnh thành !!!",
+        "tags": [
+          "Province"
+        ]
+      }
+    },
+    "/api/v2/province/{id_province}": {
+      "get": {
+        "operationId": "ProvinceController_getById",
+        "parameters": [
+          {
+            "name": "id_province",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Lấy tỉnh thành theo ID !!!",
+        "tags": [
+          "Province"
+        ]
+      }
+    },
+    "/api/v2/ward": {
+      "get": {
+        "operationId": "WardController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ward"
+        ]
+      }
+    },
+    "/api/v2/ward/province/{id_province}": {
+      "get": {
+        "operationId": "WardController_getAllWardByIdProvince",
+        "parameters": [
+          {
+            "name": "id_province",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Lấy phường theo mã tỉnh thành ",
+        "tags": [
+          "Ward"
+        ]
+      }
+    },
+    "/api/v2/ward/{id_ward}": {
+      "get": {
+        "operationId": "WardController_getById",
+        "parameters": [
+          {
+            "name": "id_ward",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ward"
+        ]
+      }
+    },
+    "/api/v2/user/many-user": {
+      "post": {
+        "operationId": "UserController_getUserByIds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindUserByIds"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Api tìm user theo id",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v2/user/upload-image/{id}": {
+      "put": {
+        "operationId": "UserController_updateAvatarUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Thông tin user kèm file ảnh",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FileUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Api cập nhật ảnh đại diện",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v2/user/{id}": {
+      "get": {
+        "operationId": "UserController_findUserById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Api tìm user theo id",
+        "tags": [
+          "User"
+        ]
+      },
+      "put": {
+        "operationId": "UserController_updateUserProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API chỉnh sửa thông tin user (dựa trên role)",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v2/user": {
+      "get": {
+        "operationId": "UserController_getAllUser",
+        "parameters": [
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Api này để lấy ra toàn bộ chuyên gia (có phân trang)",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v2/user/contact": {
+      "post": {
+        "operationId": "UserController_sendEmailContact",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactMailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API gửi email",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v2/user/update-status-account": {
+      "put": {
+        "operationId": "UserController_updateStatusAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API cập nhật trạng thái tài khoản",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/v2/question": {
+      "get": {
+        "description": "API lấy tất cả câu hỏi với phân trang và bộ lọc theo nhóm, trạng thái",
+        "operationId": "QuestionController_getAllQuestions",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Số trang (mặc định: 1)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Số câu hỏi mỗi trang (mặc định: 10)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Lọc theo trạng thái active",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "group",
+            "required": false,
+            "in": "query",
+            "description": "Lọc theo nhóm (A-I)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy danh sách câu hỏi",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      },
+      "post": {
+        "description": "API tạo một câu hỏi mới. Chỉ ADMIN được phép tạo",
+        "operationId": "QuestionController_createQuestion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuestionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tạo câu hỏi mới",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      }
+    },
+    "/api/v2/question/grouped": {
+      "get": {
+        "description": "API lấy tất cả câu hỏi được nhóm theo nhóm (A-I). Dùng cho trắc nghiệm",
+        "operationId": "QuestionController_getGroupedQuestions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy câu hỏi theo nhóm",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      }
+    },
+    "/api/v2/question/active": {
+      "get": {
+        "description": "API lấy các câu hỏi đang ở trạng thái active (dùng cho người dùng làm test)",
+        "operationId": "QuestionController_getActiveQuestions",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Số câu hỏi tối đa (mặc định: lấy tất cả)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy câu hỏi đang active",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      }
+    },
+    "/api/v2/question/{id}": {
+      "get": {
+        "description": "API lấy chi tiết một câu hỏi bất kỳ theo MongoDB ID",
+        "operationId": "QuestionController_getQuestionById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy câu hỏi theo ID",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      },
+      "put": {
+        "description": "API cập nhật nội dung, nhóm hoặc traits của một câu hỏi. Chỉ ADMIN được phép sửa",
+        "operationId": "QuestionController_updateQuestion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cập nhật câu hỏi",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      },
+      "delete": {
+        "description": "API xóa một câu hỏi theo ID. Chỉ ADMIN được phép xóa",
+        "operationId": "QuestionController_deleteQuestion",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Xóa câu hỏi",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      }
+    },
+    "/api/v2/question/many": {
+      "post": {
+        "description": "API tạo nhiều câu hỏi cùng lúc (batch). Chỉ ADMIN được phép tạo",
+        "operationId": "QuestionController_createManyQuestions",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateManyQuestionsRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tạo nhiều câu hỏi",
+        "tags": [
+          "Question - Quản lý câu hỏi"
+        ]
+      }
+    },
+    "/api/v2/test-result/answer": {
+      "post": {
+        "description": "API lưu tạm đáp án của từng câu hỏi khi người dùng đang làm bài test (chưa nộp bài). Dùng để khôi phục tiến độ làm bài.",
+        "operationId": "TestResultController_saveAnswer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveAnswerRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lưu đáp án từng câu",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/test-result/submit": {
+      "post": {
+        "description": "API nộp bài test hoàn chỉnh. Bao gồm tất cả đáp án, điểm traits và tổng điểm. Sau khi nộp sẽ tạo testId mới và không thể sửa.",
+        "operationId": "TestResultController_submitTest",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitTestRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Nộp bài test",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/test-result/user/{userId}": {
+      "get": {
+        "description": "API lấy tất cả kết quả bài test của một người dùng (bao gồm cả các bài test đã làm trước đó)",
+        "operationId": "TestResultController_getResultsByUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy kết quả test của user",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/test-result/user/{userId}/latest": {
+      "get": {
+        "description": "API lấy kết quả bài test mới nhất và đã hoàn thành của một người dùng",
+        "operationId": "TestResultController_getLatestResult",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy kết quả test mới nhất",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/test-result/user/{userId}/inprogress": {
+      "get": {
+        "description": "API lấy bài test chưa hoàn thành của một người dùng (isCompleted = false)",
+        "operationId": "TestResultController_getInProgressTest",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy bài test đang dở",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/test-result": {
+      "get": {
+        "description": "API lấy danh sách tất cả kết quả bài test của mọi người dùng (phân trang). Chỉ ADMIN được phép truy cập.",
+        "operationId": "TestResultController_getAllResults",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Số trang (mặc định: 1)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Số kết quả mỗi trang (mặc định: 10)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lấy tất cả kết quả test",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/test-result/{id}": {
+      "get": {
+        "description": "API lấy chi tiết một kết quả bài test bất kỳ theo MongoDB ID",
+        "operationId": "TestResultController_getResultById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Lấy kết quả test theo ID",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      },
+      "delete": {
+        "description": "API xóa một kết quả bài test theo ID. Chỉ ADMIN được phép xóa.",
+        "operationId": "TestResultController_deleteResult",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Xóa kết quả test",
+        "tags": [
+          "TestResult - Kết quả bài test"
+        ]
+      }
+    },
+    "/api/v2/reviews/experts/{expertId}": {
+      "post": {
+        "operationId": "ReviewController_create",
+        "parameters": [
+          {
+            "name": "expertId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExpertReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Thành viên đánh giá chuyên gia",
+        "tags": [
+          "Expert Reviews"
+        ]
+      },
+      "get": {
+        "operationId": "ReviewController_getByExpert",
+        "parameters": [
+          {
+            "name": "expertId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Danh sách và thống kê đánh giá của chuyên gia",
+        "tags": [
+          "Expert Reviews"
+        ]
+      }
+    },
+    "/api/v2/reviews/{reviewId}": {
+      "put": {
+        "operationId": "ReviewController_update",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExpertReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Thành viên cập nhật đánh giá của mình",
+        "tags": [
+          "Expert Reviews"
+        ]
+      },
+      "delete": {
+        "operationId": "ReviewController_delete",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Xóa đánh giá của thành viên hoặc bởi admin",
+        "tags": [
+          "Expert Reviews"
+        ]
+      }
+    },
+    "/api/v2/authorizer": {
+      "post": {
+        "operationId": "AuthorizerController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKeyCloakUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Đăng ký tài khoản người dùng !!!",
+        "tags": [
+          "Authorizer"
+        ]
+      }
+    },
+    "/api/v2/authorizer/expert": {
+      "post": {
+        "operationId": "AuthorizerController_createExpertAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKeyCloakUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Đăng ký tài khoản cho chuyên gia (chỉ có admin thêm được thôi) !!!",
+        "tags": [
+          "Authorizer"
+        ]
+      }
+    },
+    "/api/v2/authorizer/login": {
+      "post": {
+        "operationId": "AuthorizerController_loginUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Đăng nhập lấy quyền truy cập token ở trang admin",
+        "tags": [
+          "Authorizer"
+        ]
+      }
+    },
+    "/api/v2/authorizer/login-client": {
+      "post": {
+        "operationId": "AuthorizerController_loginClient",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Đăng nhập lấy quyền truy cập token ở máy khách",
+        "tags": [
+          "Authorizer"
+        ]
+      }
+    },
+    "/api/v2/book": {
+      "post": {
+        "operationId": "BookingController_createBookingV2",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API đặt chỗ chuyên gia (v2) - Tạo booking và trả về order_id để FE tạo link thanh toán",
+        "tags": [
+          "Booking"
+        ]
+      }
+    },
+    "/api/v2/book/my-bookings/{id_member}": {
+      "get": {
+        "operationId": "BookingController_getMyBookings",
+        "parameters": [
+          {
+            "name": "id_member",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API lấy toàn bộ booking của member hiện tại",
+        "tags": [
+          "Booking"
+        ]
+      }
+    },
+    "/api/v2/book/expert-bookings": {
+      "get": {
+        "operationId": "BookingController_getExpertBookings",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API lấy danh sách booking đã thanh toán của chuyên gia (có phân trang)",
+        "tags": [
+          "Booking"
+        ]
+      }
+    },
+    "/api/v2/book/expert/join-booking": {
+      "put": {
+        "operationId": "BookingController_expertJoinBooking",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpertJoinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API expert xác nhận tham gia cuộc hẹn - cập nhật trường joinAt",
+        "tags": [
+          "Booking"
+        ]
+      }
+    },
+    "/api/v2/payment/create-link": {
+      "post": {
+        "operationId": "PaymentController_createLinkPayment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLinkApiVnpayRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/v2/payment/confirm": {
+      "post": {
+        "operationId": "PaymentController_confirmPayment",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "API Confirm thanh toán đơn hàng  !!!!",
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/api/v2/chat-community": {
+      "post": {
+        "operationId": "ChatComunityController_saveMessage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatComunityRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Thêm Tin Nhắn Mới !!!",
+        "tags": [
+          "Chat Community"
+        ]
+      },
+      "get": {
+        "operationId": "ChatComunityController_getAllMessage",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Xem các tin nhắn (có phân trang)",
+        "tags": [
+          "Chat Community"
+        ]
+      }
+    },
+    "/api/v2/chat-community/{id}": {
+      "get": {
+        "operationId": "ChatComunityController_getMessageById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Tìm tin nhắn theo mã tin nhắn !!!",
+        "tags": [
+          "Chat Community"
+        ]
+      }
+    },
+    "/api/v2/chat-rooms": {
+      "post": {
+        "operationId": "RoomController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tạo hoặc lấy room giữa member hiện tại và chuyên gia",
+        "tags": [
+          "Private Chat Rooms"
+        ]
+      }
+    },
+    "/api/v2/chat-rooms/me": {
+      "get": {
+        "operationId": "RoomController_findMyRooms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lấy room của member hoặc expert đang đăng nhập",
+        "tags": [
+          "Private Chat Rooms"
+        ]
+      }
+    },
+    "/api/v2/chat-rooms/member/{memberId}": {
+      "get": {
+        "operationId": "RoomController_findByMember",
+        "parameters": [
+          {
+            "name": "memberId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lấy room theo ID member",
+        "tags": [
+          "Private Chat Rooms"
+        ]
+      }
+    },
+    "/api/v2/chat-rooms/expert/{expertId}": {
+      "get": {
+        "operationId": "RoomController_findByExpert",
+        "parameters": [
+          {
+            "name": "expertId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lấy room theo ID expert",
+        "tags": [
+          "Private Chat Rooms"
+        ]
+      }
+    },
+    "/api/v2/chat-private": {
+      "post": {
+        "operationId": "ChatPrivateController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendPrivateMessageRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Gửi tin nhắn text vào room",
+        "tags": [
+          "Private Chat"
+        ]
+      }
+    },
+    "/api/v2/chat-private/rooms/{roomId}": {
+      "get": {
+        "operationId": "ChatPrivateController_getMessages",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lấy lịch sử tin nhắn trong room, mới nhất trước",
+        "tags": [
+          "Private Chat"
+        ]
+      }
+    },
+    "/api/v2/chat-private/rooms/{roomId}/read": {
+      "patch": {
+        "operationId": "ChatPrivateController_markRead",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Đánh dấu các tin hiện tại trong room là đã đọc",
+        "tags": [
+          "Private Chat"
+        ]
+      }
+    },
+    "/api/v2/post": {
+      "post": {
+        "operationId": "PostController_createPost",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Tiêu đề bài viết"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Nội dung bài viết"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Ảnh bài viết"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API tạo bài viết - tự động upload ảnh lên Cloudinary",
+        "tags": [
+          "Post"
+        ]
+      },
+      "get": {
+        "operationId": "PostController_getAllPosts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "API lấy tất cả bài viết",
+        "tags": [
+          "Post"
+        ]
+      }
+    },
+    "/api/v2/post/expert/{expertId}": {
+      "get": {
+        "operationId": "PostController_getPostsByExpert",
+        "parameters": [
+          {
+            "name": "expertId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "API lấy bài viết theo ID chuyên gia",
+        "tags": [
+          "Post"
+        ]
+      }
+    },
+    "/api/v2/post/{id}": {
+      "get": {
+        "operationId": "PostController_getPostById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "API lấy bài viết theo ID",
+        "tags": [
+          "Post"
+        ]
+      },
+      "put": {
+        "operationId": "PostController_updatePost",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Tiêu đề bài viết"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Nội dung bài viết"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Ảnh bài viết mới (tùy chọn)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API cập nhật bài viết - tự động upload ảnh mới lên Cloudinary nếu có",
+        "tags": [
+          "Post"
+        ]
+      },
+      "delete": {
+        "operationId": "PostController_deletePost",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "API xóa bài viết",
+        "tags": [
+          "Post"
+        ]
+      }
+    },
+    "/api/v2/chat-ai": {
+      "post": {
+        "operationId": "ChatAiController_sendMessage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatAiRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Gửi tin nhắn tới AI Agent và nhận phản hồi (LLM + Tools)",
+        "tags": [
+          "Chat AI"
+        ]
+      }
+    },
+    "/api/v2/chat-ai/rag": {
+      "post": {
+        "operationId": "ChatAiController_chatWithRag",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatAiRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Gửi tin nhắn tới AI Agent với RAG (Embedding → Qdrant → LLM)",
+        "tags": [
+          "Chat AI"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "MAJOR GUIDE API",
+    "description": "The MAJOR GUIDE API description",
+    "version": "1.0.0",
+    "contact": {
+
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Default JWT Authorization",
+        "type": "http",
+        "in": "header",
+        "name": "Authorization"
+      }
+    },
+    "schemas": {
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "object"
+          },
+          "data": {
+            "type": "object"
+          },
+          "processID": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "object"
+          },
+          "duration": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "data",
+          "processID",
+          "statusCode",
+          "duration"
+        ]
+      },
+      "RegisterRequestDto": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "day"
+        ]
+      },
+      "FindUserByIds": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "FileUploadDto": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary"
+          }
+        },
+        "required": [
+          "file"
+        ]
+      },
+      "UpdateExpertInfoDto": {
+        "type": "object",
+        "properties": {
+          "teachAt": {
+            "type": "string",
+            "description": "Nơi giảng dạy"
+          },
+          "information": {
+            "type": "string",
+            "description": "Thông tin giới thiệu"
+          },
+          "major": {
+            "type": "string",
+            "description": "Chuyên ngành"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "bachelor",
+              "master",
+              "doctor",
+              "professor"
+            ],
+            "description": "Trình độ"
+          },
+          "price": {
+            "type": "number",
+            "description": "Giá tư vấn"
+          }
+        }
+      },
+      "UpdateMemberInfoDto": {
+        "type": "object",
+        "properties": {
+          "highSchool": {
+            "type": "string",
+            "description": "Trường trung học phổ thông"
+          }
+        }
+      },
+      "UpdateUserRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Tên người dùng"
+          },
+          "wardId": {
+            "type": "string",
+            "description": "ID phường/xã"
+          },
+          "expertProfile": {
+            "description": "Thông tin chuyên gia (chỉ dành cho Expert)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateExpertInfoDto"
+              }
+            ]
+          },
+          "memberProfile": {
+            "description": "Thông tin thành viên (chỉ dành cho Member)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateMemberInfoDto"
+              }
+            ]
+          }
+        }
+      },
+      "ContactMailRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "subject",
+          "content"
+        ]
+      },
+      "UpdateStatusUserDto": {
+        "type": "object",
+        "properties": {
+          "id_user": {
+            "type": "string",
+            "description": "ID người dùng"
+          },
+          "status": {
+            "type": "object",
+            "description": "trạng thái tài khoản"
+          }
+        },
+        "required": [
+          "id_user",
+          "status"
+        ]
+      },
+      "CreateQuestionRequestDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "description": "ID câu hỏi (VD: q1, q2)",
+            "example": "q1"
+          },
+          "group": {
+            "type": "string",
+            "description": "Nhóm câu hỏi (A-I)",
+            "enum": [
+              "A. Logic & phân tích",
+              "B. Công nghệ & hệ thống",
+              "C. Dữ liệu & AI thinking",
+              "D. Bảo mật & điều tra",
+              "E. Sáng tạo & thiết kế",
+              "F. Giao tiếp & ảnh hưởng",
+              "G. Giúp đỡ con người",
+              "H. Kỹ thuật thực hành",
+              "I. Quản lý & tổ chức"
+            ],
+            "example": "A. Logic & phân tích"
+          },
+          "text": {
+            "type": "string",
+            "description": "Nội dung câu hỏi",
+            "example": "Tôi thích tìm nguyên nhân gốc rễ của một vấn đề."
+          },
+          "traits": {
+            "type": "array",
+            "description": "Danh sách traits (VD: logical, analytical)",
+            "example": [
+              "logical",
+              "analytical"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "logical",
+                "analytical",
+                "discipline",
+                "technical",
+                "curiosity",
+                "creative",
+                "systematic",
+                "research_mindset",
+                "detail_oriented",
+                "artistic",
+                "adaptability",
+                "communication",
+                "leadership",
+                "persuasion",
+                "empathy"
+              ]
+            }
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Câu hỏi có đang active không",
+            "example": true
+          }
+        },
+        "required": [
+          "questionId",
+          "group",
+          "text"
+        ]
+      },
+      "CreateManyQuestionsRequestDto": {
+        "type": "object",
+        "properties": {
+          "questions": {
+            "description": "Danh sách câu hỏi cần tạo",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateQuestionRequestDto"
+            }
+          }
+        },
+        "required": [
+          "questions"
+        ]
+      },
+      "UpdateQuestionRequestDto": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "description": "Nhóm câu hỏi mới (A-I)",
+            "enum": [
+              "A. Logic & phân tích",
+              "B. Công nghệ & hệ thống",
+              "C. Dữ liệu & AI thinking",
+              "D. Bảo mật & điều tra",
+              "E. Sáng tạo & thiết kế",
+              "F. Giao tiếp & ảnh hưởng",
+              "G. Giúp đỡ con người",
+              "H. Kỹ thuật thực hành",
+              "I. Quản lý & tổ chức"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "Nội dung câu hỏi mới",
+            "example": "Nội dung câu hỏi đã cập nhật"
+          },
+          "traits": {
+            "type": "array",
+            "description": "Danh sách traits mới",
+            "items": {
+              "type": "string",
+              "enum": [
+                "logical",
+                "analytical",
+                "discipline",
+                "technical",
+                "curiosity",
+                "creative",
+                "systematic",
+                "research_mindset",
+                "detail_oriented",
+                "artistic",
+                "adaptability",
+                "communication",
+                "leadership",
+                "persuasion",
+                "empathy"
+              ]
+            }
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Trạng thái active",
+            "example": true
+          }
+        }
+      },
+      "SaveAnswerRequestDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "ID người dùng",
+            "example": "user123"
+          },
+          "questionId": {
+            "type": "string",
+            "description": "ID câu hỏi đang trả lời",
+            "example": "q1"
+          },
+          "score": {
+            "type": "number",
+            "description": "Điểm số (1-5)",
+            "example": 4,
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "required": [
+          "userId",
+          "questionId",
+          "score"
+        ]
+      },
+      "AnswerOptionRequestDto": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "description": "ID câu hỏi (VD: q1, q2)",
+            "example": "q1"
+          },
+          "score": {
+            "type": "number",
+            "description": "Điểm số từ 1-5",
+            "example": 4,
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "required": [
+          "questionId",
+          "score"
+        ]
+      },
+      "TraitScoreRequestDto": {
+        "type": "object",
+        "properties": {
+          "trait": {
+            "type": "string",
+            "description": "Tên trait (VD: logical, analytical)",
+            "enum": [
+              "logical",
+              "analytical",
+              "discipline",
+              "technical",
+              "curiosity",
+              "creative",
+              "systematic",
+              "research_mindset",
+              "detail_oriented",
+              "artistic",
+              "adaptability",
+              "communication",
+              "leadership",
+              "persuasion",
+              "empathy"
+            ],
+            "example": "logical"
+          },
+          "score": {
+            "type": "number",
+            "description": "Tổng điểm của trait",
+            "example": 15
+          },
+          "count": {
+            "type": "number",
+            "description": "Số câu hỏi có trait này",
+            "example": 5
+          }
+        },
+        "required": [
+          "trait",
+          "score",
+          "count"
+        ]
+      },
+      "SubmitTestRequestDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "ID người dùng",
+            "example": "user123"
+          },
+          "answers": {
+            "description": "Danh sách đáp án đã chọn",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnswerOptionRequestDto"
+            }
+          },
+          "traitScores": {
+            "description": "Điểm số theo từng trait",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TraitScoreRequestDto"
+            }
+          },
+          "totalScore": {
+            "type": "number",
+            "description": "Tổng điểm tất cả các câu",
+            "example": 156
+          }
+        },
+        "required": [
+          "userId",
+          "answers",
+          "traitScores",
+          "totalScore"
+        ]
+      },
+      "CreateExpertReviewDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Chuyên gia tư vấn rất tận tâm."
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "UpdateExpertReviewDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 1000,
+            "example": "Chuyên gia tư vấn rất tận tâm."
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "ExpertInfoRequest": {
+        "type": "object",
+        "properties": {
+          "teachAt": {
+            "type": "string"
+          },
+          "information": {
+            "type": "string"
+          },
+          "major": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "bachelor",
+              "master",
+              "doctor",
+              "professor"
+            ]
+          },
+          "price": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "teachAt",
+          "information",
+          "major",
+          "level",
+          "price"
+        ]
+      },
+      "MemberInfo": {
+        "type": "object",
+        "properties": {
+          "highSchool": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "highSchool"
+        ]
+      },
+      "CreateKeyCloakUserRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "ward_id": {
+            "type": "string"
+          },
+          "role_name": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "expert",
+              "member"
+            ]
+          },
+          "expertProfile": {
+            "$ref": "#/components/schemas/ExpertInfoRequest"
+          },
+          "memberProfile": {
+            "$ref": "#/components/schemas/MemberInfo"
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ]
+          },
+          "statusAccount": {
+            "type": "string",
+            "enum": [
+              "active",
+              "busy",
+              "down"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "firstname",
+          "lastname",
+          "email",
+          "password",
+          "ward_id",
+          "role_name",
+          "sex",
+          "statusAccount"
+        ]
+      },
+      "LoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "ReverseGatewayRequest": {
+        "type": "object",
+        "properties": {
+          "id_expert": {
+            "type": "string"
+          },
+          "id_shift_in_day": {
+            "type": "string"
+          },
+          "day_support": {
+            "type": "string",
+            "description": "Ngày hỗ trợ theo định dạng YYYY-MM-DD"
+          },
+          "time_start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "time_end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "price_support": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
+          },
+          "name_customer": {
+            "type": "string"
+          },
+          "name_expert": {
+            "type": "string"
+          },
+          "avatar_expert": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id_expert",
+          "id_shift_in_day",
+          "day_support",
+          "time_start",
+          "time_end",
+          "price_support",
+          "note",
+          "name_customer",
+          "name_expert",
+          "avatar_expert"
+        ]
+      },
+      "CreateBookingRequest": {
+        "type": "object",
+        "properties": {
+          "id_expert": {
+            "type": "string"
+          },
+          "id_shift_in_day": {
+            "type": "string"
+          },
+          "day_support": {
+            "type": "string",
+            "description": "Ngày hỗ trợ theo định dạng YYYY-MM-DD"
+          },
+          "time_start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "time_end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "price_support": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
+          },
+          "name_customer": {
+            "type": "string"
+          },
+          "name_expert": {
+            "type": "string"
+          },
+          "avatar_expert": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id_expert",
+          "id_shift_in_day",
+          "day_support",
+          "time_start",
+          "time_end",
+          "price_support",
+          "name_customer",
+          "name_expert",
+          "avatar_expert"
+        ]
+      },
+      "ExpertJoinRequest": {
+        "type": "object",
+        "properties": {
+
+        }
+      },
+      "CreateLinkApiVnpayRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId",
+          "amount",
+          "description"
+        ]
+      },
+      "ChatComunityRequestDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "replyTo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content",
+          "replyTo"
+        ]
+      },
+      "CreateRoomRequestDto": {
+        "type": "object",
+        "properties": {
+          "expertId": {
+            "type": "string",
+            "description": "MongoDB ID của chuyên gia"
+          },
+          "nameRoom": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Tư vấn hướng nghiệp"
+          }
+        },
+        "required": [
+          "expertId"
+        ]
+      },
+      "SendPrivateMessageRequestDto": {
+        "type": "object",
+        "properties": {
+          "roomId": {
+            "type": "string",
+            "description": "MongoDB ID của room"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000,
+            "example": "Xin chào chuyên gia"
+          }
+        },
+        "required": [
+          "roomId",
+          "content"
+        ]
+      },
+      "ChatAiRequestDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Xin chào, tôi muốn hỏi về chuyên gia"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+    }
+  }
+}

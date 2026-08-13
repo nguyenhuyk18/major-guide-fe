@@ -14,4 +14,8 @@ const expertJoinBooking = async (bookingId) => {
     return rs;
 };
 
-export { getExpertBookings, expertJoinBooking };
+const getBookingDashboard = async () => {
+    return instanceCallApi.get('/api/v2/book/dashboard');
+};
+
+export { getExpertBookings, expertJoinBooking, getBookingDashboard };

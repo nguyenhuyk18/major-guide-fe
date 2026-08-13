@@ -71,14 +71,45 @@ export default function HomePage() {
 
                 <HeroSection />
 
-
+                <section className="client-journey-section">
+                    <div className="container">
+                        <div className="client-journey-grid">
+                            <div className="client-journey-intro">
+                                <span className="client-section-kicker">Bắt đầu thật dễ dàng</span>
+                                <h2>Ba bước để tìm ra hướng đi phù hợp</h2>
+                                <p>Từ việc hiểu bản thân đến một kế hoạch rõ ràng, bạn luôn có chuyên gia đồng hành.</p>
+                            </div>
+                            <div className="client-journey-step">
+                                <span className="client-step-number">01</span>
+                                <div className="client-step-icon"><i className="bi bi-ui-checks-grid"></i></div>
+                                <h3>Khám phá bản thân</h3>
+                                <p>Đánh giá sở thích, thế mạnh và nhóm tính cách nghề nghiệp.</p>
+                            </div>
+                            <div className="client-journey-step">
+                                <span className="client-step-number">02</span>
+                                <div className="client-step-icon"><i className="bi bi-people"></i></div>
+                                <h3>Chọn chuyên gia</h3>
+                                <p>Tìm người tư vấn phù hợp với ngành học bạn đang quan tâm.</p>
+                            </div>
+                            <div className="client-journey-step">
+                                <span className="client-step-number">03</span>
+                                <div className="client-step-icon"><i className="bi bi-signpost-split"></i></div>
+                                <h3>Xây dựng lộ trình</h3>
+                                <p>Nhận định hướng cụ thể và từng bước biến mục tiêu thành hành động.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 {/* Featured Experts Section */}
                 <section className="client-experts-section">
                     <div className="container">
                         <div className="client-section-header">
-                            <h2 className="client-section-title">Chuyên gia nổi bật</h2>
-                            <p className="client-section-subtitle">Đội ngũ chuyên gia giàu kinh nghiệm, tận tâm hỗ trợ bạn tuyển sinh đại học</p>
+                            <div>
+                                <span className="client-section-kicker">Đội ngũ đồng hành</span>
+                                <h2 className="client-section-title">Chuyên gia nổi bật</h2>
+                                <p className="client-section-subtitle">Kinh nghiệm thực tế, tận tâm lắng nghe và thấu hiểu từng lựa chọn.</p>
+                            </div>
                             <Link to="/experts" className="client-link-view-all">
                                 Xem tất cả <i className="bi bi-arrow-right"></i>
                             </Link>
@@ -118,11 +149,11 @@ export default function HomePage() {
                                                     : 'Chuyên gia tư vấn tuyển sinh hàng đầu, sẵn sàng hỗ trợ bạn 24/7.'}
                                             </p>
                                             <Link
-                                                to={`/choose-schedule?expert_id=${expert.id || expert._id}`}
+                                                to={`/experts/${expert.id || expert._id}`}
                                                 className="client-btn-expert"
                                             >
-                                                <i className="bi bi-calendar me-2"></i>
-                                                Đặt lịch hẹn
+                                                <i className="bi bi-person-lines-fill me-2"></i>
+                                                Xem hồ sơ
                                             </Link>
                                         </div>
                                     </div>
@@ -140,11 +171,14 @@ export default function HomePage() {
 
 
                 {/* Recent Articles Section */}
-                <section className="client-section" style={{ background: '#f8fafc' }}>
+                <section className="client-section client-articles-section">
                     <div className="container">
                         <div className="client-section-header">
-                            <h2 className="client-section-title">Bài viết gần đây</h2>
-                            <p className="client-section-subtitle">Cập nhật tin tức và kiến thức tuyển sinh mới nhất</p>
+                            <div>
+                                <span className="client-section-kicker">Góc kiến thức</span>
+                                <h2 className="client-section-title">Bài viết mới nhất</h2>
+                                <p className="client-section-subtitle">Thông tin tuyển sinh và kinh nghiệm chọn ngành được cập nhật thường xuyên.</p>
+                            </div>
                             <Link to="/blog" className="client-link-view-all">
                                 Xem tất cả <i className="bi bi-arrow-right"></i>
                             </Link>

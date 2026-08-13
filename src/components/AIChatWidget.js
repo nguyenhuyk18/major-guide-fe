@@ -12,66 +12,6 @@ Chúng ta trò truyện với nhau nhé?`,
     time: new Date()
 };
 
-const MOCK_RESPONSES = {
-    'tư vấn chọn chuyên gia phù hợp': `Dựa trên nhu cầu của bạn, tôi gợi ý bạn nên:
-
-1. **Xác định lĩnh vực cần tư vấn** - Bạn quan tâm đến vấn đề gì? (học tập, nghề nghiệp, kỹ năng...)
-
-2. **Xem profile chuyên gia** - Mỗi chuyên gia đều có chuyên môn riêng, hãy đọc kỹ mô tả và đánh giá.
-
-3. **Đặt lịch tư vấn thử** - Bạn có thể đặt 15-30 phút để trò chuyện và cảm nhận.
-
-Bạn muốn tìm hiểu thêm về lĩnh vực nào?`,
-    'hướng dẫn đặt lịch tư vấn': `Để đặt lịch tư vấn, bạn làm theo các bước sau:
-
-1. **Chọn chuyên gia** → Truy cập trang "Chuyên gia" và chọn người phù hợp
-
-2. **Chọn lịch rảnh** → Xem lịch trống và chọn khung giờ thuận tiện
-
-3. **Xác nhận đặt chỗ** → Điền thông tin và thanh toán để giữ chỗ
-
-4. **Hoàn tất** → Bạn sẽ nhận được email xác nhận và link cuộc họp
-
-⚠️ **Lưu ý**: Vui lòng hủy lịch trước 24h nếu không thể tham dự.`,
-    'chính sách hủy lịch như thế nào': `Chính sách hủy lịch của MajorGuide:
-
-**Hủy trước 24h:**
-• Hoàn tiền 100%
-• Không mất phí
-
-**Hủy trong 24h:**
-• Không hoàn tiền
-• Có thể đặt lại lịch mới
-
-**Không đến:**
-• Mất toàn bộ phí đặt cọc
-
-**Trường hợp đặc biệt:**
-• Bệnh lý có giấy xác nhận → Xem xét hoàn tiền
-• Sự cố bất khả kháng → Liên hệ hỗ trợ
-
-📞 Hotline: 1900 xxxx để được hỗ trợ ngay.`,
-    'blog có những chủ đề gì': `Blog của MajorGuide cung cấp nhiều chủ đề hữu ích:
-
-📚 **Học tập & Giáo dục**
-• Phương pháp học hiệu quả
-• Hướng nghiệp, chọn ngành
-
-💼 **Phát triển sự nghiệp**
-• Kỹ năng mềm
-• Xây dựng thương hiệu cá nhân
-
-🧠 **Kỹ năng & Kiến thức**
-• Kỹ năng giao tiếp
-• Quản lý thời gian
-
-💡 **Cộng đồng**
-• Chia sẻ từ chuyên gia
-• Câu chuyện thành công
-
-🔍 Truy cập /blog để khám phá thêm!`
-};
-
 const TypingIndicator = () => (
     <div className="ai-msg-typing">
         <span></span>
@@ -104,27 +44,6 @@ const AIChatWidget = () => {
             inputRef.current.focus();
         }
     }, [isOpen]);
-
-    const getAIResponse = (question) => {
-        const lowerQ = question.toLowerCase();
-        for (const [key, response] of Object.entries(MOCK_RESPONSES)) {
-            if (lowerQ.includes(key)) {
-                return { type: 'text', content: response };
-            }
-        }
-        return {
-            type: 'text',
-            content: `Cảm ơn câu hỏi của bạn! "${question}"
-
-Tôi đang học hỏi để trả lời tốt hơn. Hiện tại, bạn có thể:
-
-Liên hệ trực tiếp: **1900 xxxx**
-Email: **support@majorguide.vn**
-Chat với đội ngũ tư vấn viên 24/7
-
-Hoặc thử hỏi tôi về: đặt lịch, chuyên gia, blog, chính sách...`
-        };
-    };
 
     const parseContent = (content) => {
         if (typeof content !== 'string') return null;
@@ -210,14 +129,17 @@ Hoặc thử hỏi tôi về: đặt lịch, chuyên gia, blog, chính sách...`
 
         } catch (err) {
             setIsTyping(false);
-            const fallback = getAIResponse(question);
+            const errorMessage = err.response?.data?.message
+                || err.response?.data?.detail
+                || (err.code === 'ECONNABORTED' ? 'AI phản hồi quá lâu. Vui lòng thử lại.' : '')
+                || 'Không thể kết nối với trợ lý AI. Vui lòng thử lại sau.';
             const aiMsg = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
                 time: new Date(),
                 isExpertList: false,
                 experts: null,
-                content: fallback.content
+                content: errorMessage
             };
             setMessages(prev => [...prev, aiMsg]);
         }

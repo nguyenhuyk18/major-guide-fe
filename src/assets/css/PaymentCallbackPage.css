@@ -1,162 +1,40 @@
-/* ========== PAYMENT CALLBACK PAGE ========== */
+.payment-callback-page{--pay-primary:#1769e8;--pay-ink:#13213a;position:relative;display:grid;min-height:calc(100vh - 82px);overflow:hidden;place-items:center;padding:56px 20px 64px;background:radial-gradient(circle at 50% -15%,#dceaff 0,transparent 39%),linear-gradient(145deg,#f8fbff 0%,#eef4fb 55%,#f7faff 100%);color:var(--pay-ink)}
+.payment-callback-page::before{position:absolute;inset:0;background-image:radial-gradient(rgba(73,104,153,.15) 1px,transparent 1px);background-size:28px 28px;content:"";mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 74%)}
+.payment-callback-orb{position:absolute;border-radius:50%;filter:blur(3px);pointer-events:none}.payment-callback-orb-one{top:12%;left:7%;width:210px;height:210px;background:rgba(70,132,246,.08)}.payment-callback-orb-two{right:5%;bottom:4%;width:280px;height:280px;background:rgba(42,190,145,.07)}
+.payment-callback-shell{position:relative;z-index:1;width:min(100%,660px)}
+.payment-callback-card{position:relative;overflow:hidden;border:1px solid rgba(208,220,238,.92);border-radius:28px;background:rgba(255,255,255,.93);box-shadow:0 30px 80px rgba(28,55,94,.13),0 4px 16px rgba(28,55,94,.05);backdrop-filter:blur(18px)}
+.callback-card-accent{height:5px;background:linear-gradient(90deg,#1769e8,#4e8cff)}.payment-callback-card.paid .callback-card-accent{background:linear-gradient(90deg,#0aae7f,#4fd7ac)}.payment-callback-card.failed .callback-card-accent,.payment-callback-card.error .callback-card-accent{background:linear-gradient(90deg,#e9485b,#ff8792)}.payment-callback-card.expired .callback-card-accent{background:linear-gradient(90deg,#e29b16,#ffc55b)}
+.callback-content{padding:46px 50px 42px;text-align:center}.callback-icon{display:grid;width:92px;height:92px;margin:0 auto 22px;place-items:center;border-radius:27px;background:#eaf2ff;color:#1769e8;box-shadow:0 12px 25px rgba(23,105,232,.16);transform:rotate(-4deg)}.callback-icon>span{display:grid;width:70px;height:70px;place-items:center;border:1px solid rgba(255,255,255,.7);border-radius:22px;background:rgba(255,255,255,.46);transform:rotate(4deg)}.callback-icon i{font-size:38px}.callback-icon .spinner-border{width:31px;height:31px;color:#1769e8}.callback-icon.paid{background:#dff8ef;color:#079a70;box-shadow:0 12px 25px rgba(7,154,112,.16)}.callback-icon.failed,.callback-icon.error{background:#ffeaec;color:#da3e52;box-shadow:0 12px 25px rgba(218,62,82,.14)}.callback-icon.expired{background:#fff2d9;color:#d58a08;box-shadow:0 12px 25px rgba(213,138,8,.13)}
+.payment-provider{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;margin-bottom:16px;border:1px solid #dce5f3;border-radius:999px;background:#f7f9fd;color:#627089;font-size:10px;font-weight:750;letter-spacing:.02em}.payment-provider i{color:#635bff;font-size:13px}
+.callback-content h2{margin:0;color:#12213a;font-size:clamp(27px,4vw,36px);font-weight:850;letter-spacing:-.045em}.callback-message{max-width:490px;margin:11px auto 0;color:#69778d;font-size:14px;line-height:1.75}
+.callback-timeline{display:grid;grid-template-columns:auto 1fr auto 1fr auto;align-items:start;margin:30px auto 25px}.callback-timeline>i{height:2px;margin-top:17px;background:#dfe6f0}.callback-timeline>div{display:flex;align-items:center;flex-direction:column;gap:7px}.callback-timeline span{display:grid;width:36px;height:36px;place-items:center;border:1px solid #d9e2ee;border-radius:50%;background:#f8fafc;color:#8794a8;font-size:13px}.callback-timeline .complete span{border-color:#bcebdc;background:#e4f8f1;color:#079b70}.callback-timeline small{color:#7e8b9f;font-size:9px;font-weight:700;white-space:nowrap}
+.callback-summary{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:28px;overflow:hidden;border:1px solid #e1e7f0;border-radius:15px;background:#e1e7f0;text-align:left}.callback-summary>div{display:flex;padding:15px 17px;background:#f8fafd;flex-direction:column;gap:6px}.callback-summary span{display:flex;align-items:center;gap:6px;color:#8591a3;font-size:9px;font-weight:650;text-transform:uppercase}.callback-summary strong{overflow:hidden;color:#28364c;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.callback-status{color:#69778d!important}.callback-status.paid{color:#079a70!important}.callback-status.failed,.callback-status.error{color:#d94355!important}.callback-status.expired{color:#cf8508!important}
+.callback-note{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 14px;margin:14px 0 0;border-radius:11px;background:#f0f6ff;color:#587092;font-size:10px!important}.callback-note i{color:#1769e8}
+.callback-actions{display:grid;grid-template-columns:1.45fr 1fr;gap:10px;margin-top:22px}.callback-actions button{display:flex;height:48px;align-items:center;justify-content:center;gap:8px;padding:0 16px;border-radius:12px;font-size:11px;font-weight:750;transition:.18s ease}.callback-primary-action{display:grid!important;grid-template-columns:18px minmax(0,1fr) 18px;align-items:center;gap:8px;border:0;background:linear-gradient(135deg,#2477ed,#1263dd);box-shadow:0 10px 22px rgba(23,105,232,.22);color:#fff;text-align:center}.callback-primary-action .bi{margin:0}.callback-primary-action .bi:first-child{justify-self:start}.callback-primary-action .bi-arrow-right{justify-self:end}.callback-primary-action:hover{box-shadow:0 13px 26px rgba(23,105,232,.3);transform:translateY(-1px)}.callback-secondary-action{border:1px solid #d9e1ec;background:#fff;color:#5d6b80}.callback-secondary-action:hover{border-color:#afbdd0;background:#f8fafc;color:#28374d}
+.callback-support{display:flex;align-items:center;justify-content:center;gap:6px;margin:18px 0 0;color:#8390a3;font-size:10px}.callback-support i{color:#5f75a0}.callback-support button{padding:0;border:0;background:transparent;color:#315fba;font-weight:750}
+@media(max-width:575px){.payment-callback-page{min-height:calc(100vh - 70px);padding:28px 12px 40px}.payment-callback-card{border-radius:22px}.callback-content{padding:34px 20px 28px}.callback-icon{width:78px;height:78px;border-radius:23px}.callback-icon>span{width:60px;height:60px;border-radius:18px}.callback-icon i{font-size:32px}.callback-summary{grid-template-columns:1fr}.callback-actions{grid-template-columns:1fr}.callback-timeline small{font-size:8px}}
 
-.payment-callback-page {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
+/* Keep the complete confirmation card inside shorter/scaled browser viewports. */
+@media (max-height: 850px) and (min-width: 576px) {
+    .payment-callback-page { min-height: calc(100vh - 72px); padding: 24px 20px 28px; }
+    .payment-callback-shell { width: min(100%, 620px); }
+    .payment-callback-card { border-radius: 24px; }
+    .callback-content { padding: 28px 42px 26px; }
+    .callback-icon { width: 76px; height: 76px; margin-bottom: 14px; border-radius: 23px; }
+    .callback-icon > span { width: 58px; height: 58px; border-radius: 18px; }
+    .callback-icon i { font-size: 31px; }
+    .payment-provider { margin-bottom: 11px; }
+    .callback-content h2 { font-size: 31px; }
+    .callback-message { margin-top: 7px; line-height: 1.55; }
+    .callback-timeline { margin: 20px auto 16px; }
+    .callback-summary { margin-top: 18px; }
+    .callback-summary > div { padding: 12px 15px; }
+    .callback-note { padding: 9px 12px; margin-top: 10px; }
+    .callback-actions { margin-top: 14px; }
+    .callback-actions button { height: 44px; }
+    .callback-support { margin-top: 10px; }
 }
 
-.payment-callback-card {
-    background: #fff;
-    border-radius: 1.5rem;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 100%;
-    overflow: hidden;
-}
-
-.callback-content {
-    padding: 3rem 2rem;
-    text-align: center;
-}
-
-.callback-icon {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-}
-
-.callback-icon.processing {
-    background: #f0f7ff;
-}
-
-.callback-icon.success {
-    background: #d1fae5;
-}
-
-.callback-icon.failed {
-    background: #fee2e2;
-}
-
-.callback-icon.error {
-    background: #fef3c7;
-}
-
-.callback-icon i {
-    font-size: 3rem;
-}
-
-.callback-icon.success i {
-    color: #059669;
-}
-
-.callback-icon.failed i {
-    color: #dc2626;
-}
-
-.callback-icon.error i {
-    color: #d97706;
-}
-
-.callback-content h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin: 0 0 0.75rem;
-}
-
-.callback-content p {
-    font-size: 1rem;
-    color: #6b7280;
-    margin: 0 0 2rem;
-    line-height: 1.6;
-}
-
-.callback-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.callback-actions .btn {
-    padding: 0.875rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.callback-actions .btn-primary {
-    background: #0d6efd;
-    border: none;
-    color: #fff;
-}
-
-.callback-actions .btn-primary:hover {
-    background: #0b5ed7;
-}
-
-.callback-actions .btn-warning {
-    background: #fbbf24;
-    border: none;
-    color: #1f2937;
-}
-
-.callback-actions .btn-warning:hover {
-    background: #f59e0b;
-}
-
-.callback-actions .btn-outline-primary {
-    background: transparent;
-    border: 2px solid #0d6efd;
-    color: #0d6efd;
-}
-
-.callback-actions .btn-outline-primary:hover {
-    background: #f0f7ff;
-}
-
-.callback-actions .btn-outline-secondary {
-    background: transparent;
-    border: 2px solid #e5e7eb;
-    color: #6b7280;
-}
-
-.callback-actions .btn-outline-secondary:hover {
-    background: #f3f4f6;
-    border-color: #d1d5db;
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-    .callback-content {
-        padding: 2rem 1.5rem;
-    }
-
-    .callback-icon {
-        width: 80px;
-        height: 80px;
-    }
-
-    .callback-icon i {
-        font-size: 2.5rem;
-    }
-
-    .callback-content h2 {
-        font-size: 1.5rem;
-    }
-
-    .callback-content p {
-        font-size: 0.9375rem;
-    }
+@media (max-height: 680px) and (min-width: 576px) {
+    .payment-callback-page { overflow-y: auto; place-items: start center; }
 }

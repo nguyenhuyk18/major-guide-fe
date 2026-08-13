@@ -3,13 +3,17 @@ import { Link } from 'react-router-dom';
 import '../../assets/css/Dashboard.css';
 import { getListUser } from '../../services/user-access.api';
 import { getAllPosts } from '../../services/post.api';
-import Loading from '../../components/Loading';
+import { getBookingDashboard } from '../../services/expert-booking.api';
 
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState([]);
     const [posts, setPosts] = useState([]);
-    const [recentBookings, setRecentBookings] = useState([]);
+    const [dashboard, setDashboard] = useState({
+        totalBookings: 0, paidBookings: 0, pendingBookings: 0, cancelledBookings: 0,
+        totalRevenue: 0, monthlyRevenue: 0, revenueData: [], recentBookings: [], topExperts: []
+    });
+    const [loadError, setLoadError] = useState('');
     const [dateStr, setDateStr] = useState('');
 
     useEffect(() => {
@@ -26,21 +30,28 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            const [usersRes, postsRes] = await Promise.allSettled([
-                getListUser('', '', '', '', '', ''),
-                getAllPosts()
+            const [usersRes, postsRes, bookingRes] = await Promise.allSettled([
+                getListUser(1, '', '', 10000, '', ''),
+                getAllPosts(),
+                getBookingDashboard()
             ]);
 
             if (usersRes.status === 'fulfilled' && usersRes.value?.data) {
-                const data = usersRes.value.data;
-                const userList = Array.isArray(data) ? data : (data.result || []);
+                const data = usersRes.value.data?.data ?? usersRes.value.data;
+                const userList = Array.isArray(data) ? data : (data?.result || []);
                 setUsers(userList);
             }
 
             if (postsRes.status === 'fulfilled' && postsRes.value?.data) {
-                const data = postsRes.value.data;
-                const postList = Array.isArray(data) ? data : (data.result || []);
+                const data = postsRes.value.data?.data ?? postsRes.value.data;
+                const postList = Array.isArray(data) ? data : (data?.result || []);
                 setPosts(postList);
+            }
+            if (bookingRes.status === 'fulfilled') {
+                const data = bookingRes.value?.data?.data ?? bookingRes.value?.data;
+                setDashboard(current => ({ ...current, ...(data || {}) }));
+            } else {
+                setLoadError('Không thể tải dữ liệu booking. Hãy kiểm tra Booking Service.');
             }
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
@@ -54,55 +65,21 @@ export default function DashboardPage() {
     const totalMembers = users.filter(u => u.roleName === 'member' || u.role === 'member').length;
     const totalExperts = users.filter(u => u.roleName === 'expert' || u.role === 'expert').length;
     const totalPosts = posts.length;
-    const totalRevenue = 125000000; // placeholder
-    const monthlyRevenue = 18500000;
-
-    // Simulate recent bookings from users (since no dedicated API)
-    const recentBookingsData = users.slice(0, 5).map((user, idx) => ({
-        id_reverse: `BK${Date.now().toString().slice(-6)}${idx}`,
-        name_expert: user.name || 'Chuyên gia ' + (idx + 1),
-        avatar_expert: user.fileAvartarUrl || null,
-        email_expert: user.email || 'expert@example.com',
-        day_support: new Date(Date.now() - idx * 86400000 * 2).toISOString().split('T')[0],
-        time_start: new Date(Date.now() - idx * 86400000 * 2 + 36000000).toISOString(),
-        price_support: [200000, 350000, 500000, 150000, 400000][idx],
-        status: ['paied', 'reserved', 'paied', 'complete', 'reserved'][idx]
+    const totalRevenue = dashboard.totalRevenue || 0;
+    const monthlyRevenue = dashboard.monthlyRevenue || 0;
+    const recentBookingsData = dashboard.recentBookings || [];
+    const totalBookings = dashboard.totalBookings || 0;
+    const completedBookings = dashboard.paidBookings || 0;
+    const revenueData = dashboard.revenueData || [];
+    const maxRevenue = Math.max(1, ...revenueData.map(d => d.revenue || 0));
+    const topExperts = dashboard.topExperts || [];
+    const activities = recentBookingsData.map(booking => ({
+        type: booking.status === 'paied' ? 'payment' : booking.status === 'cancle' || booking.status === 'failed' ? 'cancel' : 'booking',
+        icon: booking.status === 'paied' ? 'bi-credit-card' : booking.status === 'cancle' || booking.status === 'failed' ? 'bi-x-circle' : 'bi-calendar-check',
+        text: `${booking.name_customer || 'Học viên'} · ${{ paied: 'Đã thanh toán', reserved: 'Chờ thanh toán', cancle: 'Đã hủy', failed: 'Thất bại' }[booking.status] || booking.status}`,
+        detail: booking.id_reverse,
+        time: new Date(booking.createdAt || booking.day_support).toLocaleDateString('vi-VN')
     }));
-    const totalBookings = 342 + recentBookingsData.length;
-    const completedBookings = 198 + recentBookingsData.filter(b => b.status === 'paied' || b.status === 'complete').length;
-
-    // Revenue chart data (last 7 months)
-    const revenueData = [
-        { month: 'T11', revenue: 8200000, bookings: 12 },
-        { month: 'T12', revenue: 11200000, bookings: 18 },
-        { month: 'T1', revenue: 9800000, bookings: 15 },
-        { month: 'T2', revenue: 14500000, bookings: 22 },
-        { month: 'T3', revenue: 16800000, bookings: 26 },
-        { month: 'T4', revenue: 15200000, bookings: 24 },
-        { month: 'T5', revenue: 18500000, bookings: 30 },
-    ];
-    const maxRevenue = Math.max(...revenueData.map(d => d.revenue));
-
-    // Top experts (sorted by bookings)
-    const topExperts = [...users]
-        .filter(u => u.roleName === 'expert' || u.role === 'expert')
-        .slice(0, 5)
-        .map((u, idx) => ({
-            name: u.name || 'Chuyên gia ' + (idx + 1),
-            avatar: u.fileAvartarUrl || null,
-            bookings: [28, 22, 18, 15, 12][idx],
-            revenue: [5600000, 4400000, 3600000, 3000000, 2400000][idx]
-        }));
-
-    // Activity feed (simulated)
-    const activities = [
-        { type: 'booking', icon: 'bi-calendar-check', text: 'Lịch hẹn mới từ <strong>Nguyễn Văn Minh</strong>', time: '5 phút trước' },
-        { type: 'payment', icon: 'bi-credit-card', text: 'Thanh toán thành công <strong>500.000đ</strong>', time: '12 phút trước' },
-        { type: 'user', icon: 'bi-person-plus', text: 'Khách hàng mới <strong>Lê Thị Hương</strong> đăng ký', time: '28 phút trước' },
-        { type: 'booking', icon: 'bi-calendar-check', text: 'Lịch hẹn từ <strong>Trần Đức Anh</strong> hoàn thành', time: '1 giờ trước' },
-        { type: 'payment', icon: 'bi-credit-card', text: 'Thanh toán thành công <strong>350.000đ</strong>', time: '2 giờ trước' },
-        { type: 'cancel', icon: 'bi-x-circle', text: 'Lịch hẹn <strong>BK-202412</strong> bị hủy', time: '3 giờ trước' },
-    ];
 
     const formatPrice = (price) => {
         if (!price && price !== 0) return '-';
@@ -156,6 +133,7 @@ export default function DashboardPage() {
 
     return (
         <div className="dashboard-page">
+            {loadError && <div className="alert alert-warning mb-3">{loadError}</div>}
             {/* Header */}
             <div className="dashboard-header">
                 <div className="dashboard-header-left">
@@ -183,7 +161,7 @@ export default function DashboardPage() {
                         </div>
                         <span className="stat-card-trend up">
                             <i className="bi bi-arrow-up"></i>
-                            +12%
+                            API
                         </span>
                     </div>
                     <div className="stat-card-value">{totalUsers.toLocaleString()}</div>
@@ -199,12 +177,12 @@ export default function DashboardPage() {
                         </div>
                         <span className="stat-card-trend up">
                             <i className="bi bi-arrow-up"></i>
-                            +8%
+                            {totalBookings ? Math.round((completedBookings / totalBookings) * 100) : 0}% đã trả
                         </span>
                     </div>
                     <div className="stat-card-value">{totalBookings}</div>
                     <div className="stat-card-label">Lịch đặt</div>
-                    <div className="stat-card-sublabel">{completedBookings} hoàn thành · {totalBookings - completedBookings} đang chờ</div>
+                    <div className="stat-card-sublabel">{completedBookings} đã thanh toán · {dashboard.pendingBookings || 0} đang chờ</div>
                 </div>
 
                 {/* Revenue */}
@@ -215,7 +193,7 @@ export default function DashboardPage() {
                         </div>
                         <span className="stat-card-trend up">
                             <i className="bi bi-arrow-up"></i>
-                            +18%
+                            Stripe
                         </span>
                     </div>
                     <div className="stat-card-value">{formatPrice(totalRevenue).replace(' đ', '')}</div>
@@ -231,7 +209,7 @@ export default function DashboardPage() {
                         </div>
                         <span className="stat-card-trend up">
                             <i className="bi bi-arrow-up"></i>
-                            +5%
+                            API
                         </span>
                     </div>
                     <div className="stat-card-value">{totalExperts}</div>
@@ -282,7 +260,7 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div className="booking-expert-info">
                                                     <span className="booking-expert-name">{booking.name_expert}</span>
-                                                    <span className="booking-expert-email">{booking.email_expert}</span>
+                                                    <span className="booking-expert-email">Học viên: {booking.name_customer || '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -305,6 +283,9 @@ export default function DashboardPage() {
                                         </td>
                                     </tr>
                                 ))}
+                                {recentBookingsData.length === 0 && (
+                                    <tr><td colSpan="5"><div className="dashboard-empty"><i className="bi bi-calendar-x" /><p>Chưa có lịch đặt nào</p></div></td></tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -415,10 +396,8 @@ export default function DashboardPage() {
                                     <i className={`bi ${activity.icon}`}></i>
                                 </div>
                                 <div className="activity-content">
-                                    <div
-                                        className="activity-text"
-                                        dangerouslySetInnerHTML={{ __html: activity.text }}
-                                    ></div>
+                                    <div className="activity-text">{activity.text}</div>
+                                    <div className="booking-id-cell">{activity.detail}</div>
                                     <div className="activity-time">{activity.time}</div>
                                 </div>
                                 <div className="activity-dot"></div>
@@ -463,63 +442,45 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* System Status */}
+                {/* Real booking status distribution */}
                 <div className="dashboard-section-card">
                     <div className="dashboard-section-header">
                         <h3>
-                            <i className="bi bi-server"></i>
-                            Trạng thái hệ thống
+                            <i className="bi bi-pie-chart-fill"></i>
+                            Trạng thái lịch đặt
                         </h3>
                     </div>
                     <div className="system-status-list">
                         <div className="system-status-item">
                             <span className="system-status-name">
                                 <span className="system-status-indicator online"></span>
-                                API Gateway
+                                Đã thanh toán
                             </span>
-                            <span className="system-status-value good">Online</span>
-                        </div>
-                        <div className="system-status-item">
-                            <span className="system-status-name">
-                                <span className="system-status-indicator online"></span>
-                                Booking Service
-                            </span>
-                            <span className="system-status-value good">Online</span>
-                        </div>
-                        <div className="system-status-item">
-                            <span className="system-status-name">
-                                <span className="system-status-indicator online"></span>
-                                User Service
-                            </span>
-                            <span className="system-status-value good">Online</span>
+                            <span className="system-status-value good">{dashboard.paidBookings || 0}</span>
                         </div>
                         <div className="system-status-item">
                             <span className="system-status-name">
                                 <span className="system-status-indicator warning"></span>
-                                Email Service
+                                Chờ thanh toán
                             </span>
-                            <span className="system-status-value warn">Degraded</span>
+                            <span className="system-status-value warn">{dashboard.pendingBookings || 0}</span>
                         </div>
                         <div className="system-status-item">
                             <span className="system-status-name">
-                                <span className="system-status-indicator online"></span>
-                                AI Chat Service
+                                <span className="system-status-indicator"></span>
+                                Đã hủy / thất bại
                             </span>
-                            <span className="system-status-value good">Online</span>
+                            <span className="system-status-value">{dashboard.cancelledBookings || 0}</span>
                         </div>
                     </div>
                     <div className="system-status-list" style={{ paddingTop: '0.25rem' }}>
                         <div className="system-info-item">
-                            <span className="system-info-name">Phiên bản</span>
-                            <span className="system-info-value">v2.4.1</span>
+                            <span className="system-info-name">Tổng số lịch</span>
+                            <span className="system-info-value">{totalBookings}</span>
                         </div>
                         <div className="system-info-item">
-                            <span className="system-info-name">Uptime</span>
-                            <span className="system-info-value">99.8%</span>
-                        </div>
-                        <div className="system-info-item">
-                            <span className="system-info-name">Ngày cập nhật</span>
-                            <span className="system-info-value">{new Date().toLocaleDateString('vi-VN')}</span>
+                            <span className="system-info-name">Cập nhật lúc</span>
+                            <span className="system-info-value">{new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                     </div>
                 </div>

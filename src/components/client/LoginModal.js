@@ -32,6 +32,12 @@ export default function LoginModal() {
                 // setIsAble(false);
                 const rs = await loginClient(values);
 
+                if (rs.data.data.roleName !== 'member') {
+                    toast.info('Tài khoản chuyên gia vui lòng đăng nhập tại khu vực quản trị.');
+                    navigate('/admin/login');
+                    return;
+                }
+
                 const action = {
                     type: LOGIN,
                     payload: {

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getExpertInfo } from '../services/expert.api';
+import { isToday } from '../helpers/date';
 import '../assets/css/BookingDetailModal.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function BookingDetailModal({ booking, show, onClose }) {
+    const navigate = useNavigate();
     const userInfo = useSelector(state => state.authClientReducer.loggedUser);
     const [loading, setLoading] = useState(true);
     const [expertInfo, setExpertInfo] = useState(null);
@@ -108,12 +111,12 @@ export default function BookingDetailModal({ booking, show, onClose }) {
     };
 
     const handleJoinMeeting = () => {
-        if (booking.meet_link) {
-            window.open(booking.meet_link, '_blank');
-        }
+        onClose();
+        navigate(`/video-call/${booking.id_reverse || booking._id}`);
     };
 
     const isPaid = booking.status === 'paied' || booking.status === 'paid' || booking.status === 'confirm' || booking.status === 'complete';
+    const canJoinMeeting = isPaid && isToday(booking.day_support);
 
     return (
         <div className="client-booking-modal-overlay" onClick={handleBackdropClick}>
@@ -283,7 +286,7 @@ export default function BookingDetailModal({ booking, show, onClose }) {
                 </div>
 
                 <div className="client-booking-modal-footer">
-                    {isPaid && booking.meet_link && (
+                    {canJoinMeeting && (
                         <button className="btn btn-success" onClick={handleJoinMeeting}>
                             <i className="bi bi-camera-video"></i>
                             Tham gia cuộc họp

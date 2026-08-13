@@ -20,4 +20,8 @@ const getAllBooking = async (id_member) => {
 
 }
 
-export { holdSlotBooking , getAllBooking }
+const getVideoCallAccess = async (bookingId) => {
+    return instanceCallApi.get(`/api/v2/book/${encodeURIComponent(bookingId)}/video-access`);
+};
+
+export { holdSlotBooking, getAllBooking, getVideoCallAccess }

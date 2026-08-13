@@ -33,6 +33,12 @@ import PostDetailPage from "../pages/client/PostDetailPage";
 import PostManagePage from "../pages/admin/PostManagePage";
 import PostFormPage from "../pages/admin/PostFormPage";
 import AdminChatPage from "../pages/admin/AdminChatPage";
+import ExpertDetailPage from "../pages/client/ExpertDetailPage";
+import MemberMessagesPage from "../pages/client/MemberMessagesPage";
+import MemberProfilePage from "../pages/admin/MemberProfilePage";
+import ScrollToTop from "../components/ScrollToTop";
+import VideoCallPage from "../pages/client/VideoCallPage";
+import NotificationsPage from "../pages/admin/NotificationsPage";
 
 export default function Routing() {
 
@@ -45,6 +51,7 @@ export default function Routing() {
 
     return (
         <>
+            <ScrollToTop />
             <Routes>
                 <Route path='/admin' element={<ProtectedRouterAdmin> <LayoutAdmin /> </ProtectedRouterAdmin>} >
                     <Route index element={<DashboardPage />} />
@@ -55,6 +62,9 @@ export default function Routing() {
                     <Route path="experts" element={<ExpertManagePage />} ></Route>
                     <Route path="experts/add" element={<CreateExpert />} ></Route>
                     <Route path="expert-bookings" element={<ExpertBookingManagePage />} ></Route>
+                    <Route path="messages" element={<MemberMessagesPage mode="expert" />} />
+                    <Route path="members/:id" element={<MemberProfilePage />} />
+                    <Route path="video-call/:bookingId" element={<VideoCallPage mode="expert" />} />
                     <Route path="subcribe-register" element={< SubcribeRegister />} ></Route>
                     <Route path="information" element={< InformationPage />} ></Route>
                     <Route path="posts" element={<PostManagePage />} />
@@ -62,6 +72,7 @@ export default function Routing() {
                     <Route path="posts/edit/:id" element={<PostFormPage />} />
                     <Route path="ai-chat" element={<AdminChatPage />} />
                     <Route path="account" element={<AccountManagementPage />} />
+                    <Route path="notifications" element={<NotificationsPage />} />
 
                 </Route>
                 <Route path="/admin/login" element={<ProtectedLoginAdmin> <LoginAdminPage /> </ProtectedLoginAdmin>} ></Route>
@@ -71,6 +82,9 @@ export default function Routing() {
                     <Route index element={<HomePage />} />
                     <Route path="contact" element={<ContactPage />} />
                     <Route path="experts" element={< ExpertPage />} ></Route>
+                    <Route path="experts/:id" element={<ExpertDetailPage />} />
+                    <Route path="messages" element={<MemberMessagesPage />} />
+                    <Route path="video-call/:bookingId" element={<VideoCallPage />} />
                     <Route path="choose-schedule" element={< RegisterSchedulePage />} ></Route>
                     <Route path="hold-slot" element={< HoldSlotPage />} ></Route>
                     <Route path="my-bookings" element={< MyBookingsPage />} ></Route>

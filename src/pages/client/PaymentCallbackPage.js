@@ -1,136 +1,88 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { confirmPayment } from '../../services/payment.api';
+import { getCheckoutStatus } from '../../services/payment.api';
 import '../../assets/css/PaymentCallbackPage.css';
+
+const CONTENT = {
+    processing: { icon: 'bi-arrow-repeat', title: 'Đang xác nhận thanh toán', message: 'Stripe đã tiếp nhận giao dịch. Hệ thống đang chờ xác nhận an toàn từ webhook.' },
+    paid: { icon: 'bi-check-circle-fill', title: 'Thanh toán thành công!', message: 'Lịch tư vấn đã được xác nhận và thông tin cuộc họp sẽ xuất hiện trong lịch của bạn.' },
+    failed: { icon: 'bi-x-circle-fill', title: 'Thanh toán chưa thành công', message: 'Giao dịch thất bại hoặc đã bị huỷ. Bạn có thể thử lại nếu lịch vẫn còn hiệu lực.' },
+    expired: { icon: 'bi-clock-history', title: 'Phiên thanh toán đã hết hạn', message: 'Thời gian giữ lịch đã kết thúc. Vui lòng chọn lại một lịch tư vấn khác.' },
+    error: { icon: 'bi-exclamation-triangle-fill', title: 'Không thể kiểm tra thanh toán', message: 'Vui lòng mở trang lịch đã đặt để kiểm tra trạng thái mới nhất.' },
+};
 
 export default function PaymentCallbackPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const sessionId = searchParams.get('session_id');
     const [status, setStatus] = useState('processing');
-    const [message, setMessage] = useState('');
+    const [orderId, setOrderId] = useState('');
 
     useEffect(() => {
-        handleVNPayCallback();
-    }, []);
+        let active = true;
+        let timer;
+        let attempts = 0;
 
-    const handleVNPayCallback = async () => {
-        try {
-            const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
-            const vnp_TxnRef = searchParams.get('vnp_TxnRef');
-            const vnp_TransactionStatus = searchParams.get('vnp_TransactionStatus');
-            console.log(vnp_ResponseCode , ' ' , vnp_TxnRef , ' ' , vnp_TransactionStatus)
-            const isValid = vnp_ResponseCode === '00' && vnp_TransactionStatus === '00';
-
-            const responseCode = vnp_ResponseCode || vnp_TransactionStatus || '';
-
-            await confirmPayment(isValid, vnp_TxnRef, responseCode);
-
-            if (isValid) {
-                setStatus('success');
-                setMessage('Thanh toán thành công!');
-                toast.success('Thanh toán thành công!');
-                navigate('/');
-            } else {
-                setStatus('failed');
-                setMessage('Thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
-                toast.error('Thanh toán thất bại!');
-                navigate('/');
+        const check = async () => {
+            if (!sessionId) { if (active) setStatus('error'); return; }
+            try {
+                const response = await getCheckoutStatus(sessionId);
+                const next = response?.data?.data?.status || 'processing';
+                if (!active) return;
+                setStatus(next);
+                setOrderId(response?.data?.data?.orderId || '');
+                attempts += 1;
+                if (next === 'processing' && attempts < 10) timer = setTimeout(check, 1500);
+            } catch (error) {
+                console.error('Stripe status error:', error);
+                if (active) setStatus('error');
             }
-        } catch (error) {
-            console.error('Payment callback error:', error);
-            setStatus('error');
-            setMessage('Đã xảy ra lỗi khi xử lý thanh toán. Vui lòng liên hệ hỗ trợ.');
-            toast.error('Xử lý thanh toán thất bại!');
-            navigate('/');
-        }
-    };
+        };
+        check();
+        return () => { active = false; clearTimeout(timer); };
+    }, [sessionId]);
 
-    const handleGoToMyBookings = () => {
-        navigate('/my-bookings');
-    };
-
-    const handleGoHome = () => {
-        navigate('/');
-    };
-
+    const view = CONTENT[status] || CONTENT.error;
+    const isPaid = status === 'paid';
     return (
         <div className="payment-callback-page">
-            <div className="container py-5">
-                <div className="payment-callback-card">
-                    {status === 'processing' && (
-                        <div className="callback-content processing">
-                            <div className="callback-icon processing">
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                            <h2>Đang xử lý thanh toán...</h2>
-                            <p>Vui lòng chờ trong giây lát</p>
+            <div className="payment-callback-orb payment-callback-orb-one" />
+            <div className="payment-callback-orb payment-callback-orb-two" />
+            <main className="payment-callback-shell">
+                <section className={`payment-callback-card ${status}`}>
+                    <div className="callback-card-accent" />
+                    <div className="callback-content">
+                        <div className={`callback-icon ${status}`}>
+                            <span>{status === 'processing' ? <div className="spinner-border" role="status" /> : <i className={`bi ${view.icon}`} />}</span>
                         </div>
-                    )}
+                        <span className="payment-provider"><i className="bi bi-shield-check" /> Thanh toán bảo mật bởi Stripe</span>
+                        <h2>{view.title}</h2>
+                        <p className="callback-message">{view.message}</p>
 
-                    {status === 'success' && (
-                        <div className="callback-content success">
-                            <div className="callback-icon success">
-                                <i className="bi bi-check-circle-fill"></i>
+                        {isPaid && (
+                            <div className="callback-timeline">
+                                <div className="complete"><span><i className="bi bi-check-lg" /></span><small>Thanh toán</small></div>
+                                <i />
+                                <div className="complete"><span><i className="bi bi-check-lg" /></span><small>Xác nhận lịch</small></div>
+                                <i />
+                                <div><span><i className="bi bi-envelope-check" /></span><small>Nhận thông tin</small></div>
                             </div>
-                            <h2>Thanh toán thành công!</h2>
-                            <p>Cảm ơn bạn đã đặt lịch tư vấn. Chúng tôi sẽ liên hệ với bạn sớm nhất.</p>
-                            <div className="callback-actions">
-                                <button className="btn btn-primary" onClick={handleGoToMyBookings}>
-                                    <i className="bi bi-calendar-check"></i>
-                                    Xem lịch đã đặt
-                                </button>
-                                <button className="btn btn-outline-primary" onClick={handleGoHome}>
-                                    <i className="bi bi-house"></i>
-                                    Về trang chủ
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                        )}
 
-                    {status === 'failed' && (
-                        <div className="callback-content failed">
-                            <div className="callback-icon failed">
-                                <i className="bi bi-x-circle-fill"></i>
-                            </div>
-                            <h2>Thanh toán thất bại</h2>
-                            <p>{message}</p>
-                            <div className="callback-actions">
-                                <button className="btn btn-warning" onClick={handleGoToMyBookings}>
-                                    <i className="bi bi-arrow-repeat"></i>
-                                    Thử thanh toán lại
-                                </button>
-                                <button className="btn btn-outline-secondary" onClick={handleGoHome}>
-                                    <i className="bi bi-house"></i>
-                                    Về trang chủ
-                                </button>
-                            </div>
+                        <div className="callback-summary">
+                            <div><span><i className="bi bi-receipt" /> Mã đặt lịch</span><strong>{orderId ? `#${orderId.slice(0, 8).toUpperCase()}` : 'Đang cập nhật'}</strong></div>
+                            <div><span><i className="bi bi-shield-lock" /> Trạng thái</span><strong className={`callback-status ${status}`}>{isPaid ? 'Đã xác nhận' : status === 'processing' ? 'Đang xử lý' : 'Cần kiểm tra'}</strong></div>
                         </div>
-                    )}
 
-                    {status === 'error' && (
-                        <div className="callback-content error">
-                            <div className="callback-icon error">
-                                <i className="bi bi-exclamation-triangle-fill"></i>
-                            </div>
-                            <h2>Đã xảy ra lỗi</h2>
-                            <p>{message}</p>
-                            <div className="callback-actions">
-                                <button className="btn btn-primary" onClick={handleGoToMyBookings}>
-                                    <i className="bi bi-calendar-check"></i>
-                                    Xem lịch đặt
-                                </button>
-                                <button className="btn btn-outline-secondary" onClick={handleGoHome}>
-                                    <i className="bi bi-house"></i>
-                                    Về trang chủ
-                                </button>
-                            </div>
+                        {isPaid && <p className="callback-note"><i className="bi bi-info-circle" /> Bạn có thể xem đường dẫn cuộc họp trong mục lịch đã đặt.</p>}
+                        <div className="callback-actions">
+                            <button className="callback-primary-action" onClick={() => navigate('/my-bookings')}><i className="bi bi-calendar2-check" /> Xem lịch đã đặt <i className="bi bi-arrow-right" /></button>
+                            <button className="callback-secondary-action" onClick={() => navigate('/')}><i className="bi bi-house-door" /> Về trang chủ</button>
                         </div>
-                    )}
-                </div>
-            </div>
+                    </div>
+                </section>
+                <p className="callback-support"><i className="bi bi-headset" /> Cần hỗ trợ? <button type="button" onClick={() => navigate('/contact')}>Liên hệ MajorGuide</button></p>
+            </main>
         </div>
     );
 }

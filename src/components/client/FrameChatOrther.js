@@ -19,7 +19,6 @@ export default function FrameChatOrder(props) {
     const [originalMessage, setOrignalMessage] = useState();
     const { currentMessage, handleOnAnwser, handleOnReplyClick, getOriginalMessage, isHighlighted } = props;
     const isReply = currentMessage.replyTo && currentMessage.replyTo !== '';
-    console.log(originalMessage)
     useEffect(() => {
         if (isReply) {
             getReplyChat(currentMessage.replyTo)
@@ -45,7 +44,9 @@ export default function FrameChatOrder(props) {
         <>
             <div className={`client-msg-item `} id={currentMessage.idmessage}>
                 <div className="client-msg-avatar">
-                    <img src={`${currentMessage.fileurl}`} alt="Expert" className="client-avatar-photo" />
+                    {currentMessage.fileurl
+                        ? <img src={currentMessage.fileurl} alt={currentMessage.name} className="client-avatar-photo" />
+                        : <span className="client-avatar-fallback">{currentMessage.name?.charAt(0)?.toUpperCase() || 'M'}</span>}
                 </div>
                 <div className={`client-msg-body ${isReply ? 'client-msg-reply-item' : ''} ${isHighlighted ? 'highlighted' : ''} `}>
                     <div className="client-msg-header">
@@ -64,7 +65,7 @@ export default function FrameChatOrder(props) {
                     <div className="client-msg-content">
                         {currentMessage.content}
                     </div>
-                    <button className="client-msg-reply-btn" onClick={() => handleOnAnwser(currentMessage.idmessage)}>Trả lời</button>
+                    <button type="button" className="client-msg-reply-btn" onClick={() => handleOnAnwser(currentMessage.idmessage)}>Trả lời</button>
                 </div>
             </div>
         </>

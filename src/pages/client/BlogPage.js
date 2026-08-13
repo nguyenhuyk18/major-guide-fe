@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getAllPosts } from '../../services/post.api';
 import '../../assets/css/BlogPage.css';
 
@@ -24,7 +24,6 @@ const formatDateShort = (dateStr) => {
 };
 
 const BlogPage = () => {
-    const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -111,14 +110,14 @@ const BlogPage = () => {
                 <div className="container">
                     <div className="blog-hero-content">
                         <div className="blog-hero-badge">
-                            <i className="bi bi-mortarboard-fill"></i>
-                            MajorGuide Blog
+                            <i className="bi bi-stars"></i>
+                            Góc kiến thức MajorGuide
                         </div>
                         <h1 className="blog-hero-title">
-                            Bài viết &amp; Chia sẻ
+                            Kiến thức cho hành trình<br /><span>chọn đúng tương lai</span>
                         </h1>
                         <p className="blog-hero-subtitle">
-                            Khám phá những bài viết hữu ích từ đội ngũ chuyên gia hàng đầu về tư vấn học đường, hướng nghiệp và kỹ năng sống
+                            Góc nhìn thực tế từ chuyên gia về hướng nghiệp, tuyển sinh và những kỹ năng cần thiết để bạn tự tin trước mỗi lựa chọn.
                         </p>
                         <div className="blog-hero-stats">
                             <div className="blog-stat-item">

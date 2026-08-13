@@ -4,14 +4,14 @@ import '../assets/css/FooterAdmin.css'
 export default function FooterAdmin() {
     return (
         <>
-            <footer class="admin-footer">
-                <div class="container-fluid">
-                    <div class="row align-items-center">
+            <footer className="admin-footer">
+                <div className="container-fluid">
+                    <div className="row align-items-center">
 
-                        <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                            <p class="mb-0 text-secondary fs-7">
-                                Copyright © 2023 <span class="text-white fw-semibold">Admin Dashboard</span>.
-                                <span class="d-none d-sm-inline">All rights reserved.</span>
+                        <div className="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                            <p className="mb-0 text-secondary fs-7">
+                                © {new Date().getFullYear()} <span className="text-white fw-semibold">MajorGuide</span>.
+                                <span className="d-none d-sm-inline"> Expert workspace.</span>
                             </p>
                         </div>
 

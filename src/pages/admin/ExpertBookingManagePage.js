@@ -3,10 +3,11 @@ import '../../assets/css/ExpertBookingAdmin.css';
 import { getExpertBookings, expertJoinBooking } from '../../services/expert-booking.api';
 import { getUserById } from '../../services/expert.api';
 import { toast } from 'react-toastify';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 
 export default function ExpertBookingManagePage() {
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [bookings, setBookings] = useState([]);
     const [filteredBookings, setFilteredBookings] = useState([]);
@@ -19,6 +20,7 @@ export default function ExpertBookingManagePage() {
 
     const [searchParam, setSearchParam] = useSearchParams();
     const page = parseInt(searchParam.get('page')) || 1;
+    const targetBookingId = searchParam.get('bookingId');
 
     useEffect(() => {
         fetchBookings();
@@ -41,9 +43,17 @@ export default function ExpertBookingManagePage() {
         try {
             const res = await getExpertBookings(page, 10);
             if (res?.data) {
-                setBookings(res.data.result || []);
-                setFilteredBookings(res.data.result || []);
+                const result = res.data.result || [];
+                setBookings(result);
+                setFilteredBookings(result);
                 setTotalPage(res.data.totalPage || 0);
+                const target = targetBookingId && result.find(item => (item.id_reverse || item._id) === targetBookingId);
+                if (target) {
+                    setSelectedBooking(target);
+                    setShowDetailModal(true);
+                    setLoadingMember(true);
+                    getUserById(target.id_member).then(member => setMemberInfo(member?.data?.data || null)).catch(() => setMemberInfo(null)).finally(() => setLoadingMember(false));
+                }
             }
         } catch (error) {
             console.error('Error fetching bookings:', error);
@@ -133,13 +143,13 @@ export default function ExpertBookingManagePage() {
     };
 
     const handleJoinMeeting = async () => {
-        if (!selectedBooking?.meet_link) return;
+        if (!selectedBooking) return;
 
         const bookingId = selectedBooking.id_reverse || selectedBooking._id;
         console.log(bookingId)
         try {
             await expertJoinBooking(bookingId);
-            window.open(selectedBooking.meet_link, '_blank');
+            navigate(`/admin/video-call/${bookingId}`);
             handleCloseModal();
             fetchBookings();
         } catch (error) {
@@ -441,7 +451,7 @@ export default function ExpertBookingManagePage() {
                                     <i className="bi bi-clock-history"></i>
                                     Đã qua
                                 </span>
-                            ) :  isPaid && selectedBooking?.meet_link ? (
+                            ) : isPaid && isBookingToday() ? (
                                 <button className="btn btn-success" onClick={handleJoinMeeting}>
                                     <i className="bi bi-camera-video"></i>
                                     Tham gia cuộc họp
