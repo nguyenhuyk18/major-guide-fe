@@ -121,7 +121,7 @@ export default function RegisterModal() {
                 .required('Vui lòng nhập tên trường THPT!')
                 .min(3, 'Tên trường phải có ít nhất 3 ký tự!'),
         }),
-        onSubmit: async (values) => {
+        onSubmit: async (values, { resetForm }) => {
             setIsSubmitting(true);
             try {
                 const dataToSubmit = {
@@ -148,10 +148,13 @@ export default function RegisterModal() {
                 const errorMessage = error?.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.';
                 toast.error(errorMessage);
             } finally {
+                resetForm();
+                setWardList([]);
                 setIsSubmitting(false);
             }
         },
     });
+    formikRef.current = formik;
 
     return (
         <>
@@ -166,7 +169,7 @@ export default function RegisterModal() {
                 aria-hidden="true"
             >
                 <div
-                    className="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg"
+                    className="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg client-auth-dialog client-register-dialog"
                     role="document"
                 >
                     <div className="modal-content client-login-modal-content">
@@ -178,13 +181,16 @@ export default function RegisterModal() {
                         ></button>
 
                         <div className="modal-body client-login-modal-body">
-                            {/* Logo */}
+                            <div className="client-auth-kicker">
+                                <span></span>
+                                Bắt đầu cùng MajorGuide
+                            </div>
                             <div className="client-login-logo">
                                 <div className="client-login-logo-icon">
                                     <i className="bi bi-person-plus-fill"></i>
                                 </div>
                                 <h4 className="client-login-title">Đăng ký tài khoản</h4>
-                                <p className="client-login-subtitle">Tạo tài khoản mới để sử dụng dịch vụ</p>
+                                <p className="client-login-subtitle">Tạo hồ sơ để nhận tư vấn và kết nối với chuyên gia phù hợp.</p>
                             </div>
 
                             {/* Register Form */}
@@ -454,7 +460,7 @@ export default function RegisterModal() {
 
                                 {/* Login Link */}
                                 <div className="client-register-link">
-                                    Đã có tài khoản? <a href="#" data-bs-toggle="modal" data-bs-target="#loginClientModal">Đăng nhập ngay</a>
+                                    Đã có tài khoản? <button type="button" className="client-auth-switch" data-bs-toggle="modal" data-bs-target="#loginClientModal">Đăng nhập ngay</button>
                                 </div>
                             </form>
                         </div>

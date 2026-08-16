@@ -327,3 +327,263 @@ input.client-form-input {
         padding: 0.875rem 1.5rem;
     }
 }
+
+/* Refreshed authentication experience */
+#loginClientModal,
+#registerClientModal {
+    --auth-primary: #2563eb;
+    --auth-primary-dark: #1d4ed8;
+    --auth-ink: #10213a;
+    --auth-muted: #64748b;
+    --auth-line: #dbe4f0;
+}
+
+#loginClientModal .modal-backdrop,
+#registerClientModal .modal-backdrop {
+    backdrop-filter: blur(8px);
+}
+
+.client-auth-dialog {
+    max-width: 510px;
+}
+
+.client-register-dialog {
+    max-width: 850px;
+}
+
+#loginClientModal .client-login-modal-content,
+#registerClientModal .client-login-modal-content {
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(96, 165, 250, 0.18), transparent 31%),
+        linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: 0 30px 80px rgba(15, 35, 68, 0.24);
+}
+
+#loginClientModal .client-login-modal-body,
+#registerClientModal .client-login-modal-body {
+    padding: 42px 44px 36px;
+}
+
+#registerClientModal .client-login-modal-body {
+    padding-bottom: 32px;
+}
+
+.client-auth-kicker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: var(--auth-primary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.client-auth-kicker span {
+    width: 22px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, var(--auth-primary));
+}
+
+#loginClientModal .client-login-logo,
+#registerClientModal .client-login-logo {
+    margin-bottom: 26px;
+}
+
+#loginClientModal .client-login-logo-icon,
+#registerClientModal .client-login-logo-icon {
+    width: 66px;
+    height: 66px;
+    margin-bottom: 17px;
+    border-radius: 20px;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #38bdf8 0%, #2563eb 55%, #4f46e5 100%);
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+    transform: rotate(-3deg);
+}
+
+#loginClientModal .client-login-logo-icon i,
+#registerClientModal .client-login-logo-icon i {
+    transform: rotate(3deg);
+}
+
+#loginClientModal .client-login-title,
+#registerClientModal .client-login-title {
+    color: var(--auth-ink);
+    font-size: clamp(1.65rem, 4vw, 2rem);
+    letter-spacing: -0.035em;
+}
+
+#loginClientModal .client-login-subtitle,
+#registerClientModal .client-login-subtitle {
+    max-width: 540px;
+    margin: 0 auto;
+    color: var(--auth-muted);
+    line-height: 1.55;
+    font-size: 0.96rem;
+}
+
+#loginClientModal .client-login-form,
+#registerClientModal .client-login-form {
+    margin-top: 0;
+}
+
+#loginClientModal .client-form-label,
+#registerClientModal .client-form-label {
+    color: #334155;
+    font-size: 0.86rem;
+    margin-bottom: 7px;
+}
+
+#loginClientModal .client-form-label i,
+#registerClientModal .client-form-label i {
+    color: var(--auth-primary);
+}
+
+#loginClientModal .client-form-input,
+#registerClientModal .client-form-input {
+    min-height: 50px;
+    padding: 0.78rem 1rem;
+    border: 1px solid var(--auth-line);
+    border-radius: 13px;
+    background: #f8fafc !important;
+    color: var(--auth-ink) !important;
+    font-size: 0.94rem;
+}
+
+#loginClientModal .client-form-input:hover,
+#registerClientModal .client-form-input:hover {
+    border-color: #b9c8dc;
+}
+
+#loginClientModal .client-form-input:focus,
+#registerClientModal .client-form-input:focus {
+    border-color: #60a5fa;
+    background: #fff !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.11);
+}
+
+#loginClientModal .client-form-input.is-invalid,
+#registerClientModal .client-form-input.is-invalid {
+    border-color: #ef4444;
+    box-shadow: none;
+}
+
+#loginClientModal .client-password-toggle {
+    top: 25px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+}
+
+#loginClientModal .client-password-toggle:hover {
+    color: var(--auth-primary);
+    background: #eaf2ff;
+}
+
+#loginClientModal .client-login-options {
+    justify-content: flex-end;
+    margin: 5px 0 19px;
+}
+
+#loginClientModal .client-btn-login-submit,
+#registerClientModal .client-btn-login-submit {
+    min-height: 51px;
+    margin: 4px 0 22px;
+    border-radius: 13px;
+    background: linear-gradient(100deg, #2563eb, #4f46e5) !important;
+    font-size: 0.98rem;
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.24);
+}
+
+#loginClientModal .client-btn-login-submit:hover:not(:disabled),
+#registerClientModal .client-btn-login-submit:hover:not(:disabled) {
+    background: linear-gradient(100deg, #1d4ed8, #4338ca) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 16px 30px rgba(37, 99, 235, 0.3);
+}
+
+#loginClientModal .client-btn-login-submit:disabled,
+#registerClientModal .client-btn-login-submit:disabled {
+    opacity: 0.72;
+    cursor: wait;
+}
+
+#loginClientModal .client-register-link,
+#registerClientModal .client-register-link {
+    padding-top: 3px;
+    color: var(--auth-muted);
+}
+
+#loginClientModal .client-register-link a,
+#registerClientModal .client-register-link a,
+#loginClientModal .client-auth-switch,
+#registerClientModal .client-auth-switch,
+#loginClientModal .client-forgot-link {
+    color: var(--auth-primary);
+}
+
+.client-auth-switch {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-weight: 700;
+}
+
+.client-auth-switch:hover {
+    color: var(--auth-primary-dark) !important;
+    text-decoration: underline;
+}
+
+#loginClientModal .client-modal-close,
+#registerClientModal .client-modal-close {
+    top: 17px;
+    right: 17px;
+    padding: 8px;
+    opacity: 0.62;
+    background-color: #eef2f7;
+    background-size: 11px;
+}
+
+#loginClientModal .client-modal-close:hover,
+#registerClientModal .client-modal-close:hover {
+    opacity: 1;
+    transform: rotate(4deg);
+}
+
+#registerClientModal .row.g-3 {
+    --bs-gutter-x: 1rem;
+}
+
+#registerClientModal .text-danger,
+#loginClientModal .text-danger {
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+@media (max-width: 767.98px) {
+    #loginClientModal .modal-dialog,
+    #registerClientModal .modal-dialog {
+        margin: 12px;
+    }
+
+    #loginClientModal .client-login-modal-body,
+    #registerClientModal .client-login-modal-body {
+        padding: 35px 22px 26px;
+    }
+
+    #registerClientModal .row.g-3 > .col-6 {
+        width: 100%;
+    }
+
+    .client-auth-kicker {
+        font-size: 0.65rem;
+    }
+}

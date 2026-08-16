@@ -1,470 +1,261 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import '../../assets/css/ExpertBookingAdmin.css';
 import { getExpertBookings, expertJoinBooking } from '../../services/expert-booking.api';
 import { getUserById } from '../../services/expert.api';
 import { toast } from 'react-toastify';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Loading from '../../components/Loading';
+
+const PAGE_SIZE = 10;
+const STATUS = {
+    reserved: { label: 'Chờ thanh toán', icon: 'bi-hourglass-split', tone: 'waiting' },
+    paied: { label: 'Đã thanh toán', icon: 'bi-shield-check', tone: 'paid' },
+    paid: { label: 'Đã thanh toán', icon: 'bi-shield-check', tone: 'paid' },
+    complete: { label: 'Hoàn thành', icon: 'bi-check2-all', tone: 'complete' },
+    cancle: { label: 'Đã hủy', icon: 'bi-x-circle', tone: 'cancelled' },
+    cancelled: { label: 'Đã hủy', icon: 'bi-x-circle', tone: 'cancelled' },
+    failed: { label: 'Thất bại', icon: 'bi-exclamation-circle', tone: 'failed' }
+};
+
+const parseDay = value => {
+    if (!value) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const [year, month, day] = value.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const formatDate = value => {
+    const date = parseDay(value);
+    return date ? date.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+};
+
+const formatDateTime = value => {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+const formatTime = value => {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+};
+
+const formatPrice = value => `${new Intl.NumberFormat('vi-VN').format(Number(value) || 0)} đ`;
+const initials = name => (name || 'Học viên').trim().split(/\s+/).slice(-2).map(item => item[0]).join('').toUpperCase();
+const bookingCode = booking => booking?.id_reverse || booking?._id || '—';
+
+function StatusBadge({ status }) {
+    const config = STATUS[status] || { label: status || 'Không rõ', icon: 'bi-question-circle', tone: 'unknown' };
+    return <span className={`eb-status eb-status--${config.tone}`}><i className={`bi ${config.icon}`} />{config.label}</span>;
+}
+
+function DetailItem({ icon, label, value, mono, accent }) {
+    return <div className="eb-detail-item"><span className="eb-detail-icon"><i className={`bi ${icon}`} /></span><div><small>{label}</small><strong className={`${mono ? 'is-mono' : ''} ${accent ? 'is-accent' : ''}`}>{value || '—'}</strong></div></div>;
+}
 
 export default function ExpertBookingManagePage() {
     const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState(true);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const page = Math.max(1, Number(searchParams.get('page')) || 1);
+    const targetBookingId = searchParams.get('bookingId');
     const [bookings, setBookings] = useState([]);
-    const [filteredBookings, setFilteredBookings] = useState([]);
     const [totalPage, setTotalPage] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [selectedBooking, setSelectedBooking] = useState(null);
-    const [showDetailModal, setShowDetailModal] = useState(false);
     const [memberInfo, setMemberInfo] = useState(null);
     const [loadingMember, setLoadingMember] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [joining, setJoining] = useState(false);
 
-    const [searchParam, setSearchParam] = useSearchParams();
-    const page = parseInt(searchParam.get('page')) || 1;
-    const targetBookingId = searchParam.get('bookingId');
-
-    useEffect(() => {
-        fetchBookings();
-    }, [page]);
-
-    useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredBookings(bookings);
-        } else {
-            const filtered = bookings.filter(booking => 
-                booking.id_member?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                booking.id_reverse?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            setFilteredBookings(filtered);
-        }
-    }, [searchTerm, bookings]);
-
-    const fetchBookings = async () => {
-        setIsLoading(true);
-        try {
-            const res = await getExpertBookings(page, 10);
-            if (res?.data) {
-                const result = res.data.result || [];
-                setBookings(result);
-                setFilteredBookings(result);
-                setTotalPage(res.data.totalPage || 0);
-                const target = targetBookingId && result.find(item => (item.id_reverse || item._id) === targetBookingId);
-                if (target) {
-                    setSelectedBooking(target);
-                    setShowDetailModal(true);
-                    setLoadingMember(true);
-                    getUserById(target.id_member).then(member => setMemberInfo(member?.data?.data || null)).catch(() => setMemberInfo(null)).finally(() => setLoadingMember(false));
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching bookings:', error);
-            toast.error('Không thể tải danh sách lịch đặt!');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleViewDetail = async (booking) => {
-        setSelectedBooking(booking);
-        setShowDetailModal(true);
+    const loadMember = useCallback(async booking => {
         setLoadingMember(true);
         setMemberInfo(null);
-
         try {
-            const res = await getUserById(booking.id_member);
-            if (res?.data?.data) {
-                setMemberInfo(res.data.data);
-            }
-        } catch (error) {
-            console.error('Error fetching member:', error);
-            toast.error('Không thể tải thông tin khách hàng!');
+            const response = await getUserById(booking.id_member);
+            setMemberInfo(response?.data?.data || null);
+        } catch (requestError) {
+            console.error('Cannot load member:', requestError);
         } finally {
             setLoadingMember(false);
         }
-    };
+    }, []);
 
-    const handleCloseModal = () => {
-        setShowDetailModal(false);
-        setSelectedBooking(null);
-        setMemberInfo(null);
-    };
+    const openDetail = useCallback(booking => {
+        setSelectedBooking(booking);
+        loadMember(booking);
+    }, [loadMember]);
 
-    const getStatusBadge = (status) => {
-        const statusMap = {
-            'reserved': { class: 'status-pending', text: 'Chờ thanh toán', icon: 'bi-circle-fill' },
-            'paied': { class: 'status-paid', text: 'Đã thanh toán', icon: 'bi-check-circle-fill' },
-            'cancle': { class: 'status-cancelled', text: 'Đã hủy', icon: 'bi-x-circle-fill' },
-            'failed': { class: 'status-failed', text: 'Thanh toán thất bại', icon: 'bi-exclamation-circle-fill' },
-            'complete': { class: 'status-completed', text: 'Hoàn thành', icon: 'bi-check-all' }
-        };
-        const s = statusMap[status] || { class: 'status-pending', text: status, icon: 'bi-circle-fill' };
-        return (
-            <span className={`status-badge ${s.class}`}>
-                <i className={`bi ${s.icon}`}></i>
-                {s.text}
-            </span>
-        );
-    };
-
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '-';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('vi-VN', {
-            weekday: 'short',
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-    };
-
-    const formatTime = (dateStr) => {
-        if (!dateStr) return '-';
-        const date = new Date(dateStr);
-        return date.toLocaleTimeString('vi-VN', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const formatPrice = (price) => {
-        if (!price && price !== 0) return '-';
-        return new Intl.NumberFormat('vi-VN').format(price) + ' đ';
-    };
-
-    const getInitials = (name) => {
-        if (!name) return 'U';
-        const parts = name.split(' ');
-        return parts[parts.length - 1].charAt(0).toUpperCase();
-    };
-
-    const handleChangePage = (newPage) => {
-        const params = new URLSearchParams(searchParam.toString());
-        params.set('page', newPage);
-        setSearchParam(params);
-    };
-
-    const handleJoinMeeting = async () => {
-        if (!selectedBooking) return;
-
-        const bookingId = selectedBooking.id_reverse || selectedBooking._id;
-        console.log(bookingId)
+    const fetchBookings = useCallback(async () => {
+        setLoading(true);
+        setError('');
         try {
-            await expertJoinBooking(bookingId);
-            navigate(`/admin/video-call/${bookingId}`);
-            handleCloseModal();
-            fetchBookings();
-        } catch (error) {
-            console.error('Error joining meeting:', error);
-            toast.error('Không thể tham gia cuộc họp!');
+            const response = await getExpertBookings(page, PAGE_SIZE);
+            const payload = response?.data?.data || response?.data || {};
+            const result = Array.isArray(payload.result) ? payload.result : [];
+            const enrichedResult = await Promise.all(result.map(async booking => {
+                if (!booking.id_member) return booking;
+                try {
+                    const memberResponse = await getUserById(booking.id_member);
+                    return { ...booking, _member: memberResponse?.data?.data || null };
+                } catch (memberError) {
+                    console.warn(`Cannot load member ${booking.id_member}:`, memberError);
+                    return booking;
+                }
+            }));
+            setBookings(enrichedResult);
+            setTotalPage(Number(payload.totalPage) || 0);
+            const target = targetBookingId && enrichedResult.find(item => bookingCode(item) === targetBookingId);
+            if (target) openDetail(target);
+        } catch (requestError) {
+            console.error('Cannot load expert bookings:', requestError);
+            setError('Không thể tải lịch đặt. Hãy kiểm tra Booking Service rồi thử lại.');
+        } finally {
+            setLoading(false);
+        }
+    }, [openDetail, page, targetBookingId]);
+
+    useEffect(() => { fetchBookings(); }, [fetchBookings]);
+
+    useEffect(() => {
+        if (!selectedBooking) return undefined;
+        const close = event => event.key === 'Escape' && setSelectedBooking(null);
+        window.addEventListener('keydown', close);
+        document.body.classList.add('eb-modal-open');
+        return () => { window.removeEventListener('keydown', close); document.body.classList.remove('eb-modal-open'); };
+    }, [selectedBooking]);
+
+    const visibleBookings = useMemo(() => {
+        const keyword = search.trim().toLowerCase();
+        return bookings.filter(item => {
+            const matchesStatus = statusFilter === 'all' || item.status === statusFilter || (statusFilter === 'paied' && item.status === 'paid');
+            const searchable = [bookingCode(item), item._member?.name, item._member?.username, item._member?.email, item.name_customer, item.email_customer, item.id_member, item.note].filter(Boolean).join(' ').toLowerCase();
+            return matchesStatus && (!keyword || searchable.includes(keyword));
+        });
+    }, [bookings, search, statusFilter]);
+
+    const stats = useMemo(() => ({
+        total: bookings.length,
+        paid: bookings.filter(item => ['paied', 'paid'].includes(item.status)).length,
+        waiting: bookings.filter(item => item.status === 'reserved').length,
+        completed: bookings.filter(item => item.status === 'complete').length
+    }), [bookings]);
+
+    const todayRelation = booking => {
+        const date = parseDay(booking?.day_support);
+        if (!date) return 'unknown';
+        const today = new Date();
+        date.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        return date.getTime() === today.getTime() ? 'today' : date < today ? 'past' : 'future';
+    };
+
+    const changePage = nextPage => {
+        const next = new URLSearchParams(searchParams);
+        next.set('page', String(nextPage));
+        next.delete('bookingId');
+        setSearchParams(next);
+    };
+
+    const joinCall = async () => {
+        if (!selectedBooking || joining) return;
+        setJoining(true);
+        try {
+            const id = bookingCode(selectedBooking);
+            await expertJoinBooking(id);
+            navigate(`/admin/video-call/${id}`);
+        } catch (requestError) {
+            console.error('Cannot join video call:', requestError);
+            toast.error(requestError?.response?.data?.message || 'Không thể tham gia cuộc gọi lúc này.');
+        } finally {
+            setJoining(false);
         }
     };
 
-    const isPaid = selectedBooking?.status === 'paied' || selectedBooking?.status === 'paid' || selectedBooking?.status === 'confirm' || selectedBooking?.status === 'complete';
-
-    const isBookingPassed = () => {
-        if (!selectedBooking?.day_support) return false;
-        const bookingDate = new Date(selectedBooking.day_support);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        bookingDate.setHours(0, 0, 0, 0);
-        return bookingDate < today;
+    const closeModal = () => {
+        setSelectedBooking(null);
+        setMemberInfo(null);
+        if (targetBookingId) {
+            const next = new URLSearchParams(searchParams);
+            next.delete('bookingId');
+            setSearchParams(next, { replace: true });
+        }
     };
 
-    const isBookingToday = () => {
-        if (!selectedBooking?.day_support) return false;
-        const bookingDate = new Date(selectedBooking.day_support);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        bookingDate.setHours(0, 0, 0, 0);
-        return bookingDate.getTime() === today.getTime();
-    };
+    const selectedIsPaid = ['paied', 'paid', 'complete'].includes(selectedBooking?.status);
+    const selectedRelation = todayRelation(selectedBooking);
 
-    return (
-        <div className="expert-booking-management">
-            {/* Page Header */}
-            <div className="booking-management-header">
-                <div className="header-left">
-                    <h1 className="page-title">
-                        <i className="bi bi-calendar-check-fill"></i>
-                        Lịch đặt chuyên gia
-                    </h1>
-                    <p className="page-subtitle">
-                        Theo dõi và quản lý các lịch đặt tư vấn trong hệ thống.
-                    </p>
-                </div>
-                <div className="header-right">
-                    <div className="stat-card">
-                        <div className="stat-icon">
-                            <i className="bi bi-calendar-event"></i>
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">{filteredBookings.length}</span>
-                            <span className="stat-label">Lịch đặt</span>
-                        </div>
-                    </div>
+    return <main className="expert-booking-management">
+        <header className="eb-hero">
+            <div className="eb-hero-copy"><span className="eb-eyebrow"><i className="bi bi-stars" /> Không gian tư vấn</span><h1>Lịch đặt của bạn</h1><p>Theo dõi học viên, lịch tư vấn và trạng thái thanh toán tại một nơi.</p></div>
+            <button className="eb-refresh" type="button" onClick={fetchBookings} disabled={loading}><i className={`bi bi-arrow-clockwise ${loading ? 'is-spinning' : ''}`} /> Làm mới</button>
+        </header>
+
+        <section className="eb-stats" aria-label="Tổng quan lịch đặt">
+            <div className="eb-stat"><span className="eb-stat-icon blue"><i className="bi bi-calendar2-week" /></span><div><strong>{stats.total}</strong><small>Trong trang này</small></div></div>
+            <div className="eb-stat"><span className="eb-stat-icon green"><i className="bi bi-credit-card-2-front" /></span><div><strong>{stats.paid}</strong><small>Đã thanh toán</small></div></div>
+            <div className="eb-stat"><span className="eb-stat-icon amber"><i className="bi bi-hourglass-split" /></span><div><strong>{stats.waiting}</strong><small>Chờ thanh toán</small></div></div>
+            <div className="eb-stat"><span className="eb-stat-icon violet"><i className="bi bi-check2-all" /></span><div><strong>{stats.completed}</strong><small>Đã hoàn thành</small></div></div>
+        </section>
+
+        <section className="eb-panel">
+            <div className="eb-toolbar">
+                <div className="eb-search"><i className="bi bi-search" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Tìm theo học viên, email hoặc mã lịch..." />{search && <button onClick={() => setSearch('')} aria-label="Xóa tìm kiếm"><i className="bi bi-x" /></button>}</div>
+                <div className="eb-filters">
+                    {[['all', 'Tất cả'], ['paied', 'Đã trả'], ['reserved', 'Chờ trả'], ['complete', 'Hoàn thành'], ['cancle', 'Đã hủy']].map(([value, label]) => <button key={value} className={statusFilter === value ? 'active' : ''} onClick={() => setStatusFilter(value)}>{label}</button>)}
                 </div>
             </div>
 
-            {/* Filter Bar */}
-            <div className="filter-bar">
-                <div className="search-box">
-                    <i className="bi bi-search"></i>
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm theo mã đặt lịch, ID khách hàng..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-            </div>
+            {loading ? <div className="eb-state"><span className="eb-loader" /><h3>Đang tải lịch đặt</h3><p>Vui lòng chờ trong giây lát...</p></div> : error ? <div className="eb-state eb-state--error"><i className="bi bi-cloud-slash" /><h3>Chưa thể tải dữ liệu</h3><p>{error}</p><button onClick={fetchBookings}>Thử lại</button></div> : visibleBookings.length === 0 ? <div className="eb-state"><i className="bi bi-calendar2-x" /><h3>Không tìm thấy lịch phù hợp</h3><p>Thử thay đổi từ khóa hoặc bộ lọc trạng thái.</p></div> : <>
+                <div className="eb-table-scroll"><table className="eb-table">
+                    <thead><tr><th>Học viên</th><th>Lịch tư vấn</th><th>Phí tư vấn</th><th>Trạng thái</th><th>Mã lịch</th><th aria-label="Thao tác" /></tr></thead>
+                    <tbody>{visibleBookings.map(booking => <tr key={bookingCode(booking)} onClick={() => openDetail(booking)}>
+                        <td><div className="eb-person">{booking._member?.fileAvartarUrl ? <img className="eb-avatar eb-avatar--image" src={booking._member.fileAvartarUrl} alt={booking._member.name || 'Học viên'} /> : <span className="eb-avatar">{initials(booking._member?.name || booking.name_customer)}</span>}<div><strong>{booking._member?.name || booking.name_customer || booking._member?.username || 'Học viên chưa cập nhật tên'}</strong><small>{booking._member?.email || booking.email_customer || booking.id_member || 'Chưa có email'}</small></div></div></td>
+                        <td><div className="eb-schedule"><strong>{formatDate(booking.day_support)}</strong><small><i className="bi bi-clock" /> {formatTime(booking.time_start)} – {formatTime(booking.time_end)}</small></div></td>
+                        <td><span className="eb-price">{formatPrice(booking.price_support)}</span></td>
+                        <td><StatusBadge status={booking.status} /></td>
+                        <td><code className="eb-code">#{bookingCode(booking).slice(-8).toUpperCase()}</code></td>
+                        <td><button className="eb-view" onClick={event => { event.stopPropagation(); openDetail(booking); }}><i className="bi bi-arrow-up-right" /></button></td>
+                    </tr>)}</tbody>
+                </table></div>
+                <div className="eb-pagination"><span>Trang <strong>{page}</strong> trên <strong>{Math.max(totalPage, 1)}</strong></span><div><button disabled={page <= 1} onClick={() => changePage(page - 1)}><i className="bi bi-chevron-left" /> Trước</button><button disabled={page >= totalPage} onClick={() => changePage(page + 1)}>Sau <i className="bi bi-chevron-right" /></button></div></div>
+            </>}
+        </section>
 
-            {/* Bookings Table */}
-            <div className="bookings-table-container">
-                {isLoading ? (
-                    <Loading />
-                ) : filteredBookings.length === 0 ? (
-                    <div className="empty-state">
-                        <i className="bi bi-calendar-x"></i>
-                        <h3>Chưa có lịch đặt nào</h3>
-                        <p>Danh sách lịch đặt sẽ hiển thị tại đây.</p>
-                    </div>
-                ) : (
-                    <>
-                        <table className="bookings-table">
-                            <thead>
-                                <tr>
-                                    <th>STT</th>
-                                    <th>Mã đặt lịch</th>
-                                    <th>Ngày hỗ trợ</th>
-                                    <th>Thời gian</th>
-                                    <th>Phí tư vấn</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredBookings.map((booking, index) => (
-                                    <tr key={booking._id || index}>
-                                        <td className="stt-cell">{(page - 1) * 10 + index + 1}</td>
-                                        <td>
-                                            <span className="customer-id">{booking.id_reverse || booking._id}</span>
-                                        </td>
-                                        <td>
-                                            <div className="date-wrapper">
-                                                <i className="bi bi-calendar3"></i>
-                                                {formatDate(booking.day_support)}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="time-wrapper">
-                                                <i className="bi bi-clock"></i>
-                                                {formatTime(booking.time_start)} - {formatTime(booking.time_end)}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className="price-value">{formatPrice(booking.price_support)}</span>
-                                        </td>
-                                        <td>
-                                            {getStatusBadge(booking.status)}
-                                        </td>
-                                        <td>
-                                            <div className="action-buttons">
-                                                <button
-                                                    className="btn-action btn-view"
-                                                    title="Xem chi tiết"
-                                                    onClick={() => handleViewDetail(booking)}
-                                                >
-                                                    <i className="bi bi-eye"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+        {selectedBooking && <div className="eb-overlay" onMouseDown={event => event.target === event.currentTarget && closeModal()}>
+            <article className="eb-modal" role="dialog" aria-modal="true" aria-labelledby="eb-modal-title">
+                <header className="eb-modal-header"><div><span>CHI TIẾT LỊCH TƯ VẤN</span><h2 id="eb-modal-title">#{bookingCode(selectedBooking).slice(-8).toUpperCase()}</h2></div><button onClick={closeModal} aria-label="Đóng"><i className="bi bi-x-lg" /></button></header>
+                <div className="eb-modal-body">
+                    <section className="eb-member-card">
+                        {loadingMember ? <span className="eb-member-skeleton" /> : memberInfo?.fileAvartarUrl ? <img src={memberInfo.fileAvartarUrl} alt={memberInfo.name || 'Học viên'} /> : <span className="eb-member-avatar">{initials(memberInfo?.name || selectedBooking.name_customer)}</span>}
+                        <div><small>HỌC VIÊN</small><h3>{memberInfo?.name || selectedBooking.name_customer || 'Học viên'}</h3><p><i className="bi bi-envelope" /> {memberInfo?.email || selectedBooking.email_customer || 'Chưa cập nhật email'}</p></div>
+                        <StatusBadge status={selectedBooking.status} />
+                    </section>
 
-                        {/* Pagination */}
-                        {totalPage > 1 && (
-                            <div className="pagination-wrapper">
-                                <div className="pagination-info">
-                                    Trang <strong>{page}</strong> / <strong>{totalPage}</strong>
-                                </div>
-                                <div className="pagination-buttons">
-                                    <button
-                                        className="btn-pagination"
-                                        onClick={() => handleChangePage(page - 1)}
-                                        disabled={page <= 1}
-                                    >
-                                        <i className="bi bi-chevron-left"></i>
-                                        Trước
-                                    </button>
-                                    {Array.from({ length: totalPage }, (_, i) => i + 1).map(p => (
-                                        <button
-                                            key={p}
-                                            className={`btn-pagination ${page === p ? 'active' : ''}`}
-                                            onClick={() => handleChangePage(p)}
-                                        >
-                                            {p}
-                                        </button>
-                                    ))}
-                                    <button
-                                        className="btn-pagination"
-                                        onClick={() => handleChangePage(page + 1)}
-                                        disabled={page >= totalPage}
-                                    >
-                                        Sau
-                                        <i className="bi bi-chevron-right"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+                    <div className="eb-modal-grid">
+                        <section className="eb-detail-card"><h3><i className="bi bi-calendar3" /> Lịch tư vấn</h3><div className="eb-detail-grid">
+                            <DetailItem icon="bi-calendar-event" label="Ngày hỗ trợ" value={formatDate(selectedBooking.day_support)} />
+                            <DetailItem icon="bi-clock" label="Khung giờ" value={`${formatTime(selectedBooking.time_start)} – ${formatTime(selectedBooking.time_end)}`} />
+                            <DetailItem icon="bi-cash-stack" label="Phí tư vấn" value={formatPrice(selectedBooking.price_support)} accent />
+                            <DetailItem icon="bi-person-badge" label="Chuyên gia" value={selectedBooking.name_expert || 'Bạn'} />
+                        </div>{selectedBooking.note && <div className="eb-note"><span><i className="bi bi-chat-left-text" /> Ghi chú từ học viên</span><p>{selectedBooking.note}</p></div>}</section>
 
-            {/* Detail Modal */}
-            {showDetailModal && selectedBooking && (
-                <div className="admin-booking-overlay" onClick={handleCloseModal}>
-                    <div className="admin-booking-modal " onClick={(e) => e.stopPropagation()}>
-                        <div className="admin-booking-header">
-                            <h3>
-                                <i className="bi bi-calendar-event"></i>
-                                Chi tiết lịch đặt
-                            </h3>
-                            <button className="admin-booking-close" onClick={handleCloseModal}>
-                                <i className="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-
-                        <div className="admin-booking-body">
-                            {/* Booking Info */}
-                            <div className="admin-booking-section">
-                                <h4 className="admin-booking-section-title">
-                                    <i className="bi bi-calendar-check"></i>
-                                    Thông tin lịch hẹn
-                                </h4>
-                                <div className="admin-booking-row">
-                                    <span className="admin-booking-label">Mã đặt lịch</span>
-                                    <span className="admin-booking-value">{selectedBooking.id_reverse || selectedBooking._id}</span>
-                                </div>
-                                <div className="admin-booking-row">
-                                    <span className="admin-booking-label">Ngày hỗ trợ</span>
-                                    <span className="admin-booking-value">{formatDate(selectedBooking.day_support)}</span>
-                                </div>
-                                <div className="admin-booking-row">
-                                    <span className="admin-booking-label">Thời gian</span>
-                                    <span className="admin-booking-value">
-                                        {formatTime(selectedBooking.time_start)} - {formatTime(selectedBooking.time_end)}
-                                    </span>
-                                </div>
-                                <div className="admin-booking-row">
-                                    <span className="admin-booking-label">Phí tư vấn</span>
-                                    <span className="admin-booking-value price">{formatPrice(selectedBooking.price_support)}</span>
-                                </div>
-                                <div className="admin-booking-row">
-                                    <span className="admin-booking-label">Trạng thái</span>
-                                    <span className="admin-booking-value">{getStatusBadge(selectedBooking.status)}</span>
-                                </div>
-                                {selectedBooking.transaction_id && (
-                                    <div className="admin-booking-row">
-                                        <span className="admin-booking-label">Mã giao dịch</span>
-                                        <span className="admin-booking-value transaction-id">{selectedBooking.transaction_id}</span>
-                                    </div>
-                                )}
-                                {selectedBooking.payment_date && (
-                                    <div className="admin-booking-row">
-                                        <span className="admin-booking-label">Ngày thanh toán</span>
-                                        <span className="admin-booking-value">{formatDate(selectedBooking.payment_date)}</span>
-                                    </div>
-                                )}
-                                {selectedBooking.joinAt && (
-                                    <div className="admin-booking-row">
-                                        <span className="admin-booking-label">Đã tham gia lúc</span>
-                                        <span className="admin-booking-value">{formatDate(selectedBooking.joinAt)} {formatTime(selectedBooking.joinAt)}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Customer Info */}
-                            <div className="admin-booking-section">
-                                <h4 className="admin-booking-section-title">
-                                    <i className="bi bi-person"></i>
-                                    Thông tin khách hàng
-                                </h4>
-                                {loadingMember ? (
-                                    <div className="admin-booking-loading">
-                                        <div className="spinner-border"></div>
-                                        <span>Đang tải thông tin khách hàng...</span>
-                                    </div>
-                                ) : memberInfo ? (
-                                    <>
-                                        <div className="admin-booking-profile">
-                                            <div className="admin-booking-avatar">
-                                                {memberInfo.fileAvartarUrl ? (
-                                                    <img src={memberInfo.fileAvartarUrl} alt={memberInfo.name} />
-                                                ) : (
-                                                    <div className="admin-booking-avatar-placeholder">
-                                                        {getInitials(memberInfo.name)}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="admin-booking-info">
-                                                <h5 className="admin-booking-info-name">{memberInfo.name || 'Khách hàng'}</h5>
-                                                <p className="admin-booking-info-role">
-                                                    <i className="bi bi-person-badge"></i>
-                                                    {memberInfo.roleName === 'member' ? 'Khách hàng' : memberInfo.roleName}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="admin-booking-row">
-                                            <span className="admin-booking-label">Email</span>
-                                            <span className="admin-booking-value">{memberInfo.email || 'Không có'}</span>
-                                        </div>
-                                        {memberInfo.phone && (
-                                            <div className="admin-booking-row">
-                                                <span className="admin-booking-label">Số điện thoại</span>
-                                                <span className="admin-booking-value">{memberInfo.phone}</span>
-                                            </div>
-                                        )}
-                                        {memberInfo.username && (
-                                            <div className="admin-booking-row">
-                                                <span className="admin-booking-label">Username</span>
-                                                <span className="admin-booking-value">{memberInfo.username}</span>
-                                            </div>
-                                        )}
-                                        <div className="admin-booking-row">
-                                            <span className="admin-booking-label">ID Khách hàng</span>
-                                            <span className="admin-booking-value member-id">{memberInfo._id}</span>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="admin-booking-empty">
-                                        <i className="bi bi-person-x"></i>
-                                        <p>Không tìm thấy thông tin khách hàng</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="admin-booking-footer">
-                            {isBookingPassed() ? (
-                                <span className="badge badge-secondary">
-                                    <i className="bi bi-clock-history"></i>
-                                    Đã qua
-                                </span>
-                            ) : isPaid && isBookingToday() ? (
-                                <button className="btn btn-success" onClick={handleJoinMeeting}>
-                                    <i className="bi bi-camera-video"></i>
-                                    Tham gia cuộc họp
-                                </button>
-                            ) : null}
-                            <button className="btn btn-secondary" onClick={handleCloseModal}>
-                                <i className="bi bi-x-lg"></i>
-                                Đóng
-                            </button>
-                        </div>
+                        <section className="eb-detail-card"><h3><i className="bi bi-receipt" /> Thanh toán & hệ thống</h3><div className="eb-detail-list">
+                            <div><span>Mã lịch</span><code>{bookingCode(selectedBooking)}</code></div>
+                            <div><span>ID học viên</span><code>{selectedBooking.id_member || memberInfo?._id || '—'}</code></div>
+                            <div><span>Thanh toán lúc</span><strong>{formatDateTime(selectedBooking.payment_date)}</strong></div>
+                            {selectedBooking.payment_expires_at && <div><span>Hạn thanh toán</span><strong>{formatDateTime(selectedBooking.payment_expires_at)}</strong></div>}
+                            {(selectedBooking.stripe_payment_intent_id || selectedBooking.transaction_id) && <div><span>Mã giao dịch</span><code>{selectedBooking.stripe_payment_intent_id || selectedBooking.transaction_id}</code></div>}
+                            {selectedBooking.joinAt && <div><span>Đã tham gia lúc</span><strong>{formatDateTime(selectedBooking.joinAt)}</strong></div>}
+                        </div></section>
                     </div>
                 </div>
-            )}
-        </div>
-    );
+                <footer className="eb-modal-footer"><div className={`eb-call-note eb-call-note--${selectedRelation}`}><i className={`bi ${selectedRelation === 'today' ? 'bi-camera-video' : selectedRelation === 'past' ? 'bi-clock-history' : 'bi-calendar-event'}`} /><span>{selectedRelation === 'today' ? (selectedIsPaid ? 'Phòng gọi đang mở trong hôm nay' : 'Lịch chưa được thanh toán') : selectedRelation === 'past' ? 'Lịch tư vấn này đã qua' : 'Phòng gọi sẽ mở đúng ngày tư vấn'}</span></div><div><button className="eb-btn eb-btn--ghost" onClick={closeModal}>Đóng</button>{selectedIsPaid && selectedRelation === 'today' && <button className="eb-btn eb-btn--primary" onClick={joinCall} disabled={joining}><i className={`bi ${joining ? 'bi-arrow-repeat is-spinning' : 'bi-camera-video-fill'}`} /> {joining ? 'Đang kết nối...' : 'Vào phòng gọi'}</button>}</div></footer>
+            </article>
+        </div>}
+    </main>;
 }

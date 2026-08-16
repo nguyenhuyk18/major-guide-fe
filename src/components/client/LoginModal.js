@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import '../../assets/css/LoginModal.css';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
@@ -7,13 +8,19 @@ import { LOGOUT_ADMIN } from '../../constants/AuthAdminConstant';
 import { loginClient } from '../../services/authorizer.api';
 import { toast } from 'react-toastify';
 import { LOGIN } from '../../constants/AuthConstant';
-// import { useState } from 'react';
 
 export default function LoginModal() {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    // const [isAble, setIsAble] = useState(true)
+    const formikRef = useRef(null);
+    const [showPassword, setShowPassword] = useState(false);
+
+    const closeModal = () => {
+        document
+            .querySelector('#loginClientModal [data-bs-dismiss="modal"]')
+            ?.click();
+    };
 
     const formik = useFormik({
         // Khởi động giá trị cho thẻ nhập liệu
@@ -27,13 +34,13 @@ export default function LoginModal() {
             password: Yup.string().required('Vui lòng nhập mật khẩu của bạn !!')
         }),
 
-        onSubmit: async values => {
+        onSubmit: async (values, { resetForm, setSubmitting }) => {
             try {
-                // setIsAble(false);
                 const rs = await loginClient(values);
 
                 if (rs.data.data.roleName !== 'member') {
                     toast.info('Tài khoản chuyên gia vui lòng đăng nhập tại khu vực quản trị.');
+                    closeModal();
                     navigate('/admin/login');
                     return;
                 }
@@ -60,15 +67,33 @@ export default function LoginModal() {
                 dispatch(action1);
                 dispatch(action);
                 toast.success('Đăng nhập thành công !!!');
+                closeModal();
                 navigate('/');
             } catch (error) {
                 console.log(error);
                 toast.error(error?.response?.data?.message || 'Đăng nhập thất bại !!!');
-                navigate('/');
+            } finally {
+                resetForm();
+                setShowPassword(false);
+                setSubmitting(false);
             }
 
         },
     });
+    formikRef.current = formik;
+
+    useEffect(() => {
+        const modalElement = document.getElementById('loginClientModal');
+        if (!modalElement) return undefined;
+
+        const clearForm = () => {
+            formikRef.current?.resetForm();
+            setShowPassword(false);
+        };
+
+        modalElement.addEventListener('hidden.bs.modal', clearForm);
+        return () => modalElement.removeEventListener('hidden.bs.modal', clearForm);
+    }, []);
 
     return (
         <>
@@ -81,7 +106,7 @@ export default function LoginModal() {
                 aria-labelledby="loginClientModalLabel"
                 aria-hidden="true"
             >
-                <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-dialog modal-dialog-centered client-auth-dialog">
                     <div className="modal-content client-login-modal-content">
                         <button
                             type="button"
@@ -91,13 +116,16 @@ export default function LoginModal() {
                         ></button>
 
                         <div className="modal-body client-login-modal-body">
-                            {/* Logo */}
+                            <div className="client-auth-kicker">
+                                <span></span>
+                                Không gian định hướng của bạn
+                            </div>
                             <div className="client-login-logo">
                                 <div className="client-login-logo-icon">
                                     <i className="bi bi-mortarboard-fill"></i>
                                 </div>
                                 <h4 className="client-login-title">Đăng nhập MajorGuide</h4>
-                                <p className="client-login-subtitle">Chào mừng bạn quay trở lại!</p>
+                                <p className="client-login-subtitle">Tiếp tục hành trình chọn ngành, chọn trường cùng cộng đồng MajorGuide.</p>
                             </div>
 
                             {/* Login Form */}
@@ -116,6 +144,8 @@ export default function LoginModal() {
                                         name='username'
                                         value={formik.values.username}
                                         onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        autoComplete="username"
                                     />
                                     <div className="text-danger mt-2">{formik.touched.username && formik.errors.username}</div>
                                 </div>
@@ -128,20 +158,27 @@ export default function LoginModal() {
                                     </label>
                                     <div className="client-password-wrapper">
                                         <input
-                                            type="password"
+                                            type={showPassword ? 'text' : 'password'}
                                             className="form-control client-form-input"
                                             id="clientPassword"
                                             placeholder="Nhập mật khẩu"
                                             name='password'
                                             value={formik.values.password}
                                             onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            autoComplete="current-password"
                                         />
 
-                                        <button type="button" className="client-password-toggle">
-                                            <i className="bi bi-eye"></i>
+                                        <button
+                                            type="button"
+                                            className="client-password-toggle"
+                                            onClick={() => setShowPassword(value => !value)}
+                                            aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                                        >
+                                            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
                                         </button>
-                                        <div className="text-danger mt-2">{formik.touched.password && formik.errors.password}</div>
                                     </div>
+                                    <div className="text-danger mt-2">{formik.touched.password && formik.errors.password}</div>
                                 </div>
 
                                 {/* Remember & Forgot */}
@@ -150,26 +187,14 @@ export default function LoginModal() {
                                 </div>
 
                                 {/* Login Button */}
-                                <button type="submit" className="btn client-btn-login-submit" data-bs-dismiss="modal">
-                                    Đăng nhập
+                                <button type="submit" className="btn client-btn-login-submit" disabled={formik.isSubmitting}>
+                                    {formik.isSubmitting ? <><span className="spinner-border spinner-border-sm me-2" />Đang đăng nhập...</> : 'Đăng nhập'}
                                 </button>
 
                                 {/* Divider */}
-                                <div className="client-login-divider">
-                                    <span>Hoặc đăng nhập với</span>
-                                </div>
-
-                                {/* Social Login */}
-                                {/* <div className="client-social-login">
-                                    <button type="button" className="btn client-btn-social client-btn-google">
-                                        <i className="bi bi-google me-2"></i>
-                                        Google
-                                    </button>
-                                </div> */}
-
                                 {/* Register Link */}
                                 <div className="client-register-link">
-                                    Chưa có tài khoản? <Link data-bs-toggle="modal" data-bs-target="#registerClientModal" >Đăng ký ngay</Link>
+                                    Chưa có tài khoản? <button type="button" className="client-auth-switch" data-bs-toggle="modal" data-bs-target="#registerClientModal">Đăng ký ngay</button>
                                 </div>
                             </form>
                         </div>

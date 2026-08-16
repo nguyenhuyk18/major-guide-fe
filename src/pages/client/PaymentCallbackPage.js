@@ -17,6 +17,8 @@ export default function PaymentCallbackPage() {
     const sessionId = searchParams.get('session_id');
     const [status, setStatus] = useState('processing');
     const [orderId, setOrderId] = useState('');
+    const [checking, setChecking] = useState(false);
+    const [retryKey, setRetryKey] = useState(0);
 
     useEffect(() => {
         let active = true;
@@ -25,6 +27,7 @@ export default function PaymentCallbackPage() {
 
         const check = async () => {
             if (!sessionId) { if (active) setStatus('error'); return; }
+            if (active) setChecking(true);
             try {
                 const response = await getCheckoutStatus(sessionId);
                 const next = response?.data?.data?.status || 'processing';
@@ -32,15 +35,19 @@ export default function PaymentCallbackPage() {
                 setStatus(next);
                 setOrderId(response?.data?.data?.orderId || '');
                 attempts += 1;
-                if (next === 'processing' && attempts < 10) timer = setTimeout(check, 1500);
+                if (next === 'processing' && attempts < 40) timer = setTimeout(check, 2000);
             } catch (error) {
                 console.error('Stripe status error:', error);
-                if (active) setStatus('error');
+                attempts += 1;
+                if (active && attempts < 5) timer = setTimeout(check, 2500);
+                else if (active) setStatus('error');
+            } finally {
+                if (active) setChecking(false);
             }
         };
         check();
         return () => { active = false; clearTimeout(timer); };
-    }, [sessionId]);
+    }, [sessionId, retryKey]);
 
     const view = CONTENT[status] || CONTENT.error;
     const isPaid = status === 'paid';
@@ -76,6 +83,7 @@ export default function PaymentCallbackPage() {
 
                         {isPaid && <p className="callback-note"><i className="bi bi-info-circle" /> Bạn có thể xem đường dẫn cuộc họp trong mục lịch đã đặt.</p>}
                         <div className="callback-actions">
+                            {(status === 'error' || status === 'processing') && <button className="callback-primary-action" disabled={checking} onClick={() => { setStatus('processing'); setRetryKey(key => key + 1); }}><i className={`bi bi-arrow-clockwise ${checking ? 'is-spinning' : ''}`} /> {checking ? 'Đang kiểm tra Stripe...' : 'Kiểm tra lại thanh toán'}</button>}
                             <button className="callback-primary-action" onClick={() => navigate('/my-bookings')}><i className="bi bi-calendar2-check" /> Xem lịch đã đặt <i className="bi bi-arrow-right" /></button>
                             <button className="callback-secondary-action" onClick={() => navigate('/')}><i className="bi bi-house-door" /> Về trang chủ</button>
                         </div>
