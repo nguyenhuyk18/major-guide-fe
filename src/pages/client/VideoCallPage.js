@@ -5,6 +5,15 @@ import { io } from 'socket.io-client';
 import { getVideoCallAccess } from '../../services/booking.api';
 import '../../assets/css/VideoCallPage.css';
 
+const initials = name => (name || '?').trim().split(/\s+/).slice(-2).map(part => part[0]).join('').toUpperCase();
+const formatClock = value => value ? new Date(value).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+const formatElapsed = seconds => {
+    const h = Math.floor(seconds / 3600);
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    return h ? `${h}:${m}:${s}` : `${m}:${s}`;
+};
+
 export default function VideoCallPage({ mode = 'member' }) {
     const { bookingId } = useParams();
     const navigate = useNavigate();
@@ -15,16 +24,25 @@ export default function VideoCallPage({ mode = 'member' }) {
     const [checking, setChecking] = useState(true);
     const [error, setError] = useState('');
     const [started, setStarted] = useState(false);
+    const [starting, setStarting] = useState(false);
+    const startingRef = useRef(false);
     const [connection, setConnection] = useState('waiting');
     const [audioEnabled, setAudioEnabled] = useState(true);
     const [videoEnabled, setVideoEnabled] = useState(true);
+    const [previewState, setPreviewState] = useState('idle');
+    const [sharing, setSharing] = useState(false);
+    const [fullscreen, setFullscreen] = useState(false);
+    const [elapsed, setElapsed] = useState(0);
     const [peerMedia, setPeerMedia] = useState({ audio: true, video: true });
+    const pageRef = useRef(null);
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
     const localStreamRef = useRef(null);
+    const screenTrackRef = useRef(null);
     const peerRef = useRef(null);
     const socketRef = useRef(null);
     const pendingIceRef = useRef([]);
+    const mediaStateRef = useRef({ audio: true, video: true });
 
     const getSocketToken = useCallback(() => {
         if (auth?.access_token) return auth.access_token;
@@ -45,17 +63,77 @@ export default function VideoCallPage({ mode = 'member' }) {
         return () => { active = false; };
     }, [bookingId]);
 
+    const attachLocal = useCallback(stream => {
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+    }, []);
+
+    const stopScreenTrack = () => {
+        screenTrackRef.current?.stop();
+        screenTrackRef.current = null;
+        setSharing(false);
+    };
+
     const closeMedia = useCallback(() => {
         socketRef.current?.emit('video:leave');
         socketRef.current?.disconnect();
         socketRef.current = null;
         peerRef.current?.close();
         peerRef.current = null;
+        screenTrackRef.current?.stop();
+        screenTrackRef.current = null;
         localStreamRef.current?.getTracks().forEach(track => track.stop());
         localStreamRef.current = null;
+        pendingIceRef.current = [];
+        startingRef.current = false;
+        if (localVideoRef.current) localVideoRef.current.srcObject = null;
+        if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
     }, []);
 
-    useEffect(() => () => closeMedia(), [closeMedia]);
+    const mountedRef = useRef(true);
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => { mountedRef.current = false; closeMedia(); };
+    }, [closeMedia]);
+
+    // Camera preview in the lobby; the same stream is reused when the call starts.
+    const startPreview = useCallback(async () => {
+        if (localStreamRef.current || !navigator.mediaDevices?.getUserMedia) return;
+        setPreviewState('loading');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            if (!mountedRef.current || localStreamRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
+            stream.getAudioTracks().forEach(track => { track.enabled = mediaStateRef.current.audio; });
+            stream.getVideoTracks().forEach(track => { track.enabled = mediaStateRef.current.video; });
+            localStreamRef.current = stream;
+            attachLocal(stream);
+            setPreviewState('ready');
+        } catch (err) {
+            if (mountedRef.current) setPreviewState(err?.name === 'NotAllowedError' ? 'denied' : 'unavailable');
+        }
+    }, [attachLocal]);
+
+    useEffect(() => {
+        if (access?.canJoin && !started && previewState === 'idle') startPreview();
+    }, [access?.canJoin, started, previewState, startPreview]);
+
+    // Re-attach the local stream whenever the <video> element is remounted (lobby -> room).
+    useEffect(() => { if (localStreamRef.current) attachLocal(localStreamRef.current); }, [started, attachLocal]);
+
+    useEffect(() => {
+        if (connection !== 'connected') return;
+        const startedAt = Date.now() - elapsed * 1000;
+        const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt) / 1000)), 1000);
+        return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [connection]);
+
+    useEffect(() => {
+        const onChange = () => setFullscreen(Boolean(document.fullscreenElement));
+        document.addEventListener('fullscreenchange', onChange);
+        return () => document.removeEventListener('fullscreenchange', onChange);
+    }, []);
+
+    const emitMediaState = () => socketRef.current?.emit('video:media-state', mediaStateRef.current);
 
     const flushIce = async () => {
         if (!peerRef.current?.remoteDescription) return;
@@ -71,15 +149,26 @@ export default function VideoCallPage({ mode = 'member' }) {
     };
 
     const startCall = async () => {
-        if (!access?.canJoin || started) return;
+        if (!access?.canJoin || started || startingRef.current) return;
+        startingRef.current = true;
+        setStarting(true);
+        setPeerMedia({ audio: true, video: true });
         setError('');
         try {
             const token = getSocketToken();
             if (!bookingId?.trim()) throw new Error('INVALID_BOOKING');
             if (!token) throw new Error('MISSING_TOKEN');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localStreamRef.current = stream;
-            if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+            let stream = localStreamRef.current;
+            if (!stream || stream.getTracks().every(track => track.readyState === 'ended')) {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localStreamRef.current = stream;
+                attachLocal(stream);
+                setPreviewState('ready');
+            }
+            // Keep the choices made in the lobby.
+            stream.getAudioTracks().forEach(track => { track.enabled = audioEnabled; });
+            stream.getVideoTracks().forEach(track => { track.enabled = videoEnabled; });
+            mediaStateRef.current = { audio: audioEnabled, video: videoEnabled };
 
             const peer = new RTCPeerConnection({ iceServers: access.iceServers || [{ urls: 'stun:stun.l.google.com:19302' }] });
             peerRef.current = peer;
@@ -101,11 +190,14 @@ export default function VideoCallPage({ mode = 'member' }) {
             socketRef.current = socket;
             socket.on('video:error', payload => setError(payload?.message || 'Kết nối phòng gọi thất bại.'));
             socket.on('connect_error', err => {
+                closeMedia(); setStarting(false); setStarted(false);
+                setPreviewState('idle');
                 setError(err?.message || 'Không thể kết nối đến máy chủ cuộc gọi.');
                 setConnection('disconnected');
             });
             socket.on('video:peer-ready', async () => {
                 setConnection('connecting');
+                emitMediaState();
                 if (access.participantRole === 'member') await createOffer();
             });
             socket.on('video:offer', async ({ sdp }) => {
@@ -130,14 +222,17 @@ export default function VideoCallPage({ mode = 'member' }) {
             socket.on('video:peer-left', () => { setConnection('waiting'); if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null; });
             socket.on('connect', () => {
                 socket.emit('video:join', { bookingId }, async result => {
+                    setStarting(false); startingRef.current = false;
                     if (!result?.ok) {
                         setError(result?.message || 'Không thể vào phòng gọi.');
                         closeMedia();
                         setStarted(false);
+                        setPreviewState('idle');
                         return;
                     }
                     setStarted(true);
                     setConnection(result.peerPresent ? 'connecting' : 'waiting');
+                    emitMediaState();
                     if (result.peerPresent && result.role === 'member') await createOffer();
                 });
             });
@@ -150,6 +245,8 @@ export default function VideoCallPage({ mode = 'member' }) {
                             : 'Không thể khởi động camera hoặc microphone.'
             );
             closeMedia();
+            setPreviewState('idle');
+            setStarting(false); setStarted(false);
         }
     };
 
@@ -158,67 +255,189 @@ export default function VideoCallPage({ mode = 'member' }) {
         if (!track) return;
         track.enabled = !track.enabled;
         if (type === 'audio') setAudioEnabled(track.enabled); else setVideoEnabled(track.enabled);
-        socketRef.current?.emit('video:media-state', {
-            audio: type === 'audio' ? track.enabled : audioEnabled,
-            video: type === 'video' ? track.enabled : videoEnabled,
-        });
+        mediaStateRef.current = { ...mediaStateRef.current, [type]: track.enabled || (type === 'video' && sharing) };
+        emitMediaState();
     };
 
-    const leave = () => { closeMedia(); navigate(mode === 'expert' ? '/admin/expert-bookings' : '/my-bookings'); };
+    const videoSender = () => peerRef.current?.getSenders().find(sender => sender.track?.kind === 'video');
+
+    const stopSharing = async () => {
+        const cameraTrack = localStreamRef.current?.getVideoTracks()[0];
+        stopScreenTrack();
+        if (cameraTrack) await videoSender()?.replaceTrack(cameraTrack);
+        attachLocal(localStreamRef.current);
+        mediaStateRef.current = { ...mediaStateRef.current, video: Boolean(cameraTrack?.enabled) };
+        emitMediaState();
+    };
+
+    const toggleShare = async () => {
+        if (sharing) return stopSharing();
+        try {
+            const display = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            const screenTrack = display.getVideoTracks()[0];
+            screenTrackRef.current = screenTrack;
+            await videoSender()?.replaceTrack(screenTrack);
+            screenTrack.onended = () => { if (screenTrackRef.current === screenTrack) stopSharing(); };
+            if (localVideoRef.current) localVideoRef.current.srcObject = display;
+            setSharing(true);
+            mediaStateRef.current = { ...mediaStateRef.current, video: true };
+            emitMediaState();
+        } catch (err) {
+            if (err?.name !== 'NotAllowedError') setError('Không thể chia sẻ màn hình trên trình duyệt này.');
+        }
+    };
+
+    const toggleFullscreen = () => {
+        if (document.fullscreenElement) document.exitFullscreen?.();
+        else pageRef.current?.requestFullscreen?.();
+    };
+
+    const leave = () => {
+        if (document.fullscreenElement) document.exitFullscreen?.();
+        closeMedia();
+        navigate(mode === 'expert' ? '/admin/expert-bookings' : '/my-bookings');
+    };
+
     const partnerName = access?.participantRole === 'member' ? access?.nameExpert : access?.nameCustomer;
+    const partnerRole = access?.participantRole === 'member' ? 'Chuyên gia tư vấn' : 'Học viên';
+    const schedule = access?.timeStart ? `${formatClock(access.timeStart)} – ${formatClock(access.timeEnd)}` : '';
     const connectionLabel = connection === 'connected' ? 'Đã kết nối'
         : connection === 'connecting' ? 'Đang kết nối'
             : connection === 'disconnected' ? 'Mất kết nối' : 'Đang chờ';
+    const showRemote = started && connection === 'connected' && peerMedia.video;
+    const showLocalVideo = sharing || (videoEnabled && previewState === 'ready');
 
-    if (checking) return <div className="video-call-state"><div className="spinner-border" /><p>Đang kiểm tra phòng gọi...</p></div>;
-    if (!access?.canJoin) return <div className="video-call-state denied"><span><i className="bi bi-calendar-x" /></span><h1>Chưa thể tham gia</h1><p>{error || access?.reason || 'Phòng gọi hiện chưa khả dụng.'}</p><button onClick={leave}>Quay lại lịch đặt</button></div>;
+    if (checking) return <div className="vc-state"><div className="vc-spinner" /><p>Đang kiểm tra phòng gọi…</p></div>;
+    if (!access?.canJoin) return (
+        <div className="vc-state">
+            <div className="vc-state-card">
+                <span className="vc-state-icon"><i className="bi bi-calendar-x" /></span>
+                <h1>Chưa thể tham gia</h1>
+                <p>{error || access?.reason || 'Phòng gọi hiện chưa khả dụng.'}</p>
+                <button type="button" className="vc-btn-primary" onClick={leave}><i className="bi bi-arrow-left" /> Quay lại lịch đặt</button>
+            </div>
+        </div>
+    );
 
-    return (
-        <div className={`video-call-page ${mode === 'expert' ? 'expert-mode' : ''}`}>
-            <header className="video-call-header">
-                <div className="video-call-brand">
-                    <span className="video-call-brand-icon"><i className="bi bi-camera-video-fill" /></span>
-                    <div>
-                        <strong>MajorGuide Call</strong>
-                        <small>Phòng #{bookingId.slice(0, 8).toUpperCase()}</small>
-                    </div>
-                </div>
-                <div className="video-call-header-meta">
-                    <span className="video-call-secure"><i className="bi bi-shield-check" /> Cuộc gọi được bảo mật</span>
-                    <div className={`video-call-status ${connection}`}><i />{connectionLabel}</div>
-                </div>
-            </header>
-            <main className="video-call-stage">
-                <section className="video-remote-panel">
-                    <video ref={remoteVideoRef} autoPlay playsInline />
-                    {(!started || connection !== 'connected' || !peerMedia.video) && (
-                        <div className="video-peer-placeholder">
-                            <span className="video-peer-avatar"><i className={peerMedia.video ? 'bi bi-person-video3' : 'bi bi-camera-video-off'} /></span>
-                            <span className="video-room-kicker">TƯ VẤN TRỰC TUYẾN 1:1</span>
-                            <h1>{!started ? 'Sẵn sàng cho buổi tư vấn?' : partnerName || 'Người tham gia'}</h1>
-                            <p>{!started ? 'Camera và microphone sẽ được kiểm tra khi bạn bắt đầu.' : connection === 'connected' && !peerMedia.video ? 'Đối phương đang tắt camera.' : `${partnerName || 'Đối phương'} chưa tham gia phòng.`}</p>
-                            {!started && (
-                                <div className="video-prejoin-actions">
-                                    <button type="button" className="video-start-button" onClick={startCall}><i className="bi bi-camera-video-fill" /> Bắt đầu cuộc gọi</button>
-                                    <button type="button" className="video-back-button" onClick={leave}><i className="bi bi-arrow-left" /> Quay lại</button>
-                                </div>
-                            )}
-                            {started && connection !== 'connected' && <span className="video-waiting-hint"><i /> Giữ trang này mở trong khi chờ</span>}
+    const errorBanner = error && (
+        <div className="vc-toast" role="alert">
+            <i className="bi bi-exclamation-triangle-fill" /><span>{error}</span>
+            <button type="button" aria-label="Đóng thông báo" onClick={() => setError('')}><i className="bi bi-x-lg" /></button>
+        </div>
+    );
+
+    if (!started) return (
+        <div ref={pageRef} className={`vc-page vc-lobby ${mode === 'expert' ? 'expert-mode' : ''}`}>
+            <section className="vc-lobby-preview">
+                <div className="vc-preview-frame">
+                    <video ref={localVideoRef} autoPlay muted playsInline className={showLocalVideo ? 'mirrored' : 'hidden-video'} />
+                    {!showLocalVideo && (
+                        <div className="vc-preview-empty">
+                            <span className="vc-avatar lg">{previewState === 'loading' ? <span className="vc-spinner sm" /> : <i className="bi bi-person-fill" />}</span>
+                            <p>{previewState === 'loading' ? 'Đang bật camera…'
+                                : previewState === 'denied' ? 'Trình duyệt đang chặn camera/micro. Hãy cấp quyền ở thanh địa chỉ.'
+                                    : previewState === 'unavailable' ? 'Không tìm thấy camera hoặc micro.'
+                                        : 'Camera đang tắt'}</p>
                         </div>
                     )}
-                    <div className="video-peer-label"><span className="video-label-dot" /><span>{partnerName || 'Đối phương'}</span>{!peerMedia.audio && <i className="bi bi-mic-mute-fill" />}</div>
-                </section>
-                <aside className="video-local-panel">
-                    <video ref={localVideoRef} autoPlay muted playsInline className={!videoEnabled ? 'hidden-video' : ''} />
-                    {(!started || !videoEnabled) && <div className="video-local-empty"><i className={`bi ${started ? 'bi-camera-video-off' : 'bi-person-fill'}`} /><span>{started ? 'Camera đã tắt' : 'Camera xem trước'}</span></div>}
-                    <small><span /> Bạn {!audioEnabled && <i className="bi bi-mic-mute-fill" />}</small>
-                </aside>
-            </main>
-            {error && <div className="video-call-error"><i className="bi bi-exclamation-triangle" />{error}<button onClick={() => setError('')}><i className="bi bi-x" /></button></div>}
-            <footer className="video-call-controls">
-                <button type="button" className={!audioEnabled ? 'off' : ''} disabled={!started} onClick={() => toggleTrack('audio')} title={audioEnabled ? 'Tắt microphone' : 'Bật microphone'}><span><i className={`bi ${audioEnabled ? 'bi-mic-fill' : 'bi-mic-mute-fill'}`} /></span><small>{audioEnabled ? 'Micro' : 'Đã tắt'}</small></button>
-                <button type="button" className={!videoEnabled ? 'off' : ''} disabled={!started} onClick={() => toggleTrack('video')} title={videoEnabled ? 'Tắt camera' : 'Bật camera'}><span><i className={`bi ${videoEnabled ? 'bi-camera-video-fill' : 'bi-camera-video-off-fill'}`} /></span><small>{videoEnabled ? 'Camera' : 'Đã tắt'}</small></button>
-                <button type="button" className="leave" onClick={leave}><span><i className="bi bi-telephone-x-fill" /></span><small>Kết thúc</small></button>
+                    <div className="vc-preview-tools">
+                        <button type="button" className={`vc-round ${!audioEnabled ? 'off' : ''}`} disabled={previewState !== 'ready'} onClick={() => toggleTrack('audio')} title={audioEnabled ? 'Tắt micro' : 'Bật micro'}>
+                            <i className={`bi ${audioEnabled ? 'bi-mic-fill' : 'bi-mic-mute-fill'}`} />
+                        </button>
+                        <button type="button" className={`vc-round ${!videoEnabled ? 'off' : ''}`} disabled={previewState !== 'ready'} onClick={() => toggleTrack('video')} title={videoEnabled ? 'Tắt camera' : 'Bật camera'}>
+                            <i className={`bi ${videoEnabled ? 'bi-camera-video-fill' : 'bi-camera-video-off-fill'}`} />
+                        </button>
+                    </div>
+                    <span className="vc-preview-tag">Xem trước</span>
+                </div>
+            </section>
+            <section className="vc-lobby-card">
+                <span className="vc-kicker"><i className="bi bi-shield-lock-fill" /> Phòng tư vấn riêng 1:1</span>
+                <h1>Sẵn sàng tham gia?</h1>
+                <div className="vc-partner">
+                    <span className="vc-avatar">{initials(partnerName)}</span>
+                    <div>
+                        <strong>{partnerName || 'Người tham gia'}</strong>
+                        <small>{partnerRole}</small>
+                    </div>
+                </div>
+                <dl className="vc-meta">
+                    <div><dt><i className="bi bi-calendar3" /> Ngày</dt><dd>{access.daySupport}</dd></div>
+                    {schedule && <div><dt><i className="bi bi-clock" /> Thời gian</dt><dd>{schedule}</dd></div>}
+                    <div><dt><i className="bi bi-hash" /> Mã phòng</dt><dd>{bookingId.slice(0, 8).toUpperCase()}</dd></div>
+                </dl>
+                <button type="button" className="vc-btn-primary lg" disabled={starting} onClick={startCall}>
+                    {starting ? <><span className="vc-spinner sm" /> Đang kết nối…</> : <><i className="bi bi-camera-video-fill" /> Tham gia ngay</>}
+                </button>
+                <button type="button" className="vc-btn-ghost" onClick={leave}><i className="bi bi-arrow-left" /> Quay lại</button>
+                <p className="vc-note"><i className="bi bi-info-circle" /> Kết nối ngang hàng (WebRTC), hình ảnh và âm thanh không được ghi lại.</p>
+            </section>
+            {errorBanner}
+        </div>
+    );
+
+    return (
+        <div ref={pageRef} data-connected={connection === 'connected'} className={`vc-page vc-room ${mode === 'expert' ? 'expert-mode' : ''}`}>
+            <video ref={remoteVideoRef} autoPlay playsInline className={`vc-remote ${showRemote ? '' : 'hidden-video'}`} />
+            {!showRemote && (
+                <div className="vc-remote-empty">
+                    <span className={`vc-avatar xl ${connection !== 'connected' ? 'pulse' : ''}`}>{initials(partnerName)}</span>
+                    <h2>{partnerName || 'Người tham gia'}</h2>
+                    <p>{connection === 'connected' ? 'Đối phương đang tắt camera'
+                        : connection === 'connecting' ? 'Đang thiết lập kết nối…'
+                            : connection === 'disconnected' ? 'Kết nối bị gián đoạn, đang thử lại…'
+                                : `Đang chờ ${partnerName || 'đối phương'} tham gia`}</p>
+                </div>
+            )}
+
+            <header className="vc-topbar">
+                <div className="vc-topbar-left">
+                    <span className="vc-brand"><i className="bi bi-camera-video-fill" /></span>
+                    <div>
+                        <strong>Tư vấn với {partnerName || 'đối phương'}</strong>
+                        <small>{schedule || access.daySupport} · #{bookingId.slice(0, 8).toUpperCase()}</small>
+                    </div>
+                </div>
+                <div className="vc-topbar-right">
+                    {connection === 'connected' && <span className="vc-chip rec"><i /> {formatElapsed(elapsed)}</span>}
+                    <span className={`vc-chip status ${connection}`}><i />{connectionLabel}</span>
+                </div>
+            </header>
+
+            {connection === 'connected' && (
+                <div className="vc-name-tag">
+                    {!peerMedia.audio && <i className="bi bi-mic-mute-fill" />}
+                    <span>{partnerName || 'Đối phương'}</span>
+                </div>
+            )}
+
+            <aside className={`vc-self ${sharing ? 'sharing' : ''}`}>
+                <video ref={localVideoRef} autoPlay muted playsInline className={`${showLocalVideo ? '' : 'hidden-video'} ${sharing ? '' : 'mirrored'}`} />
+                {!showLocalVideo && <div className="vc-self-empty"><span className="vc-avatar sm">Bạn</span></div>}
+                <small>{!audioEnabled && <i className="bi bi-mic-mute-fill" />} Bạn{sharing ? ' · đang chia sẻ màn hình' : ''}</small>
+            </aside>
+
+            {errorBanner}
+
+            <footer className="vc-dock" role="toolbar" aria-label="Điều khiển cuộc gọi">
+                <button type="button" className={`vc-round ${!audioEnabled ? 'off' : ''}`} onClick={() => toggleTrack('audio')} title={audioEnabled ? 'Tắt micro' : 'Bật micro'} aria-pressed={!audioEnabled}>
+                    <i className={`bi ${audioEnabled ? 'bi-mic-fill' : 'bi-mic-mute-fill'}`} />
+                </button>
+                <button type="button" className={`vc-round ${!videoEnabled ? 'off' : ''}`} onClick={() => toggleTrack('video')} title={videoEnabled ? 'Tắt camera' : 'Bật camera'} aria-pressed={!videoEnabled}>
+                    <i className={`bi ${videoEnabled ? 'bi-camera-video-fill' : 'bi-camera-video-off-fill'}`} />
+                </button>
+                {navigator.mediaDevices?.getDisplayMedia && (
+                    <button type="button" className={`vc-round ${sharing ? 'active' : ''}`} onClick={toggleShare} title={sharing ? 'Dừng chia sẻ' : 'Chia sẻ màn hình'} aria-pressed={sharing}>
+                        <i className={`bi ${sharing ? 'bi-display-fill' : 'bi-display'}`} />
+                    </button>
+                )}
+                <button type="button" className="vc-round" onClick={toggleFullscreen} title={fullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}>
+                    <i className={`bi ${fullscreen ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'}`} />
+                </button>
+                <span className="vc-dock-divider" />
+                <button type="button" className="vc-leave" onClick={leave} title="Rời cuộc gọi">
+                    <i className="bi bi-telephone-x-fill" /><span>Kết thúc</span>
+                </button>
             </footer>
         </div>
     );

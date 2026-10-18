@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../../assets/css/InformationPage.css'
+import CareerFamilyPicker from '../../components/CareerFamilyPicker';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -65,6 +66,7 @@ export default function InformationPage() {
                     ward_id: userData.wardId || '',
                     teachingLocation: userData.expertProfile?.teachAt || '',
                     bio: userData.expertProfile?.information || '',
+                    careerFamilies: userData.expertProfile?.careerFamilies || [],
                 });
 
                 // Load wards if province exists
@@ -135,7 +137,8 @@ export default function InformationPage() {
             province_id: '',
             ward_id: '',
             teachingLocation: '',
-            bio: ''
+            bio: '',
+            careerFamilies: []
         },
 
         validationSchema: Yup.object({
@@ -153,7 +156,8 @@ export default function InformationPage() {
                     information: values.bio,
                     major: values.major,
                     level: values.level,
-                    price: Number(values.price) || 0
+                    price: Number(values.price) || 0,
+                    careerFamilies: values.careerFamilies
                 } : undefined
             };
 
@@ -436,6 +440,17 @@ export default function InformationPage() {
                                         <div className="text-danger mt-2 small">{formik.errors.bio}</div>
                                     )}
                                 </div>
+
+                                {/* Row 6: Nhóm ngành tư vấn */}
+                                {isExpert && (
+                                    <div className="mb-4">
+                                        <label className="info-page-form-label">Nhóm ngành tư vấn</label>
+                                        <CareerFamilyPicker
+                                            value={formik.values.careerFamilies || []}
+                                            onChange={(codes) => formik.setFieldValue('careerFamilies', codes)}
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Action Buttons */}
                                 <div className="d-flex justify-content-end gap-3">

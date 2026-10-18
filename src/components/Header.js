@@ -135,12 +135,12 @@ export default function Header() {
                 <div className="container">
                     <div className="client-header-content">
                         {/* Logo */}
-                        <div className="client-logo" style={{ cursor: 'pointer' }}>
+                        <Link to="/" className="client-logo" aria-label="MajorGuide - Trang chủ">
                             <div className="client-logo-icon">
                                 <i className="bi bi-mortarboard-fill"></i>
                             </div>
                             <span className="client-logo-text">MajorGuide</span>
-                        </div>
+                        </Link>
 
                         {/* Navigation */}
                         <nav className="client-nav">

@@ -10,6 +10,7 @@ import {
     updateExpertReview
 } from '../../services/review.api';
 import '../../assets/css/ExpertDetailPage.css';
+import { careerFamilyName } from '../../constants/careerFamilies';
 
 const levelLabels = {
     bachelor: 'Cử nhân',
@@ -249,6 +250,14 @@ export default function ExpertDetailPage() {
                                 <div><i className="bi bi-award"></i><p><small>Chuyên môn</small><strong>{profile.major || 'Đang cập nhật'}</strong></p></div>
                                 <div><i className="bi bi-translate"></i><p><small>Ngôn ngữ</small><strong>Tiếng Việt</strong></p></div>
                             </div>
+                            {profile.careerFamilies?.length > 0 && (
+                                <div className="expert-detail-families">
+                                    <small>Tư vấn nhóm ngành</small>
+                                    <div>
+                                        {profile.careerFamilies.map((code) => <span key={code}>{careerFamilyName(code)}</span>)}
+                                    </div>
+                                </div>
+                            )}
                         </section>
 
                         <section className="expert-detail-card expert-reviews">

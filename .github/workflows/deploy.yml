@@ -1,0 +1,74 @@
+# CI/CD cho frontend React.
+#   push main -> test -> build -> upload S3 -> xoá cache CloudFront
+# Bước deploy chỉ chạy khi repo variable FE_DEPLOY_ENABLED = true (bật sau khi đã tạo S3 + CloudFront).
+# Repo variables cần có: AWS_ROLE_ARN, PUBLIC_URL (https://dxxxx.cloudfront.net),
+#                        S3_BUCKET, CLOUDFRONT_DISTRIBUTION_ID
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'e2e/**']
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-cicd
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-southeast-1
+
+jobs:
+  build:
+    name: Test & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm test -- --watchAll=false
+        env:
+          CI: true
+      # Biến REACT_APP_* được gắn cứng vào bản build, nên phải là URL thật trên AWS, không phải localhost.
+      - run: npm run build
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+          REACT_APP_API_URL: ${{ vars.PUBLIC_URL }}
+          REACT_APP_AGENTIC_AI_URL: ${{ vars.PUBLIC_URL }}/ai
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build
+          retention-days: 7
+
+  deploy:
+    name: Deploy to S3 + CloudFront
+    needs: build
+    if: vars.FE_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check config
+        run: |
+          [ -n "${{ vars.PUBLIC_URL }}" ] && [ -n "${{ vars.S3_BUCKET }}" ] && [ -n "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" ] \
+            || { echo "Missing PUBLIC_URL / S3_BUCKET / CLOUDFRONT_DISTRIBUTION_ID repo variables"; exit 1; }
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      # static/ có hash trong tên file -> cache lâu. Các file còn lại (index.html...) luôn lấy bản mới.
+      - run: |
+          aws s3 sync build/static "s3://${{ vars.S3_BUCKET }}/static" --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync build "s3://${{ vars.S3_BUCKET }}" --delete --exclude "static/*" --cache-control "no-cache"
+      - run: aws cloudfront create-invalidation --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" --paths "/*"

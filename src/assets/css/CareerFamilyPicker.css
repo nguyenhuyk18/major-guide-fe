@@ -1,0 +1,13 @@
+/* Career family chip picker — works on the dark admin forms. */
+.cf-picker-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cf-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, .35); background: rgba(148, 163, 184, .08);
+  color: inherit; font-size: 13px; font-weight: 600; line-height: 1.2;
+  transition: background .15s, border-color .15s, opacity .15s;
+}
+.cf-chip:hover:not(:disabled) { border-color: #818cf8; background: rgba(99, 102, 241, .14); }
+.cf-chip.active { border-color: #6366f1; background: #6366f1; color: #fff; }
+.cf-chip:disabled { opacity: .4; cursor: not-allowed; }
+.cf-picker-hint { display: block; margin-top: 8px; opacity: .7; font-size: 12.5px; }

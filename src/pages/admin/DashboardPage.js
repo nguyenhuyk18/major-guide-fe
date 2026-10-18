@@ -197,8 +197,12 @@ export default function DashboardPage() {
                         </span>
                     </div>
                     <div className="stat-card-value">{formatPrice(totalRevenue).replace(' đ', '')}</div>
-                    <div className="stat-card-label">Doanh thu</div>
-                    <div className="stat-card-sublabel">Tháng này: {formatPrice(monthlyRevenue)}</div>
+                    <div className="stat-card-label">{dashboard.platformRevenue !== undefined ? 'Tổng tiền thu' : 'Doanh thu'}</div>
+                    <div className="stat-card-sublabel">
+                        {dashboard.platformRevenue !== undefined
+                            ? <>Phí nền tảng: {formatPrice(dashboard.platformRevenue)} · Tháng này: {formatPrice(monthlyRevenue)}</>
+                            : <>Tháng này: {formatPrice(monthlyRevenue)}</>}
+                    </div>
                 </div>
 
                 {/* Experts */}

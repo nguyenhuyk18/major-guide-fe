@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getExpertInfo } from '../services/expert.api';
-import { isToday } from '../helpers/date';
+import { isCallOpen } from '../helpers/date';
 import '../assets/css/BookingDetailModal.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -116,7 +116,7 @@ export default function BookingDetailModal({ booking, show, onClose }) {
     };
 
     const isPaid = booking.status === 'paied' || booking.status === 'paid' || booking.status === 'confirm' || booking.status === 'complete';
-    const canJoinMeeting = isPaid && isToday(booking.day_support);
+    const canJoinMeeting = isPaid && isCallOpen(booking);
 
     return (
         <div className="client-booking-modal-overlay" onClick={handleBackdropClick}>

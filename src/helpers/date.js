@@ -23,6 +23,9 @@ export const isToday = (dateValue, now = new Date()) => {
         && date.getDate() === now.getDate();
 };
 
+/** The call room is open on the booking day; demo bookings (video-call testing) are open every day. */
+export const isCallOpen = (booking, now = new Date()) => Boolean(booking?.is_demo) || isToday(booking?.day_support, now);
+
 export const isTodayOrFuture = (dateValue, now = new Date()) => {
     const date = parseLocalCalendarDate(dateValue);
     if (!date) return false;

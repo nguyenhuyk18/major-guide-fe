@@ -20,6 +20,9 @@ const normalizeList = (response) => {
     return Array.isArray(data) ? data : data?.result || [];
 };
 
+const activityOf = (room) => new Date(room?.last_message?.createdAt || room?.updatedAt || room?.createdAt || 0).getTime();
+const byActivity = (a, b) => activityOf(b) - activityOf(a);
+
 const formatMessageTime = (value) => {
     if (!value) return '';
     return new Date(value).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
@@ -61,6 +64,12 @@ export default function MemberMessagesPage({ mode = 'member' }) {
     const chatBodyRef = useRef(null);
     const socketRef = useRef(null);
     const activeRoomIdRef = useRef('');
+    const requestedRef = useRef({ expertId: requestedExpertId, memberId: requestedMemberId });
+    requestedRef.current = { expertId: requestedExpertId, memberId: requestedMemberId };
+    const seenMessageIdsRef = useRef(new Set());
+    const loadRoomsRef = useRef(null);
+    const roomsRef = useRef([]);
+    roomsRef.current = rooms;
 
     useEffect(() => {
         activeRoomIdRef.current = activeRoomId;
@@ -69,11 +78,19 @@ export default function MemberMessagesPage({ mode = 'member' }) {
     const upsertMessage = useCallback((roomId, message) => {
         if (!roomId || !message) return;
         const messageId = getId(message);
+        // The sender gets the message twice (HTTP response + socket): count it once.
+        if (messageId) {
+            if (seenMessageIdsRef.current.has(messageId)) return;
+            seenMessageIdsRef.current.add(messageId);
+        }
+        const isIncoming = message.sendBy !== currentUserId;
+        const isOpen = activeRoomIdRef.current === roomId;
         setMessagesByRoom(current => {
             const existing = current[roomId] || [];
             if (messageId && existing.some(item => getId(item) === messageId)) return current;
             return { ...current, [roomId]: [...existing, message] };
         });
+        const known = roomsRef.current.some(room => getRoomId(room) === roomId);
         setRooms(current => current.map(room => getRoomId(room) === roomId ? {
             ...room,
             last_message: {
@@ -83,10 +100,12 @@ export default function MemberMessagesPage({ mode = 'member' }) {
                 createdAt: message.createdAt
             },
             updatedAt: message.createdAt,
-            unreadCount: message.sendBy !== currentUserId && activeRoomIdRef.current !== roomId
-                ? Number(room.unreadCount || 0) + 1
-                : room.unreadCount
-        } : room).sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0)));
+            unreadCount: isIncoming && !isOpen ? Number(room.unreadCount || 0) + 1 : (isOpen ? 0 : room.unreadCount)
+        } : room).sort(byActivity));
+        // A conversation started by the other side is not in the list yet: reload it.
+        if (!known) loadRoomsRef.current?.({ silent: true });
+        // Reading it right now: keep the server's unread counter at zero.
+        if (isIncoming && isOpen) markPrivateRoomRead(roomId).catch(() => {});
     }, [currentUserId]);
 
     const loadExpertProfiles = useCallback(async (roomList) => {
@@ -103,9 +122,10 @@ export default function MemberMessagesPage({ mode = 'member' }) {
         setExperts(current => ({ ...current, ...Object.fromEntries(entries) }));
     }, [isExpertMode]);
 
-    const loadRooms = useCallback(async () => {
+    const loadRooms = useCallback(async ({ silent = false } = {}) => {
         if (!token) return;
-        setLoadingRooms(true);
+        if (!silent) setLoadingRooms(true);
+        const { expertId: requestedExpertId, memberId: requestedMemberId } = requestedRef.current;
         try {
             let roomList = normalizeList(await getMyChatRooms());
 
@@ -117,8 +137,9 @@ export default function MemberMessagesPage({ mode = 'member' }) {
                 }
             }
 
-            roomList = roomList.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
-            setRooms(roomList);
+            roomList = roomList.sort(byActivity);
+            // Keep the open conversation at zero unread (its read receipt may still be in flight).
+            setRooms(roomList.map(room => getRoomId(room) === activeRoomIdRef.current ? { ...room, unreadCount: 0 } : room));
             await loadExpertProfiles(roomList);
 
             const requestedRoom = isExpertMode
@@ -130,13 +151,24 @@ export default function MemberMessagesPage({ mode = 'member' }) {
             console.error('Không thể tải phòng chat:', error);
             toast.error(error?.response?.data?.message || 'Không thể tải danh sách tin nhắn.');
         } finally {
-            setLoadingRooms(false);
+            if (!silent) setLoadingRooms(false);
         }
-    }, [isExpertMode, loadExpertProfiles, requestedExpertId, requestedMemberId, token]);
+    }, [isExpertMode, loadExpertProfiles, token]);
+    loadRoomsRef.current = loadRooms;
 
     useEffect(() => {
         loadRooms();
     }, [loadRooms]);
+
+    // Opened from another page with ?expert_id= / ?member_id= for a conversation not listed yet.
+    useEffect(() => {
+        const wanted = isExpertMode ? requestedMemberId : requestedExpertId;
+        if (!wanted || loadingRooms) return;
+        const room = rooms.find(item => (isExpertMode ? item.id_member : item.id_expert) === wanted);
+        if (room) setActiveRoomId(current => current || getRoomId(room));
+        else loadRooms({ silent: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [requestedExpertId, requestedMemberId]);
 
     useEffect(() => {
         if (!token) return undefined;
@@ -175,6 +207,7 @@ export default function MemberMessagesPage({ mode = 'member' }) {
             const response = await getPrivateMessages(roomId, page, 30);
             const data = response?.data?.data || {};
             const ordered = [...(data.result || [])].reverse();
+            ordered.forEach(item => getId(item) && seenMessageIdsRef.current.add(getId(item)));
             setMessagesByRoom(current => ({
                 ...current,
                 [roomId]: appendOlder ? [...ordered, ...(current[roomId] || [])] : ordered
@@ -217,7 +250,7 @@ export default function MemberMessagesPage({ mode = 'member' }) {
 
     const selectRoom = (room) => {
         setActiveRoomId(getRoomId(room));
-        if (!isExpertMode) setSearchParams({ expert_id: room.id_expert });
+        if (!isExpertMode) setSearchParams({ expert_id: room.id_expert }, { replace: true });
         setShowDetails(false);
     };
 

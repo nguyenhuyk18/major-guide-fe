@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../../assets/css/ExpertPage.css';
 import { getListUser } from '../../services/user-access.api';
+import { careerFamilyName } from '../../constants/careerFamilies';
 
 const LIMIT = 6;
 
@@ -12,7 +13,6 @@ export default function ExpertPage() {
     const [totalPage, setTotalPage] = useState(1);
     const [searchInput, setSearchInput] = useState('');
     const [searchName, setSearchName] = useState('');
-    console.log('áhjkdguyasgduyasgfyutidasgfit')
     // Debounce 500ms
     const debounceRef = useRef(null);
     const handleSearchChange = (e) => {
@@ -125,6 +125,11 @@ export default function ExpertPage() {
                                             </div>
                                             <h3 className="expert-card-name">{expert.name}</h3>
                                             <p className="expert-card-major">{expert.expertProfile?.major || '—'}</p>
+                                            {expert.expertProfile?.careerFamilies?.length > 0 && (
+                                                <div className="expert-card-families">
+                                                    {expert.expertProfile.careerFamilies.map((code) => <span key={code}>{careerFamilyName(code)}</span>)}
+                                                </div>
+                                            )}
                                             <p className="expert-card-bio">{expert.expertProfile?.information || 'Chưa có thông tin.'}</p>
                                             <div className="expert-card-actions">
                                                 <Link to={`/choose-schedule?expert_id=${expert._id}`} className="expert-btn-book">Đặt lịch</Link>

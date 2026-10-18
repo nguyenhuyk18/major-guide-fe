@@ -674,3 +674,4 @@
         justify-content: center !important;
     }
 }
+.history-v2-top{display:flex;gap:10px;align-items:center;margin-top:12px;color:#64748b;font-size:12px}.history-v2-top b{color:#4338ca;background:#eef2ff;padding:6px 10px;border-radius:999px}.quiz-history-page .card-stat .stat-value{text-transform:capitalize}

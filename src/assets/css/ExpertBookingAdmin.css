@@ -12,3 +12,16 @@
 @media(max-width:760px){.expert-booking-management{padding:22px 14px 40px}.eb-hero{align-items:flex-start;flex-direction:column}.eb-refresh{align-self:stretch;justify-content:center}.eb-stats{gap:9px}.eb-stat{min-height:72px;padding:12px}.eb-stat-icon{width:38px;height:38px}.eb-stat strong{font-size:20px}.eb-filters{width:100%}.eb-filters button{flex:1}.eb-overlay{padding:0}.eb-modal{height:100%;max-height:none;border:0;border-radius:0}.eb-modal-body{max-height:calc(100vh - 145px);padding:14px}.eb-modal-grid{grid-template-columns:1fr}.eb-member-card{align-items:flex-start;flex-wrap:wrap}.eb-member-card>div{min-width:calc(100% - 70px)}.eb-member-card>.eb-status{margin-left:66px}.eb-modal-footer{align-items:stretch;flex-direction:column}.eb-modal-footer>div:last-child{width:100%}.eb-btn{flex:1}}
 @media(max-width:470px){.eb-stats{grid-template-columns:1fr 1fr}.eb-stat small{font-size:10px}.eb-stat-icon{display:none}.eb-detail-grid{grid-template-columns:1fr}.eb-detail-item,.eb-detail-item:nth-child(2n){border-right:0;border-bottom:1px solid #22364e}.eb-detail-item:last-child{border-bottom:0}.eb-call-note{display:none}}
 .eb-avatar--image{display:block;object-fit:cover;background:#142238}
+
+/* demo booking (video call always open) */
+.eb-demo-badge {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, .18);
+    color: #fbbf24;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    vertical-align: middle;
+}

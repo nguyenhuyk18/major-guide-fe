@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import '../../assets/css/AdminAIChat.css';
-import { sendChatAiMessage } from '../../services/chatai.api';
+import { confirmAiAction, sendChatAiMessage } from '../../services/chatai.api';
 
 // ===================== AI RESPONSES =====================
 // const RESPONSES = {
@@ -241,11 +241,6 @@ const ExpertCardAdmin = ({ expert }) => {
     const ls = LEVEL_STYLES[expert.level] || LEVEL_STYLES['Cử nhân'];
     const statusColor = STATUS_COLORS[expert.status] || STATUS_COLORS.active;
 
-    const fmtPrice = (p) => {
-        if (!p && p !== 0) return 'Liên hệ';
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(p);
-    };
-
     return (
         <div className="aichat-expert-card">
             <div className="aichat-expert-card-top">
@@ -387,6 +382,7 @@ export default function AdminChatPage() {
     const [chat, setChat] = useState([]);
     const [input, setInput] = useState('');
     const [typing, setTyping] = useState(false);
+    const [confirmingAction, setConfirmingAction] = useState('');
 
     const bottomRef = useRef(null);
     const taRef = useRef(null);
@@ -413,8 +409,10 @@ export default function AdminChatPage() {
 
         try {
             const rs = await sendChatAiMessage(text);
-            const aiResponse = rs.data?.data?.message || rs.data?.message || '';
-            const experts = rs.data?.data?.experts || [];
+            const payload = rs.data?.data || rs.data || {};
+            const aiResponse = payload.message || '';
+            const experts = payload.experts || [];
+            const actions = Array.isArray(payload.actions) ? payload.actions : [];
 
             if (experts.length > 0) {
                 const am = {
@@ -428,7 +426,7 @@ export default function AdminChatPage() {
             }
 
             if (aiResponse) {
-                const am = { id: (Date.now() + 2).toString(), role: 'assistant', content: aiResponse, time: new Date() };
+                const am = { id: (Date.now() + 2).toString(), role: 'assistant', content: aiResponse, actions, responseType: payload.type, time: new Date() };
                 setChat(prev => [...prev, am]);
             }
         } catch (error) {
@@ -442,6 +440,34 @@ export default function AdminChatPage() {
             setTyping(false);
         }
     }, [input, typing]);
+
+    const confirmAction = async (messageId, action) => {
+        if (!action?.id || confirmingAction) return;
+        setConfirmingAction(action.id);
+        try {
+            const response = await confirmAiAction(action.id);
+            const resultMessage = response?.data?.data?.message || 'Hành động đã được xác nhận.';
+            setChat(current => current.map(message => message.id !== messageId ? message : {
+                ...message,
+                actions: message.actions.map(item => item.id === action.id ? { ...item, status: 'queued', resultMessage } : item)
+            }));
+        } catch (error) {
+            const resultMessage = error?.response?.data?.message || 'Không thể xác nhận hành động này.';
+            setChat(current => current.map(message => message.id !== messageId ? message : {
+                ...message,
+                actions: message.actions.map(item => item.id === action.id ? { ...item, status: 'failed', resultMessage } : item)
+            }));
+        } finally {
+            setConfirmingAction('');
+        }
+    };
+
+    const cancelAction = (messageId, actionId) => {
+        setChat(current => current.map(message => message.id !== messageId ? message : {
+            ...message,
+            actions: message.actions.map(item => item.id === actionId ? { ...item, status: 'cancelled', resultMessage: 'Đã huỷ bản nháp.' } : item)
+        }));
+    };
 
     const clearChat = () => {
         setChat([]);
@@ -547,6 +573,15 @@ export default function AdminChatPage() {
                                         ) : (
                                             renderContent(msg.content)
                                         )}
+                                        {msg.actions?.map(action => (
+                                            <div className={`aichat-action-card ${action.status || ''}`} key={action.id}>
+                                                <div className="aichat-action-head"><span><i className="bi bi-envelope-paper" /> Email cần xác nhận</span><small>Hết hạn sau 5 phút</small></div>
+                                                <div className="aichat-action-row"><span>Người nhận</span><strong>{action.recipient}</strong></div>
+                                                <div className="aichat-action-row"><span>Tiêu đề</span><strong>{action.subject}</strong></div>
+                                                <div className="aichat-action-content">{action.content}</div>
+                                                {action.status ? <div className={`aichat-action-result ${action.status}`}><i className={`bi ${action.status === 'queued' ? 'bi-check-circle' : action.status === 'cancelled' ? 'bi-x-circle' : 'bi-exclamation-circle'}`} /> {action.resultMessage}</div> : <div className="aichat-action-buttons"><button onClick={() => cancelAction(msg.id, action.id)}>Huỷ</button><button className="confirm" disabled={confirmingAction === action.id} onClick={() => confirmAction(msg.id, action)}><i className={`bi ${confirmingAction === action.id ? 'bi-arrow-repeat is-spinning' : 'bi-send-check'}`} /> {confirmingAction === action.id ? 'Đang xác nhận...' : 'Xác nhận gửi'}</button></div>}
+                                            </div>
+                                        ))}
                                     </div>
                                     <div className="aichat-msg-time">
                                         <i className="bi bi-clock" /> {fmtTime(msg.time)}

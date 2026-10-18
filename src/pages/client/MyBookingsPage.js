@@ -7,7 +7,7 @@ import { getAllBooking } from '../../services/booking.api';
 import { createLinkPayment } from '../../services/payment.api';
 import { getUserById } from '../../services/expert.api';
 import BookingDetailModal from '../../components/BookingDetailModal';
-import { isToday, isTodayOrFuture } from '../../helpers/date';
+import { isCallOpen, isTodayOrFuture } from '../../helpers/date';
 
 export default function MyBookingsPage() {
     const userInfo = useSelector(state => state.authClientReducer.loggedUser);
@@ -177,7 +177,7 @@ export default function MyBookingsPage() {
             // Lịch tư vấn sắp tới: đã thanh toán + ngày hôm nay hoặc tương lai.
             return bookings.filter(b => {
                 const isPaid = b.status === 'paied';
-                return isPaid && isTodayOrFuture(b.day_support);
+                return isPaid && (b.is_demo || isTodayOrFuture(b.day_support));
             });
         }
         return bookings.filter(b => b.status === filterStatus);
@@ -191,7 +191,7 @@ export default function MyBookingsPage() {
         failed: bookings.filter(b => b.status === 'failed').length,
         upcoming: bookings.filter(b => {
             const isPaid = b.status === 'paied';
-            return isPaid && isTodayOrFuture(b.day_support);
+            return isPaid && (b.is_demo || isTodayOrFuture(b.day_support));
         }).length,
     };
 
@@ -333,6 +333,7 @@ export default function MyBookingsPage() {
                                     <span className="booking-date">
                                         <i className="bi bi-calendar3"></i>
                                         {formatDate(booking.day_support)}
+                                        {booking.is_demo && <span className="booking-demo-badge" title="Lịch demo: phòng gọi luôn mở">DEMO</span>}
                                     </span>
                                 </div>
 
@@ -389,7 +390,7 @@ export default function MyBookingsPage() {
                                 </div>
 
                                 <div className="booking-card-footer">
-                                    {booking.status === 'paied' && isToday(booking.day_support) && (
+                                    {booking.status === 'paied' && isCallOpen(booking) && (
                                         <button
                                             className="booking-action booking-action-join"
                                             onClick={() => navigate(`/video-call/${booking.id_reverse || booking._id}`)}

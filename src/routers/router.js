@@ -1,5 +1,6 @@
 import { Routes, Route, useNavigate } from "react-router";
 import LayoutAdmin from "../components/LayoutAdmin";
+import AccountingPage from "../pages/admin/AccountingPage";
 import DashboardPage from "../pages/admin/DashboardPage";
 import RegisterPage from "../pages/admin/RegisterPage";
 import ShiftDetailPage from "../pages/admin/ShiftDetailPage";
@@ -55,6 +56,7 @@ export default function Routing() {
             <Routes>
                 <Route path='/admin' element={<ProtectedRouterAdmin> <LayoutAdmin /> </ProtectedRouterAdmin>} >
                     <Route index element={<DashboardPage />} />
+                    <Route path="accounting" element={<AccountingPage />} />
                     <Route path="register" element={<RegisterPage />} />
                     <Route path="shift-detail/:id_shift_day/:day" element={<ShiftDetailPage />} />
                     <Route path="schedule-review" element={<ReviewRegisterPage />} />

@@ -86,12 +86,13 @@ export default function AsideAdmin({ open = false, onClose }) {
                         </Link>
                     </li> : '' }
                     { isAdmin ? <li className="nav-item mb-1">
-                        <Link to="/admin/account" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/account/) ? 'active' : ''}`}>
+                        <Link to="/admin/account" className={`nav-link admin-nav-link ${location.pathname.match(/^\/admin\/account(?:\/|$)/) ? 'active' : ''}`}>
                             <i className="bi bi-person-gear me-2"></i>
                             Quản lý tài khoản
                         </Link>
                     </li> : '' }
 
+                    {isAdmin && <li className="nav-item mb-1"><Link to="/admin/accounting" className={`nav-link admin-nav-link ${location.pathname.startsWith('/admin/accounting') ? 'active' : ''}`}><i className="bi bi-wallet2 me-2" />Thu chi & hóa đơn</Link></li>}
                     {/* <li className="nav-item mb-1">
                         <Link to="/admin" className="nav-link admin-nav-link">
                             <i className="bi bi-gear-fill me-2" />

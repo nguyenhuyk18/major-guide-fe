@@ -619,3 +619,15 @@
         flex: 1 1 auto;
     }
 }
+
+/* demo booking (video call always open) */
+.booking-demo-badge {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}

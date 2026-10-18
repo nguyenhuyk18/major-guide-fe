@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import CareerFamilyPicker from '../../../components/CareerFamilyPicker';
 import '../../../assets/css/CreateExpert.css'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -46,7 +47,8 @@ export default function CreateExpert() {
             statusAccount: '',
             province_id: '',
             ward_id: '',
-            price: 0
+            price: 0,
+            careerFamilies: []
         },
         // Kiểm tra dữ liệu hợp lệ không
         validationSchema: Yup.object({
@@ -80,7 +82,8 @@ export default function CreateExpert() {
                     information: values.information,
                     major: values.major,
                     level: values.level,
-                    price: values.price
+                    price: values.price,
+                    careerFamilies: values.careerFamilies
                 },
                 sex: values.sex,
                 statusAccount: values.statusAccount,
@@ -311,6 +314,17 @@ export default function CreateExpert() {
                                         onBlur={formik.handleBlur}
                                     />
                                     {formik.errors.price && formik.touched.price && <div className="text-danger mt-2">{formik.errors.price}</div>}
+                                </div>
+
+                                {/* Career families */}
+                                <div className="col-12">
+                                    <label className="form-label">
+                                        Nhóm ngành tư vấn
+                                    </label>
+                                    <CareerFamilyPicker
+                                        value={formik.values.careerFamilies}
+                                        onChange={(codes) => formik.setFieldValue('careerFamilies', codes)}
+                                    />
                                 </div>
 
                                 {/* Bio */}

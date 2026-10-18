@@ -146,6 +146,7 @@ export default function ExpertBookingManagePage() {
     }), [bookings]);
 
     const todayRelation = booking => {
+        if (booking?.is_demo) return 'today'; // demo booking: call room always open
         const date = parseDay(booking?.day_support);
         if (!date) return 'unknown';
         const today = new Date();
@@ -215,7 +216,7 @@ export default function ExpertBookingManagePage() {
                     <thead><tr><th>Học viên</th><th>Lịch tư vấn</th><th>Phí tư vấn</th><th>Trạng thái</th><th>Mã lịch</th><th aria-label="Thao tác" /></tr></thead>
                     <tbody>{visibleBookings.map(booking => <tr key={bookingCode(booking)} onClick={() => openDetail(booking)}>
                         <td><div className="eb-person">{booking._member?.fileAvartarUrl ? <img className="eb-avatar eb-avatar--image" src={booking._member.fileAvartarUrl} alt={booking._member.name || 'Học viên'} /> : <span className="eb-avatar">{initials(booking._member?.name || booking.name_customer)}</span>}<div><strong>{booking._member?.name || booking.name_customer || booking._member?.username || 'Học viên chưa cập nhật tên'}</strong><small>{booking._member?.email || booking.email_customer || booking.id_member || 'Chưa có email'}</small></div></div></td>
-                        <td><div className="eb-schedule"><strong>{formatDate(booking.day_support)}</strong><small><i className="bi bi-clock" /> {formatTime(booking.time_start)} – {formatTime(booking.time_end)}</small></div></td>
+                        <td><div className="eb-schedule"><strong>{formatDate(booking.day_support)}{booking.is_demo && <span className="eb-demo-badge" title="Lịch demo: phòng gọi luôn mở">DEMO</span>}</strong><small><i className="bi bi-clock" /> {formatTime(booking.time_start)} – {formatTime(booking.time_end)}</small></div></td>
                         <td><span className="eb-price">{formatPrice(booking.price_support)}</span></td>
                         <td><StatusBadge status={booking.status} /></td>
                         <td><code className="eb-code">#{bookingCode(booking).slice(-8).toUpperCase()}</code></td>

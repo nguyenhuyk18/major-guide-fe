@@ -84,15 +84,6 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Footer Bottom */}
-                    <div className="client-footer-bottom">
-                        <p className="client-footer-copyright">
-                            © 2024 EduGuide. All rights reserved.
-                        </p>
-                        <p className="client-footer-credits">
-                            Made with <i className="bi bi-heart-fill"></i> in Vietnam
-                        </p>
-                    </div>
                 </div>
             </footer>
         </>

@@ -1,250 +1,301 @@
-import './QuizResultModal.css';
-
-const TRAIT_LABELS = {
-    logical: 'Tư duy logic',
-    analytical: 'Phân tích',
-    discipline: 'Kỷ luật',
-    technical: 'Kỹ thuật',
-    curiosity: 'Tò mò',
-    creative: 'Sáng tạo',
-    systematic: 'Hệ thống',
-    research_mindset: 'Nghiên cứu',
-    detail_oriented: 'Chú ý chi tiết',
-    artistic: 'Nghệ thuật',
-    adaptability: 'Thích nghi',
-    communication: 'Giao tiếp',
-    leadership: 'Lãnh đạo',
-    persuasion: 'Thuyết phục',
-    empathy: 'Đồng cảm'
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { sendCareerAssessmentFeedback } from "../services/careerAssessment.api";
+import "./QuizResultModal.css";
+import CareerResult from "./CareerResult";
+const labels = {
+  R: "Thực hành",
+  I: "Khám phá",
+  A: "Sáng tạo",
+  S: "Hỗ trợ",
+  E: "Dẫn dắt",
+  C: "Tổ chức",
+  achievement: "Thành tựu",
+  independence: "Độc lập",
+  relationships: "Quan hệ",
+  support: "Hỗ trợ",
+  recognition: "Ghi nhận",
+  workingConditions: "Điều kiện làm việc",
+  analytical: "Phân tích",
+  creative: "Sáng tạo",
+  communication: "Giao tiếp",
+  organization: "Tổ chức",
+  persistence: "Kiên trì",
+  detail: "Chi tiết",
+  adaptability: "Thích ứng",
 };
-
-const TRAIT_ICONS = {
-    logical: 'bi-lightning-charge',
-    analytical: 'bi-graph-up',
-    discipline: 'bi-calendar-check',
-    technical: 'bi-gear',
-    curiosity: 'bi-search',
-    creative: 'bi-palette',
-    systematic: 'bi-diagram-3',
-    research_mindset: 'bi-journal-bookmark',
-    detail_oriented: 'bi-bullseye',
-    artistic: 'bi-palette2',
-    adaptability: 'bi-arrow-repeat',
-    communication: 'bi-people',
-    leadership: 'bi-person-check',
-    persuasion: 'bi-megaphone',
-    empathy: 'bi-heart'
-};
-
-const TRAIT_COLORS = {
-    logical: '#6366f1',
-    analytical: '#8b5cf6',
-    discipline: '#10b981',
-    technical: '#3b82f6',
-    curiosity: '#f59e0b',
-    creative: '#ec4899',
-    systematic: '#14b8a6',
-    research_mindset: '#a855f7',
-    detail_oriented: '#f97316',
-    artistic: '#eab308',
-    adaptability: '#06b6d4',
-    communication: '#22c55e',
-    leadership: '#3b82f6',
-    persuasion: '#ef4444',
-    empathy: '#f472b6'
-};
-
-export default function QuizResultModal({ show, onClose, result, careerPrediction }) {
-    if (!show || !result) return null;
-
-    const sortedTraits = [...(result.traitScores || [])].sort((a, b) => b.score - a.score);
-    const topTraits = sortedTraits.slice(0, 5);
-
-    const getTraitBarWidth = (score, maxScore) => {
-        return Math.min((score / maxScore) * 100, 100);
-    };
-
-    const maxScore = topTraits.length > 0 ? topTraits[0].score : 1;
-
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
+export default function QuizResultModal({
+  show,
+  onClose,
+  result,
+  assessmentId,
+}) {
+  const [sent, setSent] = useState(false);
+  if (!show || !result) return null;
+  if (result.careerMatch)
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="result-modal-content" onClick={e => e.stopPropagation()}>
-                {/* Header */}
-                <div className="result-modal-header">
-                    <div className="result-success-icon">
-                        <i className="bi bi-check-circle-fill"></i>
-                    </div>
-                    <h2>Hoàn thành bài đánh giá!</h2>
-                    <p className="result-test-id">
-                        Mã bài test: <strong>{result.testId}</strong>
-                    </p>
-                    <p className="result-completed-at">
-                        {formatDate(result.completedAt)}
-                    </p>
-                </div>
-
-                {/* Career Prediction Section */}
-                {careerPrediction && (
-                    <div className="result-career-prediction">
-                        <h3>
-                            <i className="bi bi-mortarboard-fill"></i>
-                            Nhóm ngành phù hợp với bạn
-                        </h3>
-                        
-                        {/* Primary Prediction */}
-                        <div className="career-primary">
-                            <div className="career-primary-badge">
-                                <i className="bi bi-star-fill"></i>
-                                Đề xuất chính
-                            </div>
-                            <div className="career-primary-content">
-                                <h4>{careerPrediction.primary.display_name}</h4>
-                                <div className="career-confidence">
-                                    <div className="confidence-bar-bg">
-                                        <div 
-                                            className="confidence-bar-fill"
-                                            style={{ width: `${careerPrediction.primary.confidence * 100}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="confidence-text">
-                                        Độ chính xác: {(careerPrediction.primary.confidence * 100).toFixed(1)}%
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Top 3 Predictions */}
-                        <div className="career-top3">
-                            <h5>Các ngành gợi ý khác</h5>
-                            <div className="career-top3-list">
-                                {careerPrediction.top_3.slice(1).map((item, index) => (
-                                    <div key={item.label} className="career-top3-item">
-                                        <span className="career-rank">#{index + 2}</span>
-                                        <span className="career-name">{item.display_name}</span>
-                                        <span className="career-prob">{(item.confidence * 100).toFixed(1)}%</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Summary Stats */}
-                <div className="result-summary">
-                    <div className="summary-stat">
-                        <div className="stat-icon">
-                            <i className="bi bi-list-check"></i>
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">{result.answers?.length || 0}</span>
-                            <span className="stat-label">Câu hỏi</span>
-                        </div>
-                    </div>
-                    <div className="summary-stat">
-                        <div className="stat-icon total">
-                            <i className="bi bi-calculator"></i>
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">{result.totalScore}</span>
-                            <span className="stat-label">Tổng điểm</span>
-                        </div>
-                    </div>
-                    <div className="summary-stat">
-                        <div className="stat-icon avg">
-                            <i className="bi bi-graph-up"></i>
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">
-                                {(result.totalScore / (result.answers?.length || 1)).toFixed(1)}
-                            </span>
-                            <span className="stat-label">Điểm TB</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Top Traits */}
-                <div className="result-traits">
-                    <h3>
-                        <i className="bi bi-stars"></i>
-                        Top tính cách nổi bật của bạn
-                    </h3>
-                    
-                    <div className="traits-list">
-                        {topTraits.map((trait, index) => (
-                            <div key={trait.trait} className="trait-item">
-                                <div className="trait-rank">
-                                    #{index + 1}
-                                </div>
-                                <div className="trait-icon" 
-                                    style={{ backgroundColor: `${TRAIT_COLORS[trait.trait]}20`, color: TRAIT_COLORS[trait.trait] }}>
-                                    <i className={`bi ${TRAIT_ICONS[trait.trait] || 'bi-person'}`}></i>
-                                </div>
-                                <div className="trait-info">
-                                    <div className="trait-name-row">
-                                        <span className="trait-name">
-                                            {TRAIT_LABELS[trait.trait] || trait.trait}
-                                        </span>
-                                        <span className="trait-score">
-                                            {trait.score} điểm
-                                        </span>
-                                    </div>
-                                    <div className="trait-bar-bg">
-                                        <div 
-                                            className="trait-bar-fill"
-                                            style={{ 
-                                                width: `${getTraitBarWidth(trait.score, maxScore)}%`,
-                                                backgroundColor: TRAIT_COLORS[trait.trait]
-                                            }}
-                                        ></div>
-                                    </div>
-                                    <span className="trait-count">
-                                        Xuất hiện trong {trait.count} câu hỏi
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* All Traits */}
-                {sortedTraits.length > 5 && (
-                    <div className="all-traits">
-                        <h4>Các tính cách khác</h4>
-                        <div className="other-traits">
-                            {sortedTraits.slice(5).map(trait => (
-                                <span 
-                                    key={trait.trait}
-                                    className="other-trait-badge"
-                                    style={{ borderColor: TRAIT_COLORS[trait.trait] }}
-                                >
-                                    <i className={`bi ${TRAIT_ICONS[trait.trait] || 'bi-circle'}`}></i>
-                                    {TRAIT_LABELS[trait.trait] || trait.trait}: {trait.score}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Actions */}
-                <div className="result-actions">
-                    <button className="btn btn-primary btn-lg" onClick={onClose}>
-                        <i className="bi bi-clock-history"></i>
-                        Xem lịch sử làm bài
-                    </button>
-                </div>
-            </div>
+      <div className="modal-overlay career-v2-overlay" onClick={onClose}>
+        <div className="ct-modal" onClick={(e) => e.stopPropagation()}>
+          <button className="career-close" onClick={onClose} aria-label="Đóng">
+            <i className="bi bi-x-lg" />
+          </button>
+          <CareerResult match={result.careerMatch} onClose={onClose} />
         </div>
+      </div>
     );
+  if (!result.topGroups)
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div
+          className="result-modal-content"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="result-modal-header">
+            <h2>Kết quả bài đánh giá cũ</h2>
+            <p>Điểm tổng: {result.totalScore || 0}</p>
+          </div>
+          <button className="btn btn-primary" onClick={onClose}>
+            Đóng
+          </button>
+        </div>
+      </div>
+    );
+  const feedback = async (rating) => {
+    try {
+      await sendCareerAssessmentFeedback(assessmentId, { rating });
+      setSent(true);
+      toast.success("Cảm ơn phản hồi của bạn");
+    } catch {
+      toast.error("Chưa thể lưu phản hồi");
+    }
+  };
+  return (
+    <div className="modal-overlay career-v2-overlay">
+      <div className="result-modal-content career-v2-result">
+        <button className="career-close" onClick={onClose}>
+          <i className="bi bi-x-lg" />
+        </button>
+        <header>
+          <div>
+            <i className="bi bi-compass-fill" />
+          </div>
+          <span>KẾT QUẢ KHÁM PHÁ</span>
+          <h2>Những hướng đáng để bạn tìm hiểu</h2>
+          <p>{result.explanation}</p>
+        </header>
+        {result.mlModel?.used && (
+          <section className="ml-result">
+            <div className="ml-result-title">
+              <span>
+                <i className="bi bi-cpu" /> NHÓM NGÀNH PHÙ HỢP (MACHINE LEARNING)
+              </span>
+              <small>
+                Mô hình {result.mlModel.model?.type?.toUpperCase()} · v
+                {result.mlModel.model?.version}
+              </small>
+            </div>
+            <div className="ml-result-list">
+              {result.mlModel.topFamilies.map((family, index) => (
+                <article key={family.code} className={index === 0 ? "top" : ""}>
+                  <div className="ml-result-rank">#{index + 1}</div>
+                  <div className="ml-result-body">
+                    <header>
+                      <h3>{family.name}</h3>
+                      <b>{family.percent}%</b>
+                    </header>
+                    <div className="ml-bar">
+                      <i
+                        style={{
+                          width: `${Math.round(
+                            (family.probability /
+                              result.mlModel.topFamilies[0].probability) *
+                              100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    {!!family.majors?.length && (
+                      <p>
+                        <span>Ngành học:</span> {family.majors.join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+            <small className="ml-note">
+              % = xác suất mô hình dự đoán bạn thuộc nhóm ngành này, dựa trên câu
+              trả lời sở thích của bạn.
+            </small>
+          </section>
+        )}
+        <div className={`evidence ${result.evidenceLevel}`}>
+          <i className="bi bi-shield-check" />
+          <b>
+            Mức bằng chứng:{" "}
+            {result.evidenceLevel === "strong"
+              ? "Tốt"
+              : result.evidenceLevel === "moderate"
+              ? "Khá"
+              : "Cần khám phá thêm"}
+          </b>
+          <span>Độ bất định {result.uncertainty}%</span>
+        </div>
+        {result.parallelTop && (
+          <div className="parallel-note">
+            <i className="bi bi-signpost-split" /> Hai hướng đầu có mức tương
+            hợp gần nhau; hãy khám phá song song.
+          </div>
+        )}
+        {result.personalProfile && (
+          <section className="personal-profile-card">
+            <span>CHÂN DUNG CÁ NHÂN</span>
+            <h3>
+              {result.personalProfile.title}{" "}
+              <small>{result.personalProfile.riasecCode}</small>
+            </h3>
+            <p>{result.personalProfile.summary}</p>
+          </section>
+        )}
+        <section className="career-v2-ranking">
+          {result.topGroups.map((group) => (
+            <article key={group.code} className={group.rank === 1 ? "top" : ""}>
+              <div className="rank">#{group.rank}</div>
+              <div className="career-copy">
+                <h3>{group.name}</h3>
+                <div className="match-track">
+                  <i style={{ width: `${group.matchScore}%` }} />
+                </div>
+                <b>{group.matchScore}/100 mức tương hợp</b>
+                {!!group.fitReasons?.length && (
+                  <ul className="fit-reasons">
+                    {group.fitReasons.map((reason) => (
+                      <li key={reason.facet}>{reason.reason}</li>
+                    ))}
+                  </ul>
+                )}
+                <p>{group.relatedMajors.join(" · ")}</p>
+                <small>
+                  <i className="bi bi-lightbulb" />{" "}
+                  {group.explorationActivities[0]}
+                </small>
+              </div>
+            </article>
+          ))}
+        </section>
+        {!!result.hybridPaths?.length && (
+          <section className="hybrid-paths">
+            <h3>Hướng giao thoa dành riêng cho bạn</h3>
+            <p>Bạn không nhất thiết phải nằm gọn trong một nhóm ngành.</p>
+            <div>
+              {result.hybridPaths.map((path) => (
+                <article key={path.name}>
+                  <i className="bi bi-intersect" />
+                  <div>
+                    <b>{path.name}</b>
+                    <span>{path.examples.join(" · ")}</span>
+                    <small>{path.reason}</small>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+        {result.decisionSupport && (
+          <section className="decision-support">
+            <h3>Điều giúp bạn phân biệt hai hướng đầu</h3>
+            <p>{result.decisionSupport.between.join(" ↔ ")}</p>
+            {result.decisionSupport.decisiveFactors.map((factor) => (
+              <div key={factor.facet}>
+                <i className="bi bi-question-circle" />
+                <span>{factor.question}</span>
+                <small>Nghiêng về {factor.leansTo}</small>
+              </div>
+            ))}
+          </section>
+        )}
+        {(result.preferredEnvironments?.length > 0 ||
+          result.watchOuts?.length > 0) && (
+          <section className="environment-grid">
+            <div>
+              <h3>Môi trường có thể giúp bạn phát huy</h3>
+              {result.preferredEnvironments.map((item) => (
+                <p key={item}>
+                  <i className="bi bi-check-circle" />
+                  {item}
+                </p>
+              ))}
+            </div>
+            <div>
+              <h3>Điều nên kiểm chứng thêm</h3>
+              {result.watchOuts.map((item) => (
+                <p key={item}>
+                  <i className="bi bi-exclamation-circle" />
+                  {item}
+                </p>
+              ))}
+            </div>
+          </section>
+        )}
+        {!!result.feasibility?.notes?.length && (
+          <section className="feasibility-notes">
+            <h3>Bối cảnh thực tế của bạn</h3>
+            {result.feasibility.notes.map((note) => (
+              <p key={note}>{note}</p>
+            ))}
+            <small>Phần này không thay đổi mức tương hợp.</small>
+          </section>
+        )}
+        {!!result.personalizedRoadmap?.length && (
+          <section className="personal-roadmap">
+            <h3>Lộ trình kiểm chứng cá nhân</h3>
+            {result.personalizedRoadmap.map((item) => (
+              <div key={item.step}>
+                <span>{item.step}</span>
+                <p>
+                  <b>{item.title}</b>
+                  <small>{item.action}</small>
+                </p>
+              </div>
+            ))}
+          </section>
+        )}
+        <section className="career-strengths">
+          <h3>Điểm nổi bật trong câu trả lời</h3>
+          <div>
+            {result.strengths.map((item) => (
+              <span key={item.facet}>
+                {labels[item.facet] || item.facet} <b>{item.score}</b>
+              </span>
+            ))}
+          </div>
+        </section>
+        <div className="career-disclaimer">
+          <i className="bi bi-info-circle" />
+          {result.matchMeaning}
+        </div>
+        <footer>
+          <div>
+            {!sent ? (
+              <>
+                <span>Kết quả này có hữu ích?</span>
+                <button onClick={() => feedback("helpful")}>
+                  <i className="bi bi-hand-thumbs-up" />
+                </button>
+                <button onClick={() => feedback("unsure")}>Chưa chắc</button>
+                <button onClick={() => feedback("not_helpful")}>
+                  <i className="bi bi-hand-thumbs-down" />
+                </button>
+              </>
+            ) : (
+              <span>Đã ghi nhận phản hồi.</span>
+            )}
+          </div>
+          <button className="career-primary-action" onClick={onClose}>
+            Xem lịch sử <i className="bi bi-arrow-right" />
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
 }

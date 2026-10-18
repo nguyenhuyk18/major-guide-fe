@@ -294,6 +294,23 @@
     margin-bottom: 1rem;
 }
 
+.expert-card-families {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px;
+    margin: -0.5rem 0 1rem;
+}
+
+.expert-card-families span {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
 .expert-card-bio {
     font-size: 0.9375rem;
     color: #4b5563;
