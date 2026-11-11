@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import '../../assets/css/AdminAIChat.css';
-import { confirmAiAction, sendChatAiMessage } from '../../services/chatai.api';
+import { confirmAiAction, sendChatAiMessage, toHistory } from '../../services/chatai.api';
+import { renderAiInline } from '../../components/AiInline';
 
 // ===================== AI RESPONSES =====================
 // const RESPONSES = {
@@ -205,12 +206,25 @@ import { confirmAiAction, sendChatAiMessage } from '../../services/chatai.api';
 //     createdAt: new Date()
 // };
 
-const PROMPTS = [
-    { id: 'dashboard', iconClass: 'is-blue', icon: 'bi bi-graph-up', title: 'Phân tích Dashboard', desc: 'Tổng quan các chỉ số và xu hướng' },
-    { id: 'expert', iconClass: 'is-purple', icon: 'bi bi-person-badge', title: 'Quản lý Chuyên gia', desc: 'Hướng dẫn thêm và quản lý hồ sơ' },
-    { id: 'report', iconClass: 'is-green', icon: 'bi bi-file-earmark-bar-graph', title: 'Báo cáo & Thống kê', desc: 'Xuất báo cáo và phân tích dữ liệu' },
-    { id: 'booking', iconClass: 'is-orange', icon: 'bi bi-calendar-check', title: 'Xử lý Lịch hẹn', desc: 'Quy trình duyệt và quản lý đơn đặt' },
-];
+const PROMPTS = {
+    admin: [
+        { id: 'upcoming', iconClass: 'is-blue', icon: 'bi bi-calendar-week', title: 'Lịch tư vấn sắp tới', desc: 'Các buổi đã thanh toán sắp diễn ra' },
+        { id: 'recent', iconClass: 'is-purple', icon: 'bi bi-person-check', title: 'Ai vừa đặt lịch?', desc: 'Booking mới nhất và trạng thái' },
+        { id: 'revenue', iconClass: 'is-green', icon: 'bi bi-graph-up-arrow', title: 'Doanh thu tháng này', desc: 'Tổng thu, phí nền tảng, lợi nhuận' },
+        { id: 'pending', iconClass: 'is-orange', icon: 'bi bi-hourglass-split', title: 'Đơn đăng ký lịch chờ duyệt', desc: 'Lịch trực chuyên gia cần xử lý' },
+    ],
+    expert: [
+        { id: 'tomorrow', iconClass: 'is-blue', icon: 'bi bi-calendar-event', title: 'Ngày mai tôi có lịch nào?', desc: 'Buổi tư vấn đã thanh toán' },
+        { id: 'recent', iconClass: 'is-purple', icon: 'bi bi-person-check', title: 'Học viên nào vừa đặt lịch?', desc: 'Booking mới nhất của bạn' },
+        { id: 'income', iconClass: 'is-green', icon: 'bi bi-wallet2', title: 'Thu nhập tháng này', desc: 'Số buổi và thu nhập của bạn' },
+        { id: 'week', iconClass: 'is-orange', icon: 'bi bi-calendar-range', title: 'Lịch tư vấn tuần này', desc: 'Tổng hợp các buổi trong tuần' },
+    ],
+};
+
+const QUICK = {
+    admin: ['Tổng quan dashboard hôm nay', 'Có thông báo nào chưa đọc?', 'Tìm chuyên gia ngành luật', 'Hôm nay có buổi tư vấn nào?'],
+    expert: ['Hôm nay tôi có buổi nào?', 'Ca trực tôi đã đăng ký tuần này', 'Có thông báo mới không?', 'Học viên đặt lịch cần thanh toán thế nào?'],
+};
 
 // ===================== HELPERS =====================
 // const getResponse = (q) => {
@@ -314,14 +328,7 @@ const parse = (content) => {
     return out;
 };
 
-const renderInline = (text) => {
-    const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
-    return parts.map((part, i) => {
-        if (part.startsWith('`') && part.endsWith('`')) return <code key={i}>{part.slice(1, -1)}</code>;
-        if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
-        return part;
-    });
-};
+const renderInline = (text) => renderAiInline(text);
 
 const renderContent = (content) => {
     const els = parse(content);
@@ -390,7 +397,7 @@ export default function AdminChatPage() {
 
     useEffect(() => {
         if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-    }, [chat.messages, typing]);
+    }, [chat, typing]);
 
     useEffect(() => {
         if (taRef.current) {
@@ -408,11 +415,11 @@ export default function AdminChatPage() {
         setTyping(true);
 
         try {
-            const rs = await sendChatAiMessage(text);
+            const rs = await sendChatAiMessage(text, toHistory(chat));
             const payload = rs.data?.data || rs.data || {};
             const aiResponse = payload.message || '';
             const experts = payload.experts || [];
-            const actions = Array.isArray(payload.actions) ? payload.actions : [];
+            const actions = Array.isArray(payload.actions) ? payload.actions.filter(action => action?.type === 'email_draft') : [];
 
             if (experts.length > 0) {
                 const am = {
@@ -434,12 +441,12 @@ export default function AdminChatPage() {
                 || error.response?.data?.detail
                 || error.message
                 || 'Đã xảy ra lỗi khi kết nối tới AI. Vui lòng thử lại.';
-            const am = { id: (Date.now() + 1).toString(), role: 'assistant', content: errorMsg, time: new Date() };
+            const am = { id: (Date.now() + 1).toString(), role: 'assistant', content: errorMsg, isError: true, time: new Date() };
             setChat(prev => [...prev, am]);
         } finally {
             setTyping(false);
         }
-    }, [input, typing]);
+    }, [input, typing, chat]);
 
     const confirmAction = async (messageId, action) => {
         if (!action?.id || confirmingAction) return;
@@ -474,6 +481,7 @@ export default function AdminChatPage() {
     };
 
     const lastName = userInfo?.name?.split(' ').pop() || 'Admin';
+    const role = userInfo?.role_name === 'expert' ? 'expert' : 'admin';
     // const charCount = input.length;
 
     return (
@@ -514,10 +522,12 @@ export default function AdminChatPage() {
                             <i className="bi bi-lightning-charge-fill" />
                         </div>
                         <h2>Chào mừng, {lastName}!</h2>
-                        <p>Tôi là AI Assistant của MajorGuide. Hỏi tôi về bất cứ điều gì liên quan đến việc quản lý hệ thống.</p>
+                        <p>{role === 'expert'
+                            ? 'Tôi là MajorGuide Copilot. Hỏi tôi về lịch tư vấn, học viên vừa đặt lịch, thu nhập hay ca trực của bạn.'
+                            : 'Tôi là MajorGuide Copilot. Hỏi tôi về lịch sắp tới, ai vừa đặt lịch, doanh thu, chuyên gia, đơn chờ duyệt hay soạn email.'}</p>
 
                         <div className="aichat-prompts">
-                            {PROMPTS.map(p => (
+                            {PROMPTS[role].map(p => (
                                 <button key={p.id} className="aichat-prompt-card" onClick={() => send(p.title)}>
                                     <div className={`aichat-prompt-icon ${p.iconClass}`}>
                                         <i className={p.icon} />
@@ -531,18 +541,11 @@ export default function AdminChatPage() {
                         </div>
 
                         <div className="aichat-quick-btns">
-                            <button className="aichat-quick-btn" onClick={() => send('Hướng dẫn quản lý blog')}>
-                                <i className="bi bi-pencil-square" /> Viết bài blog
-                            </button>
-                            <button className="aichat-quick-btn" onClick={() => send('Thống kê doanh thu tháng')}>
-                                <i className="bi bi-currency-dollar" /> Doanh thu
-                            </button>
-                            <button className="aichat-quick-btn" onClick={() => send('Cách thêm chuyên gia mới')}>
-                                <i className="bi bi-person-plus" /> Thêm chuyên gia
-                            </button>
-                            <button className="aichat-quick-btn" onClick={() => send('Quy trình xử lý đơn đặt lịch')}>
-                                <i className="bi bi-calendar-event" /> Xử lý đơn lịch
-                            </button>
+                            {QUICK[role].map(question => (
+                                <button key={question} className="aichat-quick-btn" onClick={() => send(question)}>
+                                    <i className="bi bi-chat-dots" /> {question}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 ) : (

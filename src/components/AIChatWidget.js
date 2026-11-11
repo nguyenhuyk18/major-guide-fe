@@ -1,15 +1,25 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../assets/css/AIChatWidget.css";
+import { Link } from "react-router-dom";
 import ExpertCardChat from "./ExpertCardChat";
-import { sendAiChatClient } from "../services/chatai.api";
+import { renderAiInline } from "./AiInline";
+import { sendMemberAiChat, toHistory } from "../services/chatai.api";
 import { useSelector } from "react-redux";
 
 const WELCOME_MESSAGE = {
   id: "welcome",
   role: "assistant",
-  content: `Xin chào! 👋 Tôi là trợ lý AI của MajorGuide. Tôi có thể giúp bạn:
-
-Chúng ta trò truyện với nhau nhé?`,
+  content: `Xin chào! 👋 Mình là trợ lý AI của MajorGuide. Mình có thể giúp bạn:
+- **Tư vấn chọn ngành** theo sở thích và thế mạnh
+- Giải thích **kết quả bài test gần nhất** của bạn
+- **Gợi ý giảng viên** phù hợp và tìm **lịch trống để đặt**
+- Xem **lịch tư vấn của bạn** và giải đáp cách dùng website`,
+  suggestions: [
+    "Kết quả bài test gần nhất của mình nói gì?",
+    "Gợi ý giảng viên phù hợp với mình",
+    "Mình muốn đặt lịch tư vấn",
+    "Lịch tư vấn sắp tới của mình",
+  ],
   time: new Date(),
 };
 
@@ -23,6 +33,7 @@ const TypingIndicator = () => (
 
 const AIChatWidget = () => {
   const isLogin = useSelector((state) => state.authClientReducer.isLogin);
+  const userInfo = useSelector((state) => state.authClientReducer.loggedUser);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [inputValue, setInputValue] = useState("");
@@ -47,135 +58,47 @@ const AIChatWidget = () => {
     }
   }, [isOpen]);
 
-  const parseContent = (content) => {
-    if (typeof content !== "string") return null;
-    try {
-      return JSON.parse(content);
-    } catch {
-      return null;
-    }
-  };
-
   const handleSend = async (question = inputValue.trim()) => {
     if (!question || isTyping) return;
-    if (!isLogin) {
+    const reply = (content, extra = {}) =>
       setMessages((prev) => [
         ...prev,
-        {
-          id: Date.now().toString(),
-          role: "assistant",
-          content:
-            "Vui lòng đăng nhập tài khoản học viên để sử dụng trợ lý tư vấn nghề nghiệp.",
-          time: new Date(),
-        },
+        { id: `${Date.now()}-${Math.random()}`, role: "assistant", content, time: new Date(), ...extra },
       ]);
+
+    if (!isLogin) {
+      setMessages((prev) => [...prev, { id: Date.now().toString(), role: "user", content: question, time: new Date() }]);
+      reply("Vui lòng bấm **Đăng nhập** ở góc trên bằng tài khoản học viên để sử dụng trợ lý tư vấn nghề nghiệp.", {
+        isError: true,
+      });
+      setInputValue("");
+      return;
+    }
+    if (userInfo?.role_name && userInfo.role_name !== "member") {
+      reply("Trợ lý này dành cho học viên. Tài khoản admin/chuyên gia dùng MajorGuide Copilot trong trang quản trị.", { isError: true });
       return;
     }
 
-    const userMsg = {
-      id: Date.now().toString(),
-      role: "user",
-      content: question,
-      time: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
+    const history = toHistory(messages);
+    setMessages((prev) => [...prev, { id: Date.now().toString(), role: "user", content: question, time: new Date() }]);
     setInputValue("");
     setIsTyping(true);
 
     try {
-      // Gọi endpoint RAG: /api/v2/chat-ai/rag
-      const history = messages
-        .filter(
-          (message) =>
-            message.id !== "welcome" && typeof message.content === "string"
-        )
-        .slice(-8)
-        .map((message) => ({
-          role: message.role,
-          content: message.content.slice(0, 1200),
-        }));
-      const rs = await sendAiChatClient(question, history);
-      // BFF trả về: { data: { answer, context_used, results_count, query } }
-      const rawData = rs.data?.data;
-
-      let parsedData = null;
-      if (rawData && typeof rawData === "object" && rawData.answer) {
-        // RAG response: { answer, context_used, results_count, query }
-        parsedData = rawData;
-      } else if (rawData && typeof rawData === "object" && rawData.message) {
-        // Tool response: { message, experts?, email1?, emailContent? }
-        parsedData = rawData;
-      } else if (typeof rawData === "string") {
-        parsedData = parseContent(rawData);
-      }
-
-      // ── Trường hợp 1: expert list (từ tool all_expert) ──
-      if (parsedData?.experts && Array.isArray(parsedData.experts)) {
-        const aiMsg = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          time: new Date(),
-          isExpertList: true,
-          experts: parsedData.experts,
-          content:
-            parsedData.message ||
-            `Tìm thấy ${parsedData.experts.length} chuyên gia phù hợp.`,
-        };
-        setIsTyping(false);
-        setMessages((prev) => [...prev, aiMsg]);
-        return;
-      }
-
-      // ── Trường hợp 2: RAG response (answer) ──
-      if (parsedData?.answer) {
-        const aiMsg = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          time: new Date(),
-          isExpertList: false,
-          experts: null,
-          content: parsedData.answer,
-          sources: parsedData.sources || [],
-          suggestions: parsedData.suggested_questions || [],
-          retrieval: parsedData.retrieval,
-          generation: parsedData.generation,
-          disclaimer: parsedData.disclaimer,
-        };
-        setIsTyping(false);
-        setMessages((prev) => [...prev, aiMsg]);
-        return;
-      }
-
-      // ── Trường hợp 3: fallback – plain text message ──
-      const aiMsg = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        time: new Date(),
-        isExpertList: false,
-        experts: null,
-        content: parsedData?.message || String(rawData) || "Không có phản hồi.",
-      };
-      setIsTyping(false);
-      setMessages((prev) => [...prev, aiMsg]);
+      const rs = await sendMemberAiChat(question, history);
+      const data = rs.data?.data || {};
+      reply(data.message || "Xin lỗi, mình chưa có câu trả lời. Bạn thử hỏi lại nhé.", {
+        actions: Array.isArray(data.actions) ? data.actions : [],
+      });
     } catch (err) {
-      setIsTyping(false);
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.detail ||
-        (err.code === "ECONNABORTED"
-          ? "AI phản hồi quá lâu. Vui lòng thử lại."
-          : "") ||
+        (err.code === "ECONNABORTED" ? "AI phản hồi quá lâu. Vui lòng thử lại." : "") ||
         "Không thể kết nối với trợ lý AI. Vui lòng thử lại sau.";
-      const aiMsg = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        time: new Date(),
-        isExpertList: false,
-        experts: null,
-        content: errorMessage,
-      };
-      setMessages((prev) => [...prev, aiMsg]);
+      reply(typeof errorMessage === "string" ? errorMessage : "Không thể kết nối với trợ lý AI.", { isError: true });
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -195,21 +118,50 @@ const AIChatWidget = () => {
 
   const renderMessageContent = (content) => {
     if (!content) return null;
-    const lines = content.split("\n");
-    return lines.map((line, idx) => {
+    return content.split("\n").map((line, idx) => {
       const trimmed = line.trim();
       if (!trimmed) return <br key={idx} />;
-
-      const parts = trimmed.split(/(\*\*[^*]+\*\*)/g);
-      const rendered = parts.map((part, i) => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return <strong key={i}>{part.slice(2, -2)}</strong>;
-        }
-        return part;
-      });
-
-      return <div key={idx}>{rendered}</div>;
+      const bullet = trimmed.match(/^(?:[-*•]|\d+[.)])\s+(.*)$/);
+      const heading = trimmed.match(/^#{1,4}\s+(.*)$/);
+      if (heading) return <div key={idx} className="ai-msg-heading">{renderAiInline(heading[1])}</div>;
+      if (bullet) return <div key={idx} className="ai-msg-bullet">{renderAiInline(bullet[1])}</div>;
+      return <div key={idx}>{renderAiInline(trimmed)}</div>;
     });
+  };
+
+  const renderActions = (msg) => {
+    const actions = msg.actions || [];
+    const experts = actions.filter((action) => action.type === "experts").flatMap((action) => action.experts || []);
+    const links = actions.filter((action) => action.type === "link");
+    return (
+      <>
+        {!!experts.length && (
+          <div className="ai-expert-list">
+            <div className="ai-expert-list-scroll">
+              {experts.map((expert) => <ExpertCardChat key={expert.id} expert={expert} />)}
+            </div>
+          </div>
+        )}
+        {!!links.length && (
+          <div className="ai-action-links">
+            {links.map((action) => (
+              <Link key={action.href} to={action.href} className="ai-action-link">
+                <i className="bi bi-arrow-right-circle"></i> {action.label}
+              </Link>
+            ))}
+          </div>
+        )}
+        {!!msg.suggestions?.length && (
+          <div className="ai-rag-followups">
+            {msg.suggestions.map((suggestion) => (
+              <button key={suggestion} onClick={() => handleSend(suggestion)} disabled={isTyping}>
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
+      </>
+    );
   };
 
   return (
@@ -309,98 +261,10 @@ const AIChatWidget = () => {
                     </div>
                   )}
                   <div className="ai-msg-bubble">
-                    {msg.isExpertList ? (
-                      <div className="ai-expert-list">
-                        <div className="ai-expert-list-header">
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
-                              stroke="#6366f1"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                            />
-                            <circle
-                              cx="9"
-                              cy="7"
-                              r="4"
-                              stroke="#6366f1"
-                              strokeWidth="2"
-                            />
-                            <path
-                              d="M23 21v-2a4 4 0 0 0-3-3.87"
-                              stroke="#6366f1"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                            />
-                            <path
-                              d="M16 3.13a4 4 0 0 1 0 7.75"
-                              stroke="#6366f1"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                          <span>{msg.content}</span>
-                        </div>
-                        <div className="ai-expert-list-scroll">
-                          {msg.experts.map((expert) => (
-                            <ExpertCardChat key={expert.id} expert={expert} />
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="ai-msg-content">
-                        {renderMessageContent(msg.content)}
-                        {msg.generation === "fallback" && (
-                          <div className="ai-rag-fallback">
-                            <i className="bi bi-exclamation-triangle"></i> Groq
-                            chưa khả dụng; đây là kết quả retrieval trực tiếp từ
-                            kho nghề.
-                          </div>
-                        )}
-                        {!!msg.sources?.length && (
-                          <div className="ai-rag-sources">
-                            <span>
-                              <i className="bi bi-journal-text"></i> Nguồn nghề
-                              nghiệp
-                            </span>
-                            {msg.sources.map((source) => (
-                              <div key={source.id} className="ai-rag-source">
-                                <b>
-                                  [{source.id}] {source.title}
-                                </b>
-                                <small>
-                                  {source.minimum_education ||
-                                    "Chưa có thông tin học vấn tối thiểu"}
-                                </small>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {!!msg.suggestions?.length && (
-                          <div className="ai-rag-followups">
-                            {msg.suggestions.slice(0, 3).map((suggestion) => (
-                              <button
-                                key={suggestion}
-                                onClick={() => handleSend(suggestion)}
-                                disabled={isTyping}
-                              >
-                                {suggestion}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {msg.disclaimer && (
-                          <small className="ai-rag-disclaimer">
-                            {msg.disclaimer}
-                          </small>
-                        )}
-                      </div>
-                    )}
+                    <div className="ai-msg-content">
+                      {renderMessageContent(msg.content)}
+                      {renderActions(msg)}
+                    </div>
                     <span className="ai-msg-time">{formatTime(msg.time)}</span>
                   </div>
                 </div>

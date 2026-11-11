@@ -1,4 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+
+const LEVEL_LABELS = { bachelor: 'Cử nhân', master: 'Thạc sĩ', doctor: 'Tiến sĩ', phd: 'Tiến sĩ', professor: 'Giáo sư' };
 
 const LEVEL_COLORS = {
     'Cử nhân':    { bg: '#dbeafe',   text: '#1d4ed8' },
@@ -24,7 +27,8 @@ const formatPrice = (price) => {
 };
 
 const ExpertCardChat = ({ expert }) => {
-    const levelStyle = LEVEL_COLORS[expert.level] || LEVEL_COLORS['Không rõ'];
+    const level = LEVEL_LABELS[String(expert.level || '').toLowerCase()] || expert.level || 'Không rõ';
+    const levelStyle = LEVEL_COLORS[level] || LEVEL_COLORS['Không rõ'];
     const statusColor = STATUS_COLORS[expert.status] || STATUS_COLORS['active'];
 
     return (
@@ -50,7 +54,7 @@ const ExpertCardChat = ({ expert }) => {
                         className="ecc-level-badge"
                         style={{ background: levelStyle.bg, color: levelStyle.text }}
                     >
-                        {expert.level}
+                        {level}
                     </span>
                 </div>
             </div>
@@ -64,20 +68,26 @@ const ExpertCardChat = ({ expert }) => {
             )}
 
             {/* Information */}
-            {expert.information && (
-                <div className="ecc-bio">{expert.information}</div>
+            {expert.matchReason && (
+                <div className="ecc-row ecc-reason">
+                    <i className="bi bi-stars ecc-icon" />
+                    <span>{expert.matchReason}</span>
+                </div>
+            )}
+
+            {(expert.information || expert.about) && (
+                <div className="ecc-bio">{expert.information || expert.about}</div>
             )}
 
             {/* Price */}
             <div className="ecc-price-row">
                 <span className="ecc-price">{formatPrice(expert.price)}</span>
-                <a
-                    href={`/expert/${expert.id}`}
-                    className="ecc-btn-book"
-                    onClick={(e) => e.preventDefault()}
-                >
+                <Link to={`/experts/${encodeURIComponent(expert.id)}`} className="ecc-btn-profile">
+                    Hồ sơ
+                </Link>
+                <Link to={`/choose-schedule?expert_id=${encodeURIComponent(expert.id)}`} className="ecc-btn-book">
                     Đặt tư vấn
-                </a>
+                </Link>
             </div>
         </div>
     );

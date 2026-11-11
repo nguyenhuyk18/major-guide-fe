@@ -769,3 +769,41 @@
 }
 .ai-rag-sources{margin-top:12px;padding-top:10px;border-top:1px solid rgba(99,102,241,.18);display:grid;gap:7px}.ai-rag-sources>span{font-size:11px;font-weight:800;color:#4f46e5}.ai-rag-source{display:flex;flex-direction:column;padding:8px 9px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0}.ai-rag-source b{font-size:11px;color:#334155}.ai-rag-source small{margin-top:2px;font-size:10px;color:#64748b}.ai-rag-followups{display:grid;gap:6px;margin-top:10px}.ai-rag-followups button{text-align:left;border:1px solid #c7d2fe;background:#eef2ff;color:#4338ca;border-radius:9px;padding:7px 9px;font-size:10px}.ai-rag-followups button:hover{background:#e0e7ff}.ai-rag-disclaimer{display:block;margin-top:9px;color:#94a3b8;font-size:9px;line-height:1.4}
 .ai-rag-fallback{margin-top:9px;padding:7px 8px;border-radius:8px;background:#fff7ed;color:#9a3412;font-size:10px;line-height:1.4}
+
+/* ── AI agent: actions, links, lists ── */
+.ecc-price-row .ecc-price { margin-right: auto; }
+.ecc-btn-profile {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid #c7d2fe;
+    color: #4338ca;
+    background: #fff;
+    white-space: nowrap;
+}
+.ecc-btn-profile:hover { background: #eef2ff; }
+.ecc-reason { color: #4338ca; font-size: 0.72rem; line-height: 1.4; }
+.ai-msg-bullet { position: relative; padding-left: 14px; margin: 2px 0; }
+.ai-msg-bullet::before { content: "•"; position: absolute; left: 2px; color: #6366f1; font-weight: 700; }
+.ai-msg-heading { font-weight: 700; margin: 6px 0 2px; }
+.ai-inline-link { color: #4f46e5; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.ai-msg-user .ai-inline-link { color: inherit; }
+.ai-action-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ai-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    color: #4338ca;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.ai-action-link:hover { background: #e0e7ff; color: #3730a3; }
+.ai-chat-window .ai-expert-list { margin-top: 10px; }

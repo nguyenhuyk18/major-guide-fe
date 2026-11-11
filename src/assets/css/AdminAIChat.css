@@ -941,3 +941,5 @@
 .aichat-action-result.queued { background: rgba(16, 185, 129, .12); color: #4ade80; }
 .aichat-action-result.cancelled { background: rgba(100, 116, 139, .14); color: #a8b4c5; }
 .aichat-action-result.failed { background: rgba(239, 68, 68, .12); color: #fb7185; }
+
+.aichat-bubble .ai-inline-link { color: #4f46e5; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
